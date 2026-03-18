@@ -42,7 +42,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - 예시: "이 섹션에서는 Delta Lake의 핵심 개념을 살펴보겠습니다. ACID 트랜잭션이 왜 중요한지 이해하고 나면, 데이터 파이프라인을 훨씬 안정적으로 설계하실 수 있습니다."
 - **톤**: 친절하고 쉬운 설명, 비유와 실생활 예시 적극 활용. 독자를 전문가로 성장시키는 멘토의 관점
 - **구조**: 각 문서는 "왜 필요한가 → 핵심 개념 → 동작 원리 → 실습 예제 → 정리" 흐름으로 구성
-- **시각 자료**: Mermaid 다이어그램, 표, 코드 블록을 적극 활용하여 이해도 향상
+- **시각 자료**:
+  - **공식 문서 이미지 우선 활용**: Databricks 공식 문서(docs.databricks.com)에 아키텍처 다이어그램, 스크린샷 등이 있으면 해당 이미지를 직접 활용합니다. 아키텍처를 따로 그리지 않습니다.
+  - 이미지 삽입 형식: `![설명](이미지URL)` 으로 공식 문서의 이미지를 임베딩하되, 아래에 원본 페이지 링크를 명시합니다.
+  - 공식 이미지가 없는 경우에만 Mermaid 다이어그램으로 보충합니다.
+  - 표, 코드 블록도 적극 활용합니다.
 
 ### Industry Terminology (산업 표준 용어)
 - Databricks 고유 용어가 아닌 **산업 표준 용어**(예: ACID, CDC, SCD, OLTP, OLAP, MPP, Columnar Storage, Schema-on-Read/Write, Data Mesh, Data Fabric 등)가 등장하면 반드시 별도의 상세 설명을 함께 제공
