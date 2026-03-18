@@ -10,12 +10,12 @@
 
 ## 문서 목록
 
-| 순서 | 파일명 | 내용 |
-|------|--------|------|
-| 1 | `aibi-overview.md` | AI/BI 개요 — Databricks의 BI 전략과 구성 요소 |
-| 2 | `lakeview-dashboards.md` | AI/BI 대시보드 — 생성, 위젯 구성, 필터, 시각화 유형 |
-| 3 | `genie.md` | Genie — 자연어로 데이터에 질문하기, Genie Space 구성 |
-| 4 | `alerts-and-scheduling.md` | 알림과 스케줄링 — 조건 기반 알림, 대시보드 자동 갱신 |
+| 순서 | 문서 | 내용 |
+|------|------|------|
+| 1 | [AI/BI 개요](aibi-overview.md) | Databricks의 BI 전략과 구성 요소를 소개합니다 |
+| 2 | [AI/BI 대시보드](lakeview-dashboards.md) | 대시보드 생성, 위젯 구성, 필터, 시각화 유형을 다룹니다 |
+| 3 | [Genie](genie.md) | 자연어로 데이터에 질문하기, Genie Space 구성을 안내합니다 |
+| 4 | [알림과 스케줄링](alerts-and-scheduling.md) | 조건 기반 알림, 대시보드 자동 갱신을 설명합니다 |
 
 ## 참고 문서
 - [Databricks: AI/BI](https://docs.databricks.com/aws/en/aibi/)

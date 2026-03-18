@@ -10,13 +10,13 @@
 
 ## 문서 목록
 
-| 순서 | 파일명 | 내용 |
-|------|--------|------|
-| 1 | `what-is-databricks.md` | Databricks란? — 탄생 배경, 핵심 가치, 플랫폼 개요 |
-| 2 | `databricks-architecture.md` | Databricks 아키텍처 — Control Plane vs Data Plane, 클라우드별 구조 |
-| 3 | `workspace-ui-tour.md` | Workspace UI 둘러보기 — 주요 메뉴, 네비게이션, 기본 사용법 |
-| 4 | `notebooks-basics.md` | Notebook 사용법 — 셀 실행, 언어 전환, 시각화, 협업 기능 |
-| 5 | `getting-started-trial.md` | 무료 체험 시작하기 — 계정 생성부터 첫 쿼리 실행까지 |
+| 순서 | 문서 | 내용 |
+|------|------|------|
+| 1 | [Databricks란?](what-is-databricks.md) | 탄생 배경, 핵심 가치, 플랫폼 구성 요소를 소개합니다 |
+| 2 | [Databricks 아키텍처](databricks-architecture.md) | Control Plane vs Data Plane, 클라우드별 구조를 설명합니다 |
+| 3 | [Workspace UI 둘러보기](workspace-ui-tour.md) | 주요 메뉴, 네비게이션, 기본 사용법을 안내합니다 |
+| 4 | [Notebook 사용법](notebooks-basics.md) | 셀 실행, 언어 전환, 시각화, 협업 기능을 다룹니다 |
+| 5 | [무료 체험 시작하기](getting-started-trial.md) | 계정 생성부터 첫 쿼리 실행까지 안내합니다 |
 
 ## 참고 문서
 - [Databricks: Get started](https://docs.databricks.com/aws/en/getting-started)

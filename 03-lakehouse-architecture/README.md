@@ -10,13 +10,13 @@
 
 ## 문서 목록
 
-| 순서 | 파일명 | 내용 |
-|------|--------|------|
-| 1 | `what-is-lakehouse.md` | 레이크하우스란? — 데이터 웨어하우스 + 데이터 레이크의 통합 |
-| 2 | `delta-lake-fundamentals.md` | Delta Lake 핵심 — ACID 트랜잭션, 타임 트래블, 스키마 진화 |
-| 3 | `medallion-architecture.md` | Medallion 아키텍처 — Bronze/Silver/Gold 계층 설계 패턴 |
-| 4 | `delta-lake-operations.md` | Delta Lake 실전 — MERGE, UPDATE, DELETE, OPTIMIZE, VACUUM |
-| 5 | `delta-and-iceberg.md` | Delta Lake & Iceberg — UniForm, 외부 엔진 연동, 상호 운용성 |
+| 순서 | 문서 | 내용 |
+|------|------|------|
+| 1 | [레이크하우스란?](what-is-lakehouse.md) | 데이터 웨어하우스 + 데이터 레이크의 통합 아키텍처를 설명합니다 |
+| 2 | [Delta Lake 핵심](delta-lake-fundamentals.md) | ACID 트랜잭션, 타임 트래블, 스키마 진화의 원리를 다룹니다 |
+| 3 | [Medallion 아키텍처](medallion-architecture.md) | Bronze/Silver/Gold 계층 설계 패턴과 모범 사례를 안내합니다 |
+| 4 | [Delta Lake 실전](delta-lake-operations.md) | MERGE, OPTIMIZE, VACUUM, Liquid Clustering 조작법을 다룹니다 |
+| 5 | [Delta Lake & Iceberg](delta-and-iceberg.md) | UniForm, Iceberg REST Catalog, 상호 운용성을 설명합니다 |
 
 ## 참고 문서
 - [Databricks: What is a data lakehouse?](https://docs.databricks.com/aws/en/lakehouse/)

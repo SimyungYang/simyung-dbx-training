@@ -10,11 +10,11 @@
 
 ## 문서 목록
 
-| 순서 | 파일명 | 내용 |
-|------|--------|------|
-| 1 | `feature-engineering-overview.md` | Feature Engineering 개요 — 개념, 피처 테이블, 워크플로우 |
-| 2 | `feature-table-management.md` | 피처 테이블 관리 — 생성, 업데이트, Unity Catalog 통합 |
-| 3 | `online-serving.md` | 실시간 피처 서빙 — Online Table, 모델 서빙 연동 |
+| 순서 | 문서 | 내용 |
+|------|------|------|
+| 1 | [Feature Engineering 개요](feature-engineering-overview.md) | 개념, 피처 테이블, 워크플로우를 설명합니다 |
+| 2 | [피처 테이블 관리](feature-table-management.md) | 생성, 업데이트, 학습 데이터 결합(FeatureLookup)을 다룹니다 |
+| 3 | [실시간 피처 서빙](online-serving.md) | Online Table 생성, Model Serving 연동을 안내합니다 |
 
 ## 참고 문서
 - [Databricks: Feature Engineering](https://docs.databricks.com/aws/en/machine-learning/feature-store/)

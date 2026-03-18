@@ -11,13 +11,13 @@
 
 ## 문서 목록
 
-| 순서 | 파일명 | 내용 |
-|------|--------|------|
-| 1 | `rdb-fundamentals.md` | 관계형 데이터베이스 기초 — 테이블, 키, 조인, SQL, ACID |
-| 2 | `schema-design-patterns.md` | 데이터 모델링 — 정규화, 비정규화, Star 스키마, Snowflake 스키마 |
-| 3 | `bigdata-history.md` | 빅데이터의 역사 — Google 논문에서 Hadoop, Spark, 레이크하우스까지 |
-| 4 | `bigdata-ecosystem.md` | 빅데이터 생태계 — 주요 솔루션, 빅 플레이어, 기술 지도 |
-| 5 | `realtime-processing.md` | 실시간 처리 기술 — Kafka, Flink, Spark Streaming, 이벤트 드리븐 아키텍처 |
+| 순서 | 문서 | 내용 |
+|------|------|------|
+| 1 | [관계형 데이터베이스 기초](rdb-fundamentals.md) | 테이블, 키, 조인, SQL, ACID — RDB의 핵심 개념을 정리합니다 |
+| 2 | [데이터 모델링 — Star/Snowflake 스키마](schema-design-patterns.md) | 정규화, 비정규화, 팩트/디멘전, Star 스키마, Snowflake 스키마 설계 패턴을 다룹니다 |
+| 3 | [빅데이터의 역사](bigdata-history.md) | Google 논문에서 Hadoop, Spark, 레이크하우스까지의 기술 진화 흐름을 살펴봅니다 |
+| 4 | [빅데이터 생태계](bigdata-ecosystem.md) | 주요 솔루션, 빅 플레이어, 기술 지도를 한눈에 정리합니다 |
+| 5 | [실시간 처리 기술](realtime-processing.md) | Kafka, Flink, Spark Streaming, 이벤트 드리븐 아키텍처를 설명합니다 |
 
 ## 참고 문서
 - [Databricks: What is big data?](https://www.databricks.com/glossary/big-data)

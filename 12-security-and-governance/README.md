@@ -10,12 +10,12 @@
 
 ## 문서 목록
 
-| 순서 | 파일명 | 내용 |
-|------|--------|------|
-| 1 | `security-overview.md` | 보안 개요 — Databricks 보안 모델, 책임 분담(Shared Responsibility) |
-| 2 | `identity-and-access.md` | 인증과 접근 제어 — SSO, SCIM, 서비스 프린시팔, PAT |
-| 3 | `network-security.md` | 네트워크 보안 — VPC/VNet, Private Link, IP 제한 |
-| 4 | `system-tables.md` | 시스템 테이블 — 감사 로그, 빌링, 리니지, 사용량 추적 |
+| 순서 | 문서 | 내용 |
+|------|------|------|
+| 1 | [보안 개요](security-overview.md) | Databricks 보안 모델, 공유 책임 모델을 설명합니다 |
+| 2 | [인증과 접근 제어](identity-and-access.md) | SSO, SCIM, 서비스 프린시팔, PAT, OAuth를 다룹니다 |
+| 3 | [네트워크 보안](network-security.md) | VPC/VNet, Private Link, IP 제한을 안내합니다 |
+| 4 | [시스템 테이블](system-tables.md) | 감사 로그, 빌링, 리니지, 사용량 추적을 SQL 예제와 함께 설명합니다 |
 
 ## 참고 문서
 - [Databricks: Security and Compliance](https://docs.databricks.com/aws/en/security/)

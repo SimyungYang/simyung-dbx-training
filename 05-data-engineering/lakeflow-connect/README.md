@@ -9,11 +9,11 @@
 
 ## 문서 목록
 
-| 순서 | 파일명 | 내용 |
-|------|--------|------|
-| 1 | `what-is-lakeflow-connect.md` | Lakeflow Connect란? — 개념, 지원 소스, 동작 방식 |
-| 2 | `ingestion-pipeline-setup.md` | 수집 파이프라인 구성 — 소스 연결, 테이블 매핑, 스케줄 설정 |
-| 3 | `lakeflow-connect-hands-on.md` | 실습 — 외부 DB에서 CDC 기반 데이터 수집 구성 |
+| 순서 | 문서 | 내용 |
+|------|------|------|
+| 1 | [Lakeflow Connect란?](what-is-lakeflow-connect.md) | 개념, 지원 소스(DB/SaaS/파일), 동작 방식을 설명합니다 |
+| 2 | [수집 파이프라인 구성](ingestion-pipeline-setup.md) | Connection 생성, 테이블 매핑, 모니터링을 안내합니다 |
+| 3 | [Lakeflow Connect 실습](lakeflow-connect-hands-on.md) | 외부 DB에서 CDC 기반 데이터 수집을 구성합니다 |
 
 ## 참고 문서
 - [Databricks: Lakeflow Connect](https://docs.databricks.com/aws/en/lakeflow-connect/)
