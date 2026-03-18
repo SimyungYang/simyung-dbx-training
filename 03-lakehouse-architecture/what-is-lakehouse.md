@@ -105,37 +105,13 @@ graph TB
 
 ## Databricks 레이크하우스의 구성 요소
 
+아래는 Databricks 공식 문서의 레이크하우스 아키텍처 다이어그램입니다.
+
+![Databricks Lakehouse Architecture](https://docs.databricks.com/aws/en/assets/images/lakehouse-diagram-865ba5c041f60df99ff6bee1ebaad26d.png)
+
+*출처: [Databricks 공식 문서 — What is a data lakehouse?](https://docs.databricks.com/aws/en/lakehouse/)*
+
 Databricks의 레이크하우스는 다음 요소들로 구성됩니다.
-
-```mermaid
-graph TB
-    subgraph Lakehouse["Databricks Lakehouse"]
-        direction TB
-        UC["🛡️ Unity Catalog<br/>통합 거버넌스"]
-
-        subgraph Storage["💾 스토리지 레이어"]
-            CS["클라우드 오브젝트 스토리지<br/>(S3, ADLS, GCS)"]
-            DL["Delta Lake<br/>(트랜잭션 + 스키마 관리)"]
-            CS --> DL
-        end
-
-        subgraph Engine["⚡ 컴퓨팅 레이어"]
-            SP["Apache Spark<br/>(분산 처리)"]
-            PH["Photon Engine<br/>(고속 SQL)"]
-        end
-
-        subgraph Consume["📊 분석 레이어"]
-            SQL["Databricks SQL"]
-            ML["MLflow + AI"]
-            BI["AI/BI Dashboard"]
-        end
-
-        UC -.-> Storage
-        UC -.-> Engine
-        UC -.-> Consume
-        Storage --> Engine --> Consume
-    end
-```
 
 | 레이어 | 구성 요소 | 역할 |
 |--------|-----------|------|
