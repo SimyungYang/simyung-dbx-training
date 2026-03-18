@@ -1,24 +1,79 @@
 # 모델 레지스트리
 
-## Unity Catalog 기반 모델 관리
+## 모델 레지스트리란?
+
+> 💡 **Model Registry(모델 레지스트리)**는 학습된 ML 모델의 **버전을 관리**하고, 프로덕션 승격(Promotion)을 제어하는 중앙 저장소입니다. Databricks에서는 **Unity Catalog**와 통합되어, 모델에도 테이블과 동일한 거버넌스(권한, 리니지, 감사)가 적용됩니다.
+
+---
+
+## 왜 모델 레지스트리가 필요한가요?
+
+모델 학습을 반복하다 보면, "어떤 버전이 프로덕션에 배포되어 있지?", "이전 버전으로 롤백하려면?", "누가 이 모델을 승인했지?" 같은 질문이 생깁니다. Model Registry는 이 문제를 체계적으로 해결합니다.
+
+| 문제 | Registry의 해결 |
+|------|----------------|
+| 어떤 버전이 프로덕션인지 모름 | **Alias** (champion, challenger)로 명확히 표시 |
+| 이전 버전으로 롤백이 어려움 | 모든 **버전이 보존**. Alias만 변경하면 롤백 완료 |
+| 모델의 출처를 모름 | **리니지** 추적 — 어떤 데이터, 어떤 실험에서 생성되었는지 |
+| 권한 관리가 어려움 | Unity Catalog의 **GRANT/REVOKE**로 접근 제어 |
+| 모델 변경 이력 추적 | 모든 변경이 **감사 로그**에 기록 |
+
+---
+
+## 모델 등록
+
+### MLflow에서 모델 등록
 
 ```python
-# 모델을 Unity Catalog에 등록
-mlflow.set_registry_uri("databricks-uc")
+import mlflow
 
+# 방법 1: 학습 중 직접 등록
+mlflow.set_registry_uri("databricks-uc")  # Unity Catalog 사용
+
+with mlflow.start_run():
+    mlflow.sklearn.log_model(
+        model,
+        artifact_path="model",
+        registered_model_name="catalog.schema.fraud_detection"  # UC 3-Level 이름
+    )
+
+# 방법 2: 기존 Run에서 나중에 등록
 model_uri = f"runs:/{run_id}/model"
-mlflow.register_model(model_uri, "catalog.schema.fraud_detection_model")
+mlflow.register_model(model_uri, "catalog.schema.fraud_detection")
+```
+
+### 등록된 모델의 위치
+
+```
+Unity Catalog:
+  catalog
+    └── schema
+         ├── tables (테이블)
+         ├── volumes (파일)
+         └── models (ML 모델)  ← 여기에 등록됩니다
+              └── fraud_detection
+                   ├── Version 1 (2025-01-15)
+                   ├── Version 2 (2025-02-20)
+                   └── Version 3 (2025-03-10) ← champion
 ```
 
 ---
 
-## 모델 버전 관리
+## 버전 관리
 
-| 개념 | 설명 |
-|------|------|
-| **Version** | 모델의 각 버전에 자동으로 번호가 부여됩니다 (v1, v2, v3...) |
-| **Alias** | 특정 버전에 "champion", "challenger" 같은 별칭을 부여합니다 |
-| **Tags** | 모델에 메타데이터 태그를 달아 검색과 관리를 용이하게 합니다 |
+모델을 등록할 때마다 자동으로 **새 버전**이 생성됩니다.
+
+| 버전 | 등록일 | 메트릭 | 상태 |
+|------|--------|--------|------|
+| v1 | 2025-01-15 | accuracy: 0.89 | 아카이브 |
+| v2 | 2025-02-20 | accuracy: 0.92 | 아카이브 |
+| v3 | 2025-03-10 | accuracy: 0.95 | **champion** (프로덕션) |
+
+---
+
+## Alias (별칭)
+
+> 💡 **Alias**는 특정 모델 버전에 부여하는 **별칭**입니다. "champion"은 현재 프로덕션에 배포된 버전, "challenger"는 테스트 중인 다음 버전을 의미하는 것이 일반적입니다.
 
 ```python
 from mlflow import MlflowClient
@@ -26,14 +81,126 @@ from mlflow import MlflowClient
 client = MlflowClient()
 
 # "champion" 별칭을 버전 3에 부여
-client.set_registered_model_alias("catalog.schema.fraud_model", "champion", version=3)
+client.set_registered_model_alias(
+    name="catalog.schema.fraud_detection",
+    alias="champion",
+    version=3
+)
 
-# champion 모델 로드
-model = mlflow.pyfunc.load_model("models:/catalog.schema.fraud_model@champion")
+# "challenger" 별칭을 버전 4에 부여 (A/B 테스트용)
+client.set_registered_model_alias(
+    name="catalog.schema.fraud_detection",
+    alias="challenger",
+    version=4
+)
+
+# champion 모델 로드 (프로덕션 배포 시)
+champion_model = mlflow.pyfunc.load_model(
+    "models:/catalog.schema.fraud_detection@champion"
+)
+
+# 버전 번호로 로드
+specific_model = mlflow.pyfunc.load_model(
+    "models:/catalog.schema.fraud_detection/3"
+)
 ```
+
+### 롤백
+
+문제가 발생하면 Alias만 변경하여 즉시 롤백합니다.
+
+```python
+# v3에 문제 발생 → v2로 즉시 롤백
+client.set_registered_model_alias(
+    name="catalog.schema.fraud_detection",
+    alias="champion",
+    version=2  # 이전 버전으로 변경
+)
+# → Model Serving이 @champion을 참조하고 있다면, 즉시 v2로 전환됩니다
+```
+
+---
+
+## Tags (태그)
+
+모델에 메타데이터 태그를 달아 검색과 관리를 용이하게 합니다.
+
+```python
+# 모델 태그 추가
+client.set_registered_model_tag(
+    name="catalog.schema.fraud_detection",
+    key="team",
+    value="risk-analytics"
+)
+
+client.set_model_version_tag(
+    name="catalog.schema.fraud_detection",
+    version=3,
+    key="validation_status",
+    value="approved"
+)
+
+client.set_model_version_tag(
+    name="catalog.schema.fraud_detection",
+    version=3,
+    key="approved_by",
+    value="kim@company.com"
+)
+```
+
+---
+
+## 모델 권한 관리
+
+Unity Catalog에 등록된 모델은 테이블과 동일한 권한 체계로 관리됩니다.
+
+```sql
+-- 특정 팀에게 모델 사용 권한 부여
+GRANT EXECUTE ON MODEL catalog.schema.fraud_detection TO `ml_engineers`;
+
+-- 모델 등록 권한 부여
+GRANT CREATE MODEL ON SCHEMA catalog.schema TO `data_scientists`;
+
+-- 현재 권한 확인
+SHOW GRANTS ON MODEL catalog.schema.fraud_detection;
+```
+
+---
+
+## Model Serving 연동
+
+등록된 모델을 Model Serving 엔드포인트에 배포합니다.
+
+```python
+# Alias를 참조하여 배포 → Alias 변경 시 자동 전환
+w.serving_endpoints.create(
+    name="fraud-detection",
+    config={
+        "served_entities": [{
+            "entity_name": "catalog.schema.fraud_detection",
+            "entity_version": "champion",  # Alias 사용
+            "workload_size": "Small",
+            "scale_to_zero_enabled": True
+        }]
+    }
+)
+```
+
+---
+
+## 정리
+
+| 핵심 개념 | 설명 |
+|-----------|------|
+| **Model Registry** | 모델 버전을 중앙에서 관리하는 저장소입니다 |
+| **Version** | 모델의 각 버전에 자동으로 번호가 부여됩니다 |
+| **Alias** | 특정 버전에 부여하는 별칭입니다 (champion, challenger) |
+| **Tags** | 모델에 메타데이터를 부여하여 관리를 용이하게 합니다 |
+| **Unity Catalog 통합** | 모델에도 GRANT/REVOKE, 리니지, 감사가 적용됩니다 |
 
 ---
 
 ## 참고 링크
 
-- [Databricks: Model Registry](https://docs.databricks.com/aws/en/mlflow/model-registry.html)
+- [Databricks: Model Registry (UC)](https://docs.databricks.com/aws/en/mlflow/model-registry.html)
+- [MLflow: Model Registry](https://mlflow.org/docs/latest/model-registry.html)
