@@ -26,27 +26,14 @@
 
 서버리스의 핵심은 **컴퓨트 리소스가 Databricks 관리 환경에서 실행**된다는 것입니다. 기존 방식에서는 고객의 클라우드 계정(VPC/VNet)에서 VM이 실행되었지만, 서버리스에서는 Databricks가 관리하는 인프라에서 실행됩니다.
 
-```mermaid
-graph TB
-    subgraph Customer["고객 환경"]
-        WS["Databricks Workspace"]
-        STORAGE["클라우드 스토리지<br/>(S3/ADLS/GCS)"]
-    end
+| 구성 요소 | 위치 | 설명 |
+|-----------|------|------|
+| Databricks Workspace | 고객 환경 | 워크스페이스 UI 및 관리 |
+| 클라우드 스토리지 (S3/ADLS/GCS) | 고객 환경 | 데이터 저장 |
+| Serverless Compute | Databricks 관리 환경 | 컴퓨팅 리소스 자동 관리 |
+| Control Plane | Databricks 관리 환경 | 작업 스케줄링, 클러스터 관리 |
 
-    subgraph DBX["Databricks 관리 환경"]
-        CP["Control Plane"]
-        SL["Serverless Compute Pool<br/>(사전 예열된 VM)"]
-        SL --> VM1["VM 1"]
-        SL --> VM2["VM 2"]
-        SL --> VM3["VM N..."]
-    end
-
-    WS --> CP
-    CP --> SL
-    VM1 --> STORAGE
-    VM2 --> STORAGE
-    VM3 --> STORAGE
-```
+고객의 데이터는 고객 환경에 유지되며, 서버리스 컴퓨트만 Databricks가 관리합니다.
 
 ### 기존 방식과의 비교
 
@@ -80,21 +67,10 @@ graph TB
 
 ### 시작 시간 비교
 
-```mermaid
-gantt
-    title 컴퓨트 시작 시간 비교
-    dateFormat ss
-    axisFormat %S초
-
-    section Customer-Managed
-    VM 프로비저닝      :a1, 00, 120s
-    런타임 초기화       :a2, after a1, 60s
-    라이브러리 설치     :a3, after a2, 30s
-
-    section Serverless
-    사전 예열된 VM 할당  :b1, 00, 5s
-    즉시 실행 가능       :milestone, after b1, 0s
-```
+| 컴퓨트 유형 | 시작 시간 |
+|-------------|----------|
+| Customer-Managed Cluster | VM 프로비저닝 (~3분) + Spark 초기화 (~2분) = **약 5분** |
+| Serverless Compute | 웜 풀 할당 (~5초) + 즉시 실행 = **약 10초** |
 
 | 단계 | Customer-Managed | Serverless |
 |------|-----------------|------------|
@@ -266,22 +242,13 @@ def silver_orders():
 
 > ⚠️ **서버리스 네트워크 연결(Serverless Network Connectivity)**: 서버리스 컴퓨트에서 고객 VPC 내부의 리소스(예: 온프레미스 데이터베이스, Private Link 엔드포인트)에 접근하려면 **서버리스 네트워크 연결(SNC)** 설정이 필요합니다. Account Console에서 네트워크 연결 구성을 설정할 수 있습니다.
 
-```mermaid
-graph LR
-    subgraph DBX["Databricks 관리 환경"]
-        SL["서버리스 컴퓨트"]
-    end
+| 항목 | 서버리스 컴퓨트 | 고객 환경 |
+|------|----------------|----------|
+| Serverless Compute | Databricks 관리 환경 | - |
+| VPC/VNet Peering | - | 고객 VPC에서 데이터 소스 접근 |
+| 클라우드 스토리지 | - | 고객 계정의 S3/ADLS/GCS |
 
-    subgraph Customer["고객 환경"]
-        VPC["VPC/VNet"]
-        PE["Private Endpoint"]
-        DB["내부 DB"]
-    end
-
-    SL -->|"SNC<br/>(암호화 채널)"| PE
-    PE --> DB
-    SL -->|"직접 연결<br/>(암호화)"| S3["S3/ADLS"]
-```
+서버리스 컴퓨트는 Network Connectivity Config(NCC)를 통해 고객 환경과 안전하게 연결됩니다.
 
 ---
 
@@ -304,20 +271,12 @@ graph LR
 | 런타임 업그레이드 비용 | 테스트/마이그레이션 필요 | **없음** (자동) |
 | **총 비용 (TCO)** | 상황에 따라 | **보통 더 저렴** |
 
-```mermaid
-graph LR
-    subgraph Classic["클래식 비용 구조"]
-        C1["Databricks DBU 비용"]
-        C2["클라우드 VM 비용"]
-        C3["유휴 시간 비용"]
-        C4["관리 인건비"]
-        C5["런타임 업그레이드 비용"]
-    end
-
-    subgraph SL["서버리스 비용 구조"]
-        S1["Databricks DBU 비용<br/>(VM 비용 포함)"]
-    end
-```
+| 비용 항목 | 클래식 비용 구조 | 서버리스 비용 구조 |
+|-----------|----------------|------------------|
+| Databricks DBU 비용 | 포함 | 포함 |
+| 클라우드 VM 비용 | 별도 과금 | DBU에 포함 |
+| 유휴 시간 비용 | 발생 (자동 종료 전까지) | 없음 (즉시 반환) |
+| 총 비용 | DBU + VM + 유휴 | DBU만 (사용한 만큼) |
 
 ### 비용 최적화 팁
 
@@ -366,13 +325,13 @@ ORDER BY total_dbus DESC;
 
 ### 마이그레이션 단계
 
-```mermaid
-graph LR
-    A["1. 현황 분석<br/>(워크로드 목록)"] --> B["2. 호환성 확인<br/>(제한사항 체크)"]
-    B --> C["3. 파일럿 전환<br/>(비핵심 워크로드)"]
-    C --> D["4. 성능/비용 비교"]
-    D --> E["5. 전체 전환"]
-```
+| 단계 | 설명 |
+|------|------|
+| 1. 현황 분석 | 워크로드 목록 파악 |
+| 2. 호환성 확인 | 제한사항 체크 |
+| 3. 파일럿 전환 | 비핵심 워크로드 먼저 |
+| 4. 성능/비용 비교 | 기존 대비 평가 |
+| 5. 점진적 확대 | 핵심 워크로드 전환 |
 
 ### Step 1: 현황 분석
 

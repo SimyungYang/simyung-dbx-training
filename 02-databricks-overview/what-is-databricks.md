@@ -40,26 +40,9 @@ Databricks 팀은 Spark뿐만 아니라 **Delta Lake**(데이터 저장), **MLfl
 
 Databricks는 스스로를 **"Data Intelligence Platform"**이라고 정의합니다. 이는 단순히 데이터를 저장하고 처리하는 것을 넘어, 데이터에서 **지능(Intelligence)** 을 추출하는 전체 과정을 지원한다는 의미입니다.
 
-```mermaid
-graph TB
-    subgraph DIP["Databricks Data Intelligence Platform"]
-        direction TB
-        A["📥 데이터 수집<br/>Lakeflow Connect, Auto Loader"]
-        B["💾 데이터 저장<br/>Delta Lake (레이크하우스)"]
-        C["⚙️ 데이터 변환<br/>Spark, SDP, SQL"]
-        D["📊 데이터 분석<br/>Databricks SQL, AI/BI"]
-        E["🤖 AI/ML<br/>MLflow, Model Serving"]
-        F["🛡️ 거버넌스<br/>Unity Catalog"]
+![Databricks Data Intelligence Platform](https://docs.databricks.com/aws/en/assets/images/architecture-c2c83d23e2f7870f30137e97aaadea0b.png)
 
-        A --> B --> C --> D
-        C --> E
-        F -.->|"통합 관리"| A
-        F -.->|"통합 관리"| B
-        F -.->|"통합 관리"| C
-        F -.->|"통합 관리"| D
-        F -.->|"통합 관리"| E
-    end
-```
+*출처: [Databricks Docs](https://docs.databricks.com)*
 
 ---
 
@@ -140,37 +123,15 @@ Databricks는 데이터 팀의 다양한 역할이 하나의 플랫폼에서 협
 | **ML 엔지니어** | Model Serving, MLflow, Agent Framework | 모델 배포, 에이전트 개발 |
 | **플랫폼 관리자** | Unity Catalog, Workspace 관리, 보안 설정 | 권한 관리, 비용 모니터링, 거버넌스 |
 
-```mermaid
-graph TB
-    subgraph Platform["Databricks Platform"]
-        UC["🛡️ Unity Catalog<br/>통합 거버넌스"]
+| 역할 | 주요 도구 | Unity Catalog |
+|------|----------|---------------|
+| 데이터 엔지니어 | SDP / Lakeflow, Auto Loader, Jobs | 통합 거버넌스 |
+| 데이터 분석가 | Databricks SQL, AI/BI Dashboard, Genie | 통합 거버넌스 |
+| 데이터 과학자 / ML 엔지니어 | Notebooks, MLflow, Model Serving | 통합 거버넌스 |
 
-        subgraph DE["데이터 엔지니어"]
-            DE1["SDP / Lakeflow"]
-            DE2["Auto Loader"]
-            DE3["Jobs"]
-        end
+모든 역할이 **Delta Lake (클라우드 스토리지)** 위에서 작업하며, **Unity Catalog**가 전체 거버넌스를 제공합니다.
 
-        subgraph DA["데이터 분석가"]
-            DA1["Databricks SQL"]
-            DA2["AI/BI Dashboard"]
-            DA3["Genie"]
-        end
-
-        subgraph DS["데이터 과학자 / ML 엔지니어"]
-            DS1["Notebooks"]
-            DS2["MLflow"]
-            DS3["Model Serving"]
-        end
-
-        UC -.-> DE
-        UC -.-> DA
-        UC -.-> DS
-    end
-
-    DL["💾 Delta Lake<br/>(클라우드 스토리지)"]
-    Platform --> DL
-```
+*출처: [Databricks Docs](https://docs.databricks.com)*
 
 ---
 

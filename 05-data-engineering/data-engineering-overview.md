@@ -21,53 +21,14 @@
 Databricks에서 데이터 엔지니어링은 **Lakeflow**라는 통합 제품 브랜드 아래에서 제공됩니다. 수집부터 변환, 오케스트레이션까지 데이터 파이프라인의 전체 라이프사이클을 지원합니다.
 
 <!-- 📌 대체 예정: Lakeflow 전체 아키텍처 공식 이미지 확보 후 교체 -->
-```mermaid
-graph LR
-    subgraph Sources["📦 외부 데이터 소스"]
-        S1["DB (MySQL, PostgreSQL, Oracle)"]
-        S2["SaaS (Salesforce, SAP, HubSpot)"]
-        S3["클라우드 파일 (S3, ADLS, GCS)"]
-        S4["스트리밍 (Kafka, Kinesis, Event Hubs)"]
-        S5["REST API / 기타"]
-    end
-
-    subgraph Lakeflow["⚙️ Lakeflow 제품군"]
-        LC["Lakeflow Connect<br/>관리형 수집 커넥터"]
-        AL["Auto Loader<br/>파일 기반 수집"]
-        SDP["SDP<br/>선언적 파이프라인<br/>(수집 + 변환)"]
-        LJ["Lakeflow Jobs<br/>오케스트레이션"]
-    end
-
-    subgraph Lake["💾 레이크하우스 (Delta Lake)"]
-        B["🥉 Bronze<br/>원시 데이터"]
-        Si["🥈 Silver<br/>정제 데이터"]
-        G["🥇 Gold<br/>비즈니스 데이터"]
-    end
-
-    subgraph Consumers["📊 소비자"]
-        BI["AI/BI 대시보드"]
-        ML["ML/AI 모델"]
-        SQL["SQL 분석"]
-    end
-
-    S1 --> LC
-    S2 --> LC
-    S3 --> AL
-    S4 --> AL
-    S5 --> LJ
-
-    LC --> B
-    AL --> B
-    B --> SDP
-    SDP --> Si
-    SDP --> G
-    LJ -.->|"스케줄링/모니터링"| LC
-    LJ -.->|"스케줄링/모니터링"| SDP
-
-    G --> BI
-    G --> ML
-    G --> SQL
-```
+| 단계 | 도구 | 설명 |
+|------|------|------|
+| 외부 데이터 소스 | DB (MySQL, PostgreSQL, Oracle), SaaS (Salesforce, HubSpot), 클라우드 파일 (S3, ADLS, GCS), 스트리밍 (Kafka, Kinesis) | 원본 데이터 발생지 |
+| 수집 (Ingestion) | Lakeflow Connect, Auto Loader, COPY INTO | 데이터를 레이크하우스로 수집 |
+| 저장 & 변환 | Delta Lake (Bronze → Silver → Gold), SDP (선언적 파이프라인) | Medallion 아키텍처로 정제 |
+| 오케스트레이션 | Lakeflow Jobs | 워크플로우 스케줄링 및 관리 |
+| 거버넌스 | Unity Catalog | 전체 데이터 자산 통합 관리 |
+| 소비 | Databricks SQL, AI/BI, ML/AI, 외부 BI 도구 | 분석 및 활용 |
 
 ---
 
@@ -134,33 +95,11 @@ Databricks의 데이터 엔지니어링 도구들은 **Medallion 아키텍처**(
 | **Silver** (정제) | 정제, 중복 제거, 타입 변환 | SDP (Streaming Table, APPLY CHANGES) | 정규화됨, 비즈니스 키 기준 최신화 |
 | **Gold** (비즈니스) | 집계, KPI, 비즈니스 뷰 | SDP (Materialized View) | 비즈니스 목적에 최적화, 소비 가능 |
 
-```mermaid
-graph LR
-    subgraph Bronze["🥉 Bronze Layer"]
-        B1["raw_customers<br/>(Lakeflow Connect)"]
-        B2["raw_events<br/>(Auto Loader)"]
-        B3["raw_transactions<br/>(Structured Streaming)"]
-    end
-
-    subgraph Silver["🥈 Silver Layer"]
-        S1["cleaned_customers<br/>(SDP: APPLY CHANGES)"]
-        S2["validated_events<br/>(SDP: Expectations)"]
-        S3["deduped_transactions<br/>(SDP: Streaming Table)"]
-    end
-
-    subgraph Gold["🥇 Gold Layer"]
-        G1["daily_revenue<br/>(SDP: Materialized View)"]
-        G2["customer_360<br/>(SDP: Materialized View)"]
-    end
-
-    B1 --> S1
-    B2 --> S2
-    B3 --> S3
-    S1 --> G1
-    S1 --> G2
-    S2 --> G2
-    S3 --> G1
-```
+| 레이어 | 테이블 예시 | 수집 도구 | 설명 |
+|--------|-----------|----------|------|
+| Bronze | raw_customers (Lakeflow Connect), raw_events (Auto Loader), raw_products (COPY INTO) | Lakeflow Connect, Auto Loader, COPY INTO | 원본 데이터 보존 |
+| Silver | clean_customers, clean_events, clean_products | SDP (정제 파이프라인) | 데이터 정제 및 표준화 |
+| Gold | daily_revenue, customer_360, product_metrics | SDP (집계 파이프라인) | 비즈니스 메트릭 생성 |
 
 ---
 
@@ -246,15 +185,14 @@ AS SELECT * FROM silver_sales_agg;
 
 이 섹션의 문서들을 아래 순서대로 학습하시면 데이터 엔지니어링 전체 흐름을 체계적으로 이해하실 수 있습니다.
 
-```mermaid
-graph TD
-    A["1️⃣ 데이터 엔지니어링 전체 그림<br/>(본 문서)"] --> B["2️⃣ 수집 방법 선택 가이드<br/>(choosing-ingestion-method.md)"]
-    B --> C["3️⃣ Auto Loader<br/>(auto-loader/)"]
-    B --> D["4️⃣ Lakeflow Connect<br/>(lakeflow-connect/)"]
-    C --> E["5️⃣ SDP (선언적 파이프라인)<br/>(spark-declarative-pipelines/)"]
-    D --> E
-    E --> F["6️⃣ Lakeflow Jobs<br/>(lakeflow-jobs/)"]
-```
+| 순서 | 문서 | 내용 |
+|------|------|------|
+| 1 | 데이터 엔지니어링 전체 그림 (본 문서) | 전체 아키텍처 개요 |
+| 2 | 수집 방법 선택 가이드 | Auto Loader vs COPY INTO vs Lakeflow Connect |
+| 3 | Auto Loader 상세 | 파일 기반 수집 |
+| 4 | Lakeflow Connect 상세 | DB/SaaS 수집 |
+| 5 | SDP (선언적 파이프라인) | 데이터 변환 |
+| 6 | Lakeflow Jobs | 워크플로우 오케스트레이션 |
 
 | 순서 | 문서 | 핵심 학습 내용 |
 |:----:|------|-------------|

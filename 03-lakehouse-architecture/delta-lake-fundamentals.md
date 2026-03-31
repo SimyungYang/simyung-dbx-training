@@ -8,19 +8,12 @@
 
 ### Delta Lake의 구조
 
-```mermaid
-graph TB
-    subgraph Delta["Delta Lake 테이블"]
-        direction TB
-        DL["📋 Delta Log<br/>(트랜잭션 로그)"]
-        PF["📁 Parquet Files<br/>(실제 데이터)"]
+| 구성 요소 | 역할 |
+|-----------|------|
+| Delta Log (트랜잭션 로그) | 모든 변경 사항을 기록합니다 |
+| Parquet 파일 | 실제 데이터를 저장합니다 |
 
-        DL -->|"어떤 파일이 유효한지<br/>기록"| PF
-    end
-
-    CS["💾 클라우드 스토리지<br/>(S3 / ADLS / GCS)"]
-    Delta --> CS
-```
+Delta Lake = Parquet 파일 + 트랜잭션 로그 (`_delta_log/`)
 
 Delta Lake 테이블은 실제로 두 가지로 구성됩니다.
 
@@ -48,18 +41,10 @@ Delta Lake 테이블은 실제로 두 가지로 구성됩니다.
 
 ACID가 없는 일반 데이터 레이크에서는 다음과 같은 문제가 발생할 수 있습니다.
 
-```mermaid
-graph LR
-    subgraph NoACID["❌ ACID 없는 데이터 레이크"]
-        A["파이프라인이 데이터를<br/>쓰는 중에 실패"] --> B["부분적으로 쓰인<br/>불완전한 데이터"]
-        C["두 작업이 동시에<br/>같은 테이블 수정"] --> D["데이터 충돌<br/>또는 유실"]
-    end
-
-    subgraph WithACID["✅ Delta Lake (ACID 지원)"]
-        E["파이프라인이 데이터를<br/>쓰는 중에 실패"] --> F["자동 롤백<br/>원래 상태 유지"]
-        G["두 작업이 동시에<br/>같은 테이블 수정"] --> H["직렬화 보장<br/>데이터 안전"]
-    end
-```
+| 시나리오 | ACID 없는 데이터 레이크 | Delta Lake (ACID 보장) |
+|---------|---------------------|---------------------|
+| 쓰기 중 실패 | 부분적으로 쓰인 불완전한 데이터 → 데이터 오염 | 트랜잭션 롤백 → 이전 상태 유지 |
+| 동시 읽기/쓰기 | 읽기 중 데이터 변경 → 불일치 결과 | 스냅샷 격리 → 일관된 결과 |
 
 ### 실습 예제
 
@@ -164,23 +149,14 @@ SELECT * FROM catalog.schema.customers;
 
 ### 동작 원리
 
-```mermaid
-graph TB
-    subgraph DeltaTable["Delta 테이블 디렉토리"]
-        subgraph Log["_delta_log/"]
-            V0["00000.json<br/>(버전 0: 테이블 생성)"]
-            V1["00001.json<br/>(버전 1: INSERT)"]
-            V2["00002.json<br/>(버전 2: UPDATE)"]
-            V3["00003.json<br/>(버전 3: DELETE)"]
-        end
-
-        subgraph Data["data files"]
-            P1["part-00001.parquet"]
-            P2["part-00002.parquet"]
-            P3["part-00003.parquet"]
-        end
-    end
-```
+| 구성 요소 | 설명 |
+|-----------|------|
+| `_delta_log/` | 트랜잭션 로그 디렉토리 |
+| `00000.json` (버전 0) | 최초 테이블 생성 |
+| `00001.json` (버전 1) | INSERT 작업 |
+| `00002.json` (버전 2) | UPDATE 작업 |
+| `00010.checkpoint.parquet` | 10번째 체크포인트 (최적화) |
+| `part-00000-*.parquet` | 실제 데이터 파일들 |
 
 - 각 트랜잭션(INSERT, UPDATE, DELETE 등)이 실행될 때마다 새로운 로그 파일(JSON)이 생성됩니다
 - 로그 파일에는 "어떤 Parquet 파일이 추가되었고, 어떤 파일이 제거되었는지"가 기록됩니다

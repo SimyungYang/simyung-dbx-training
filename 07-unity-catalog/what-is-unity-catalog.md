@@ -113,26 +113,13 @@ SELECT * FROM orders;
 
 ### 카탈로그 설계 패턴
 
-```mermaid
-graph LR
-    subgraph 환경별["환경별 분리 패턴"]
-        P["production"]
-        D["development"]
-        S["staging"]
-    end
+| 패턴 | 예시 카탈로그 |
+|------|-------------|
+| **환경별 분리** | `production`, `development`, `staging` |
+| **팀별 분리** | `data_engineering`, `data_science`, `analytics` |
+| **혼합 패턴 (권장)** | `prod_ecommerce`, `dev_ecommerce`, `prod_analytics` |
 
-    subgraph 팀별["팀별 분리 패턴"]
-        DE["data_engineering"]
-        DS["data_science"]
-        AN["analytics"]
-    end
-
-    subgraph 혼합["혼합 패턴 (권장)"]
-        PP["prod_ecommerce"]
-        DP["dev_ecommerce"]
-        PA["prod_analytics"]
-    end
-```
+*출처: [Databricks Docs](https://docs.databricks.com)*
 
 > 💡 **카탈로그 설계 모범 사례**: 환경(prod/dev/staging)과 도메인(ecommerce/finance)을 결합하는 혼합 패턴이 가장 유연합니다. 예를 들어, `prod_ecommerce`, `dev_ecommerce`처럼 명명하면 환경과 도메인이 한눈에 파악됩니다.
 
@@ -179,19 +166,14 @@ AS SELECT * FROM hive_metastore.default.old_orders;
 
 Unity Catalog에서 외부 데이터를 관리하려면 **Storage Credential**과 **External Location**이 필요합니다.
 
-```mermaid
-graph TD
-    SC["🔑 Storage Credential<br/>(클라우드 인증 정보)"]
-    EL["📍 External Location<br/>(스토리지 경로)"]
-    ET["📊 External Table"]
-    EV["📁 External Volume"]
+| 구성 요소 | 역할 | 연결 |
+|-----------|------|------|
+| Storage Credential (클라우드 인증 정보) | AWS: IAM Role / Azure: Storage Account / GCP: Service Account | → 클라우드 스토리지 |
+| External Location (스토리지 경로) | Storage Credential을 사용하여 접근할 수 있는 경로 | Storage Credential → External Location |
+| External Table | 메타데이터만 UC가 관리 | External Location → External Table |
+| External Volume | 비정형 파일 관리 | External Location → External Volume |
 
-    SC --> EL
-    EL --> ET
-    EL --> EV
-
-    SC -.-> |"AWS: IAM Role<br/>Azure: Storage Account<br/>GCP: Service Account"| CLOUD["☁️ 클라우드 스토리지"]
-```
+*출처: [Databricks Docs](https://docs.databricks.com)*
 
 | 개념 | 설명 | 예시 |
 |------|------|------|

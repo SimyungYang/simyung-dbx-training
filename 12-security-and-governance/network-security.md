@@ -15,28 +15,14 @@
 Databricks는 크게 **Control Plane**과 **Data Plane**이라는 두 영역으로 나뉩니다. 이 구조를 이해하는 것이 네트워크 보안 설정의 출발점입니다.
 
 <!-- 📌 대체 예정: Databricks 네트워크 아키텍처 공식 이미지 확보 후 교체 -->
-```mermaid
-graph TB
-    subgraph "Databricks 관리 영역"
-        CP["🏢 Control Plane<br/>웹 UI, REST API, 노트북 서비스<br/>Databricks가 관리"]
-    end
+| 경로 | 설명 |
+|------|------|
+| ① 사용자 → Control Plane | HTTPS로 웹 UI/API 접근 |
+| ② Control Plane → Data Plane | 클러스터 명령 전달 |
+| ③ Data Plane → 데이터 저장소 | 데이터 읽기/쓰기 (S3/ADLS/GCS) |
+| ④ Control Plane → 사용자 | 결과 반환 |
 
-    subgraph "고객 클라우드 계정"
-        DP["⚙️ Data Plane<br/>클러스터, Spark 실행<br/>고객 VPC/VNet 내 실행"]
-        S3["🗄️ 데이터 저장소<br/>S3 / ADLS / GCS"]
-    end
-
-    User["👤 사용자"]
-
-    User -->|"① HTTPS"| CP
-    CP -->|"② 클러스터 명령"| DP
-    DP -->|"③ 데이터 읽기/쓰기"| S3
-    CP -.->|"④ 결과 반환"| User
-
-    style CP fill:#e3f2fd
-    style DP fill:#fff3e0
-    style S3 fill:#e8f5e9
-```
+*출처: [Databricks Docs](https://docs.databricks.com)*
 
 | 영역 | 위치 | 역할 | 관리 주체 |
 |------|------|------|----------|
@@ -130,27 +116,11 @@ curl -X POST "https://<workspace-url>/api/2.0/ip-access-lists" \
 ### Front-end vs Back-end Private Link
 
 <!-- 📌 대체 예정: Private Link 아키텍처 공식 이미지 확보 후 교체 -->
-```mermaid
-graph LR
-    subgraph "고객 네트워크"
-        User["👤 사용자<br/>(웹 브라우저/API)"]
-        VPCe1["🔗 VPC Endpoint<br/>(Front-end)"]
-        DP["⚙️ Data Plane<br/>(고객 VPC)"]
-        VPCe2["🔗 VPC Endpoint<br/>(Back-end)"]
-    end
+![Backend PrivateLink](https://docs.databricks.com/aws/en/assets/images/pl-aws-be-89d73d019437bb90e32610dd5e82ade9.png)
 
-    subgraph "Databricks"
-        CP["🏢 Control Plane"]
-    end
+![Frontend PrivateLink](https://docs.databricks.com/aws/en/assets/images/pl-aws-fe-84ca114d753c6130f407c6f9b776956d.png)
 
-    User -->|"① Front-end<br/>Private Link"| VPCe1
-    VPCe1 -->|"내부 네트워크"| CP
-    DP -->|"② Back-end<br/>Private Link"| VPCe2
-    VPCe2 -->|"내부 네트워크"| CP
-
-    style VPCe1 fill:#e8eaf6
-    style VPCe2 fill:#e8eaf6
-```
+*출처: [Databricks Docs](https://docs.databricks.com)*
 
 | 유형 | 경로 | 보호 대상 | 효과 |
 |------|------|----------|------|

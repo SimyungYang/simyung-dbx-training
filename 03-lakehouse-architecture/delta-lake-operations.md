@@ -77,24 +77,11 @@ WHEN NOT MATCHED THEN
 
 ### 왜 필요한가요?
 
-```mermaid
-graph LR
-    subgraph Before["최적화 전"]
-        F1["1MB"]
-        F2["500KB"]
-        F3["2MB"]
-        F4["100KB"]
-        F5["800KB"]
-        F6["50KB"]
-    end
+| 최적화 전 | 최적화 후 (OPTIMIZE) |
+|-----------|---------------------|
+| 1MB, 500KB, 2MB, 100KB, 3MB, 200KB (작은 파일 6개) | 128MB (최적화된 파일 1개) |
 
-    subgraph After["최적화 후 (OPTIMIZE)"]
-        G1["128MB"]
-        G2["128MB"]
-    end
-
-    Before -->|"OPTIMIZE"| After
-```
+작은 파일이 많으면 읽기 성능이 저하됩니다. OPTIMIZE로 적절한 크기(128MB~1GB)로 병합합니다.
 
 > 💡 **Small File Problem(작은 파일 문제)이란?** 스트리밍 수집이나 빈번한 INSERT로 인해 테이블에 수천~수만 개의 작은 파일이 쌓이는 현상입니다. 쿼리 시 각 파일을 열고 닫는 오버헤드가 누적되어 성능이 크게 저하됩니다. OPTIMIZE는 이 문제를 해결합니다.
 
@@ -145,22 +132,12 @@ OPTIMIZE catalog.schema.orders;
 
 Delta Lake에서 UPDATE나 DELETE를 실행하면, 기존 파일이 즉시 삭제되지 않고 새 파일이 추가됩니다 (타임 트래블을 위해). VACUUM은 일정 기간이 지난 오래된 파일을 정리합니다.
 
-```mermaid
-graph TB
-    subgraph Before["VACUUM 전"]
-        V0["Version 0 파일<br/>(7일 전)"]
-        V1["Version 1 파일<br/>(5일 전)"]
-        V2["Version 2 파일<br/>(3일 전)"]
-        V3["Version 3 파일<br/>(현재)"]
-    end
-
-    subgraph After["VACUUM 후 (7일 기준)"]
-        V2b["Version 2 파일<br/>(3일 전)"]
-        V3b["Version 3 파일<br/>(현재)"]
-    end
-
-    Before -->|"VACUUM RETAIN 168 HOURS"| After
-```
+| 파일 | VACUUM 전 | VACUUM 후 (7일 기준) |
+|------|-----------|---------------------|
+| Version 0 파일 (7일 전) | 존재 | 삭제됨 |
+| Version 1 파일 (5일 전) | 존재 | 삭제됨 |
+| Version 2 파일 (3일 전) | 존재 | 유지 |
+| Version 3 파일 (현재) | 존재 | 유지 |
 
 ### 사용 방법
 

@@ -62,20 +62,14 @@ df.show()
 
 > 💡 **파티션(Partition)** 이란 DataFrame의 데이터를 물리적으로 나눈 조각입니다. 각 Executor는 하나 이상의 파티션을 담당하여 병렬로 처리합니다.
 
-```mermaid
-graph LR
-    subgraph DF["DataFrame (1억 건)"]
-        P1["파티션 1<br/>2,500만 건"]
-        P2["파티션 2<br/>2,500만 건"]
-        P3["파티션 3<br/>2,500만 건"]
-        P4["파티션 4<br/>2,500만 건"]
-    end
+| 파티션 | 데이터 | 처리 노드 |
+|--------|--------|----------|
+| 파티션 1 | 2,500만 건 | Worker 1 |
+| 파티션 2 | 2,500만 건 | Worker 2 |
+| 파티션 3 | 2,500만 건 | Worker 3 |
+| 파티션 4 | 2,500만 건 | Worker 4 |
 
-    P1 --> E1["Executor 1"]
-    P2 --> E2["Executor 2"]
-    P3 --> E3["Executor 3"]
-    P4 --> E4["Executor 4"]
-```
+DataFrame (1억 건)을 4개 파티션으로 나누어 4개 Worker가 동시에 병렬 처리합니다.
 
 ---
 

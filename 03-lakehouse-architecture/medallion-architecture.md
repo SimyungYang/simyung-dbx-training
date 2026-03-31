@@ -229,56 +229,22 @@ GROUP BY c.customer_id, c.name, c.email, c.signup_date;
 
 ## 전체 흐름 다이어그램
 
-```mermaid
-graph TB
-    subgraph Sources["📦 데이터 소스"]
-        S1["주문 DB"]
-        S2["고객 DB"]
-        S3["웹 로그 (JSON)"]
-    end
+| 레이어 | 이름 | 데이터 품질 | 용도 |
+|--------|------|-----------|------|
+| 🥉 Bronze | Raw | 원본 그대로 | 데이터 수집, 감사 추적 |
+| 🥈 Silver | Cleansed | 정제, 표준화 | 분석 준비, 조인 |
+| 🥇 Gold | Aggregated | 비즈니스 레벨 집계 | 리포팅, ML, BI |
 
-    subgraph Bronze["🥉 Bronze Layer"]
-        B1["bronze_orders<br/>(원본 주문 데이터)"]
-        B2["bronze_customers<br/>(원본 고객 데이터)"]
-        B3["bronze_clickstream<br/>(원본 클릭 로그)"]
-    end
+**전체 흐름:**
 
-    subgraph Silver["🥈 Silver Layer"]
-        Si1["silver_orders<br/>(정제된 주문)"]
-        Si2["silver_customers<br/>(정제된 고객)"]
-        Si3["silver_page_views<br/>(정제된 페이지뷰)"]
-    end
+| 단계 | 소스 | 대상 | 설명 |
+|------|------|------|------|
+| 수집 | 주문 DB, 고객 DB, 웹 로그 | Bronze (bronze_orders, bronze_customers, bronze_clickstream) | 원본 데이터 보존 |
+| 정제 | Bronze | Silver (silver_orders, silver_customers, silver_page_views) | 데이터 정제 및 표준화 |
+| 집계 | Silver | Gold (gold_daily_revenue, gold_customer_360, gold_product_performance) | 비즈니스 메트릭 생성 |
+| 소비 | Gold | 경영진 대시보드, 마케팅 분석, ML 추천 모델 | 최종 활용 |
 
-    subgraph Gold["🥇 Gold Layer"]
-        G1["gold_daily_revenue<br/>(일별 매출)"]
-        G2["gold_customer_360<br/>(고객 전체 뷰)"]
-        G3["gold_product_performance<br/>(상품 성과)"]
-    end
-
-    subgraph Consume["📊 소비"]
-        C1["경영진 대시보드"]
-        C2["마케팅 분석"]
-        C3["ML 추천 모델"]
-    end
-
-    S1 --> B1
-    S2 --> B2
-    S3 --> B3
-
-    B1 --> Si1
-    B2 --> Si2
-    B3 --> Si3
-
-    Si1 --> G1
-    Si1 --> G2
-    Si2 --> G2
-    Si1 --> G3
-    Si3 --> G3
-
-    G1 --> C1
-    G2 --> C2
-    G3 --> C3
-```
+*출처: [Databricks Docs](https://docs.databricks.com)*
 
 ---
 

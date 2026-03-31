@@ -134,32 +134,16 @@ COPY_OPTIONS ('mergeSchema' = 'true');
 
 어떤 수집 방법을 선택해야 할지 아래 플로차트를 따라가 보시기 바랍니다.
 
-```mermaid
-graph TD
-    START{"데이터 소스 유형은?"}
-
-    START -->|"외부 DB<br/>(MySQL, PostgreSQL, Oracle)"| Q_DB{"Lakeflow Connect<br/>커넥터가 지원되나요?"}
-    START -->|"SaaS 애플리케이션<br/>(Salesforce, HubSpot 등)"| Q_SAAS{"Lakeflow Connect<br/>커넥터가 지원되나요?"}
-    START -->|"클라우드 스토리지 파일<br/>(S3, ADLS, GCS)"| Q_FILE{"파일이 지속적으로<br/>도착하나요?"}
-    START -->|"스트리밍<br/>(Kafka, Kinesis)"| SS["✅ Structured Streaming<br/>직접 연결"]
-    START -->|"REST API"| JOBS["✅ Lakeflow Jobs<br/>+ Python 커스텀 코드"]
-
-    Q_DB -->|"예"| LC["✅ Lakeflow Connect<br/>관리형 CDC 수집"]
-    Q_DB -->|"아니오"| CUSTOM_DB["✅ Lakeflow Jobs<br/>+ JDBC 커스텀 수집"]
-
-    Q_SAAS -->|"예"| LC
-    Q_SAAS -->|"아니오"| JOBS
-
-    Q_FILE -->|"예 (실시간/빈번)"| AL["✅ Auto Loader<br/>증분 파일 수집"]
-    Q_FILE -->|"아니오 (일회성/간헐적)"| COPY["✅ COPY INTO<br/>배치 적재"]
-
-    style LC fill:#2e7d32,color:#fff
-    style AL fill:#1565c0,color:#fff
-    style SS fill:#6a1b9a,color:#fff
-    style JOBS fill:#e65100,color:#fff
-    style COPY fill:#795548,color:#fff
-    style CUSTOM_DB fill:#e65100,color:#fff
-```
+| 데이터 소스 유형 | 추천 수집 방법 |
+|-----------------|---------------|
+| 외부 DB (MySQL, PostgreSQL, Oracle) — Lakeflow Connect 커넥터 있음 | **Lakeflow Connect** |
+| 외부 DB — 커넥터 없음, CDC 필요 | **JDBC + Spark Structured Streaming** |
+| 외부 DB — 커넥터 없음, 스냅샷 | **JDBC + COPY INTO** |
+| 클라우드 스토리지 파일 — 지속적 신규 파일 | **Auto Loader** |
+| 클라우드 스토리지 파일 — 일회성/비정기 | **COPY INTO / read_files** |
+| SaaS API (Salesforce 등) — 커넥터 있음 | **Lakeflow Connect** |
+| SaaS API — 커넥터 없음 | **Custom Python + Lakeflow Jobs** |
+| 스트리밍 (Kafka 등) | **Spark Structured Streaming** |
 
 ---
 
@@ -204,25 +188,10 @@ graph TD
 
 ## 배치 vs 스트리밍 관점에서의 선택
 
-```mermaid
-graph LR
-    subgraph Batch["📦 배치 수집"]
-        B1["COPY INTO"]
-        B2["Lakeflow Jobs<br/>(스케줄 실행)"]
-        B3["Auto Loader<br/>(trigger=availableNow)"]
-    end
-
-    subgraph Streaming["🔄 스트리밍 수집"]
-        S1["Auto Loader<br/>(연속 실행)"]
-        S2["Structured Streaming<br/>(Kafka/Kinesis)"]
-        S3["Lakeflow Connect<br/>(연속 CDC)"]
-    end
-
-    subgraph Hybrid["🔀 하이브리드"]
-        H1["Auto Loader<br/>(트리거 배치)"]
-        H2["SDP 파이프라인<br/>(트리거/연속 선택)"]
-    end
-```
+| 수집 유형 | 도구 | 특징 |
+|-----------|------|------|
+| 배치 수집 | COPY INTO, Lakeflow Jobs (스케줄), Auto Loader (배치 모드) | 정해진 시간에 일괄 처리 |
+| 스트리밍 수집 | Auto Loader (스트리밍 모드), Spark Structured Streaming, Lakeflow Connect (CDC) | 실시간/준실시간 처리 |
 
 | 관점 | 배치 수집 | 스트리밍 수집 | 하이브리드 |
 |------|----------|-------------|-----------|

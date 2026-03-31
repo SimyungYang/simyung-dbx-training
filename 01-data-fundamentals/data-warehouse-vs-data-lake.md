@@ -95,29 +95,13 @@
 | **유연성** | 낮음 | 높음 |
 | **대표 제품** | Redshift, BigQuery, Snowflake | S3, ADLS, HDFS |
 
-```mermaid
-graph LR
-    subgraph DW["데이터 웨어하우스"]
-        direction TB
-        A1[정형 데이터만] --> A2[스키마 먼저 정의]
-        A2 --> A3[빠른 SQL 분석]
-    end
-
-    subgraph DL["데이터 레이크"]
-        direction TB
-        B1[모든 데이터 유형] --> B2[원본 그대로 저장]
-        B2 --> B3[유연한 처리]
-    end
-
-    subgraph LH["🆕 레이크하우스"]
-        direction TB
-        C1[모든 데이터 유형] --> C2[스키마 + 트랜잭션 지원]
-        C2 --> C3[빠른 SQL + ML 모두 가능]
-    end
-
-    DW --> LH
-    DL --> LH
-```
+| 항목 | 데이터 웨어하우스 | 데이터 레이크 |
+|------|------------------|-------------|
+| 데이터 유형 | 정형 데이터만 | 모든 유형 (정형, 반정형, 비정형) |
+| 스키마 | 먼저 정의 (Schema-on-Write) | 읽을 때 정의 (Schema-on-Read) |
+| SQL 성능 | 빠른 SQL 쿼리 | 상대적으로 느림 |
+| 비용 | 상대적으로 비쌈 | 저렴 (오브젝트 스토리지) |
+| 주 사용자 | BI 분석가 | 데이터 과학자, 엔지니어 |
 
 ---
 

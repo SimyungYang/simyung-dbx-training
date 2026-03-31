@@ -60,18 +60,9 @@ Databricks 아키텍처의 핵심은 **Control Plane(제어 평면)** 과 **Data
 
 > 💡 **서버리스(Serverless)란?** 사용자가 서버(컴퓨팅 리소스)를 직접 생성하거나 관리할 필요 없이, 작업을 실행하면 시스템이 알아서 적절한 리소스를 할당해 주는 방식입니다. "서버가 없다"는 뜻이 아니라, "서버 관리를 신경 쓰지 않아도 된다"는 의미입니다.
 
-```mermaid
-graph LR
-    subgraph 클래식["클래식 Data Plane"]
-        A1["고객이 클러스터 직접 관리"] --> A2["VM 크기, 개수 설정"]
-        A2 --> A3["오토스케일링 설정"]
-    end
+![Serverless Architecture](https://docs.databricks.com/aws/en/assets/images/serverless-workspaces-1634da84fc840966875dfee6e9f613e0.png)
 
-    subgraph 서버리스["Serverless Data Plane"]
-        B1["작업 제출만 하면 됨"] --> B2["리소스 자동 할당"]
-        B2 --> B3["사용한 만큼만 과금"]
-    end
-```
+*출처: [Databricks Docs](https://docs.databricks.com)*
 
 | 비교 항목 | 클래식 (Customer-Managed) | 서버리스 (Serverless) |
 |-----------|--------------------------|----------------------|
@@ -104,21 +95,18 @@ graph LR
 
 Workspace는 다음과 같은 구성 요소를 포함합니다.
 
-```mermaid
-graph TB
-    subgraph WS["🏠 Workspace"]
-        direction TB
-        N["📓 Notebooks<br/>코드 작성 및 실행"]
-        R["📁 Repos<br/>Git 저장소 연동"]
-        C["🖥️ Clusters<br/>컴퓨팅 리소스"]
-        J["⏰ Jobs<br/>스케줄된 작업"]
-        SQL["📊 SQL Editor<br/>SQL 쿼리 편집기"]
-        D["📈 Dashboards<br/>시각화 대시보드"]
-    end
+| 구성 요소 | 설명 |
+|-----------|------|
+| Notebooks | 코드 작성 및 실행 |
+| Repos | Git 저장소 연동 |
+| Clusters | 컴퓨팅 리소스 |
+| Jobs | 스케줄된 작업 |
+| SQL Editor | SQL 쿼리 편집기 |
+| Dashboards | 시각화 대시보드 |
 
-    UC["🛡️ Unity Catalog<br/>(여러 Workspace에서 공유)"]
-    UC -.-> WS
-```
+**Unity Catalog**는 여러 Workspace에서 공유됩니다.
+
+*출처: [Databricks Docs](https://docs.databricks.com)*
 
 ### Workspace 구성 모범 사례
 
@@ -136,59 +124,16 @@ graph TB
 
 지금까지 배운 내용을 종합하여, Databricks에서 데이터가 흘러가는 전체 과정을 살펴보겠습니다.
 
-```mermaid
-graph TB
-    subgraph Sources["📦 데이터 소스"]
-        S1["운영 DB"]
-        S2["클라우드 스토리지<br/>파일"]
-        S3["SaaS 앱<br/>(Salesforce 등)"]
-        S4["스트리밍<br/>(Kafka)"]
-    end
+| 단계 | 구성 요소 | 설명 |
+|------|-----------|------|
+| 데이터 소스 | 운영 DB, 클라우드 스토리지, SaaS 앱, 스트리밍(Kafka) | 원본 데이터 발생지 |
+| 수집 | Lakeflow Connect, Auto Loader | 데이터를 레이크하우스로 수집 |
+| 레이크하우스 | Bronze → Silver → Gold (Delta Lake) | Medallion 아키텍처로 데이터 정제 |
+| 변환 | SDP (선언적 파이프라인) | 데이터 변환 및 품질 관리 |
+| 소비 | Databricks SQL, MLflow, 외부 BI 도구 | 분석, ML, 리포팅 |
+| 거버넌스 | Unity Catalog | 전체 관리 |
 
-    subgraph Ingest["🔽 수집"]
-        I1["Lakeflow Connect"]
-        I2["Auto Loader"]
-    end
-
-    subgraph Lake["💾 레이크하우스 (Delta Lake)"]
-        L1["🥉 Bronze<br/>원본 데이터"]
-        L2["🥈 Silver<br/>정제된 데이터"]
-        L3["🥇 Gold<br/>비즈니스 데이터"]
-    end
-
-    subgraph Transform["⚙️ 변환"]
-        T1["SDP<br/>(선언적 파이프라인)"]
-    end
-
-    subgraph Consume["📊 소비"]
-        C1["Databricks SQL<br/>& AI/BI Dashboard"]
-        C2["MLflow<br/>& Model Serving"]
-        C3["외부 BI 도구<br/>(Tableau 등)"]
-    end
-
-    subgraph Gov["🛡️ 거버넌스"]
-        G1["Unity Catalog"]
-    end
-
-    S1 --> I1
-    S2 --> I2
-    S3 --> I1
-    S4 --> I2
-
-    I1 --> L1
-    I2 --> L1
-
-    L1 --> T1
-    T1 --> L2
-    T1 --> L3
-
-    L3 --> C1
-    L3 --> C2
-    L3 --> C3
-
-    Gov -.->|"전체 관리"| Lake
-    Gov -.->|"전체 관리"| Consume
-```
+*출처: [Databricks Docs](https://docs.databricks.com)*
 
 ---
 

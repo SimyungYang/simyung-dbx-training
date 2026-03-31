@@ -6,26 +6,12 @@
 
 ### 기존 방식의 문제점
 
-```mermaid
-graph TB
-    subgraph Problem["❌ 기존의 2-Platform 아키텍처"]
-        direction LR
-        Source["📦 소스<br/>데이터"]
+| 기존 2-Platform 아키텍처 | 문제점 |
+|--------------------------|--------|
+| 소스 데이터 → 데이터 레이크 (원본 저장, ML 학습용) | 데이터 중복 저장 |
+| 데이터 레이크 → ETL → 데이터 웨어하우스 (정제, BI/SQL 분석용) | 복사 비용, 데이터 불일치 |
 
-        subgraph Lake["데이터 레이크"]
-            L1["원본 데이터 저장"]
-            L2["ML 학습용"]
-        end
-
-        subgraph WH["데이터 웨어하우스"]
-            W1["정제된 데이터"]
-            W2["BI/SQL 분석용"]
-        end
-
-        Source --> Lake
-        Lake -->|"데이터 복사<br/>(ETL)"| WH
-    end
-```
+*출처: [Databricks Docs](https://docs.databricks.com)*
 
 | 문제점 | 설명 |
 |--------|------|
@@ -39,28 +25,9 @@ graph TB
 
 > 💡 **레이크하우스(Lakehouse)** 란 **데이터 레이크의 유연성과 저비용**에 **데이터 웨어하우스의 성능과 안정성**을 결합한 차세대 데이터 아키텍처입니다.
 
-```mermaid
-graph TB
-    subgraph Solution["✅ 레이크하우스 아키텍처"]
-        Source["📦 소스<br/>데이터"]
+![Lakehouse Architecture](https://docs.databricks.com/aws/en/assets/images/object-hierarchy-966dee8fa239626134ed6b7278beab2c.png)
 
-        subgraph LH["💎 레이크하우스"]
-            L1["저렴한 클라우드 스토리지<br/>(S3, ADLS, GCS)"]
-            L2["+ Delta Lake<br/>(ACID 트랜잭션)"]
-            L3["+ 쿼리 엔진<br/>(빠른 SQL 분석)"]
-            L4["+ 거버넌스<br/>(Unity Catalog)"]
-        end
-
-        C1["📊 BI/SQL 분석"]
-        C2["🤖 ML/AI"]
-        C3["📈 리포트"]
-
-        Source --> LH
-        LH --> C1
-        LH --> C2
-        LH --> C3
-    end
-```
+*출처: [Databricks Docs](https://docs.databricks.com)*
 
 쉽게 말하면, 레이크하우스는 **"데이터 레이크 위에 웨어하우스의 기능을 얹은 것"**입니다.
 

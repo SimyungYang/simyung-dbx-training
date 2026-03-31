@@ -36,20 +36,10 @@
 
 > 💡 **UniForm(유니폼)** 은 Delta Lake 테이블을 **Iceberg 포맷으로도 읽을 수 있게** 해주는 Databricks의 호환성 기능입니다. 하나의 Delta 테이블을 생성하면, Iceberg 클라이언트에서도 동일한 테이블을 읽을 수 있습니다.
 
-```mermaid
-graph TB
-    subgraph DeltaTable["Delta 테이블 (원본)"]
-        DL["_delta_log/<br/>(Delta 메타데이터)"]
-        PQ["Parquet 파일<br/>(실제 데이터)"]
-        IM["metadata/<br/>(Iceberg 메타데이터)<br/>UniForm이 자동 생성"]
-    end
-
-    DE["Databricks / Spark<br/>(Delta 프로토콜로 읽기)"] --> DL
-    IC["Snowflake / Trino / Athena<br/>(Iceberg 프로토콜로 읽기)"] --> IM
-
-    DL --> PQ
-    IM --> PQ
-```
+| 구성 요소 | Delta 테이블 (원본) | UniForm 적용 후 |
+|-----------|-------------------|----------------|
+| 메타데이터 | `_delta_log/` (Delta 메타데이터) | `_delta_log/` + `metadata/` (Iceberg 메타데이터 자동 생성) |
+| 데이터 파일 | Parquet 파일 (공유) | 동일한 Parquet 파일 (복사 없음) |
 
 핵심은 **데이터 파일(Parquet)은 하나**이고, 메타데이터만 Delta와 Iceberg 두 가지 형식으로 유지한다는 것입니다. 따라서 데이터 복사가 발생하지 않습니다.
 
@@ -90,17 +80,12 @@ SET TBLPROPERTIES ('delta.universalFormat.enabledFormats' = 'iceberg');
 
 > 🆕 **Unity Catalog as Iceberg REST Catalog**: Databricks의 Unity Catalog는 **Iceberg REST Catalog** 표준을 지원합니다. 이를 통해 외부 엔진(Snowflake, Trino, Apache Flink 등)이 Unity Catalog에 직접 연결하여 Delta 테이블을 Iceberg 테이블처럼 조회할 수 있습니다.
 
-```mermaid
-graph LR
-    UC["🛡️ Unity Catalog<br/>(Iceberg REST Catalog)"]
-
-    DB["Databricks<br/>(Delta 프로토콜)"] --> UC
-    SF["Snowflake<br/>(Iceberg 프로토콜)"] --> UC
-    TR["Trino<br/>(Iceberg 프로토콜)"] --> UC
-    FL["Flink<br/>(Iceberg 프로토콜)"] --> UC
-
-    UC --> DATA["💾 클라우드 스토리지<br/>(Delta + UniForm)"]
-```
+| 엔진 | 프로토콜 | Unity Catalog 역할 |
+|------|----------|-------------------|
+| Databricks | Delta 프로토콜 | Iceberg REST Catalog로 동작 |
+| Snowflake | Iceberg 프로토콜 | 동일한 데이터에 읽기 접근 |
+| Apache Spark (외부) | Iceberg 프로토콜 | 동일한 데이터에 읽기 접근 |
+| Trino / Presto | Iceberg 프로토콜 | 동일한 데이터에 읽기 접근 |
 
 > 💡 **REST Catalog란?** 테이블 포맷의 메타데이터(어떤 테이블이 있고, 어디에 저장되어 있는지)를 HTTP REST API로 관리하는 표준 인터페이스입니다. 이전에는 각 엔진이 자체적으로 메타데이터를 관리했지만, REST Catalog를 통해 **하나의 카탈로그로 모든 엔진이 동일한 테이블 목록을 공유**할 수 있게 되었습니다.
 
