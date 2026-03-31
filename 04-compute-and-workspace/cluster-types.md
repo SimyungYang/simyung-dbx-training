@@ -117,6 +117,99 @@ resources:
 
 ---
 
+## 클러스터 접근 모드 (Access Mode)
+
+All-Purpose Cluster를 생성할 때 **접근 모드(Access Mode)** 를 선택해야 합니다. 접근 모드는 **누가 클러스터를 사용할 수 있고, 어떤 보안 격리 수준이 적용되는지** 를 결정합니다.
+
+### 접근 모드 비교
+
+| 접근 모드 | 사용자 수 | Unity Catalog | 격리 수준 | 주요 용도 |
+|----------|---------|--------------|----------|---------|
+| **Assigned (Dedicated)** | 단일 사용자 | ✅ 완전 지원 | 최고 — 전용 리소스 | 프로덕션, 민감 데이터, ML 학습 |
+| **Shared** | 여러 사용자 | ✅ 완전 지원 | 높음 — 프로세스 격리 | 팀 협업, 비용 절감 |
+| **No Isolation Shared** | 여러 사용자 | ❌ 미지원 | 없음 — 격리 없음 | 레거시 (권장하지 않음) |
+
+### Assigned (Dedicated) 모드
+
+> 💡 **Assigned 모드** 는 클러스터를 **단일 사용자에게 전용 할당** 하는 방식입니다. 가장 강력한 보안 격리를 제공합니다.
+
+| 항목 | 설명 |
+|------|------|
+| **사용자** | 클러스터 생성 시 지정한 **한 명의 사용자** 만 사용할 수 있습니다 |
+| **UC 지원** | ✅ 테이블 접근 제어, Row Filter, Column Mask 모두 적용됩니다 |
+| **자격 증명** | 지정된 사용자의 자격 증명으로 외부 스토리지에 접근합니다 (Credential Passthrough) |
+| **라이브러리** | 모든 라이브러리를 자유롭게 설치할 수 있습니다 (pip, Maven, CRAN 등) |
+| **Init Script** | 사용자 정의 Init Script를 실행할 수 있습니다 |
+| **적합한 경우** | 프로덕션 ETL, 민감 데이터 처리, GPU ML 학습, 커스텀 라이브러리 필요 시 |
+
+```python
+# Assigned 클러스터 생성 (SDK)
+from databricks.sdk import WorkspaceClient
+
+w = WorkspaceClient()
+cluster = w.clusters.create(
+    cluster_name="ml-training-alice",
+    spark_version="16.1.x-ml-scala2.12",
+    node_type_id="i3.xlarge",
+    num_workers=4,
+    data_security_mode="SINGLE_USER",  # Assigned (Dedicated)
+    single_user_name="alice@company.com"
+)
+```
+
+### Shared 모드
+
+> 💡 **Shared 모드** 는 **여러 사용자가 하나의 클러스터를 동시에 사용** 하면서도, Unity Catalog의 보안이 완전히 적용되는 방식입니다.
+
+| 항목 | 설명 |
+|------|------|
+| **사용자** | 여러 사용자가 동시에 노트북을 연결하여 사용할 수 있습니다 |
+| **UC 지원** | ✅ 각 사용자의 권한에 따라 접근 제어가 적용됩니다. A 사용자는 테이블 X를 읽을 수 있지만, B 사용자는 읽을 수 없는 구성이 가능합니다 |
+| **프로세스 격리** | 각 사용자의 코드가 별도 프로세스에서 실행되어, 다른 사용자의 데이터를 볼 수 없습니다 |
+| **라이브러리** | `%pip install`로 노트북 스코프 라이브러리를 설치할 수 있습니다. 클러스터 수준 라이브러리는 제한됩니다 |
+| **Init Script** | 사용자 정의 Init Script 사용이 **제한** 됩니다 |
+| **적합한 경우** | 팀 협업 개발, 비용 절감 (클러스터 1개를 여러 명이 공유), 대화형 분석 |
+
+```python
+# Shared 클러스터 생성
+cluster = w.clusters.create(
+    cluster_name="team-shared-dev",
+    spark_version="16.1.x-scala2.12",
+    node_type_id="m5.xlarge",
+    num_workers=4,
+    data_security_mode="USER_ISOLATION",  # Shared
+    autotermination_minutes=60
+)
+```
+
+> 💡 **Shared 모드의 보안**: 사용자 A가 `SELECT * FROM secret_table`을 실행하면, A의 UC 권한이 확인됩니다. 권한이 없으면 "Permission denied" 에러가 발생합니다. 같은 클러스터의 사용자 B는 A의 쿼리 결과를 볼 수 없습니다.
+
+### No Isolation Shared 모드 (레거시)
+
+> ⚠️ **No Isolation Shared 모드는 Unity Catalog를 지원하지 않으며, 보안 격리가 없습니다.** 기존 Hive Metastore 환경에서만 사용하는 레거시 모드이며, 신규 환경에서는 사용하지 않는 것을 권장합니다.
+
+| 항목 | 설명 |
+|------|------|
+| **사용자** | 여러 사용자가 공유하지만, 격리가 없습니다 |
+| **UC 지원** | ❌ Unity Catalog를 사용할 수 없습니다 |
+| **격리** | 없음 — 한 사용자가 다른 사용자의 변수/데이터에 접근할 수 있습니다 |
+| **적합한 경우** | Hive Metastore만 사용하는 레거시 환경 (마이그레이션 권장) |
+
+### 접근 모드 선택 가이드
+
+| 시나리오 | 권장 접근 모드 | 이유 |
+|---------|-------------|------|
+| **프로덕션 ETL / 스케줄 Job** | Assigned (또는 Serverless) | 작업 격리, 전체 라이브러리 지원 |
+| **팀 협업 개발 (5~10명)** | Shared | 비용 절감, UC 보안 적용 |
+| **민감 데이터 분석 (PII 등)** | Assigned | 최고 수준 격리, Credential Passthrough |
+| **GPU ML 학습** | Assigned | GPU 노드 + 커스텀 라이브러리 |
+| **빠른 프로토타이핑** | Serverless | 설정 불필요, 즉시 시작 |
+| **SQL 분석** | SQL Warehouse | SQL 전용 최적화, Photon 기본 |
+
+> 💡 **Databricks 권장**: 대부분의 경우 **Shared** 모드를 사용하고, 전용 리소스나 커스텀 라이브러리가 필요한 경우에만 **Assigned** 를 사용하세요. **Serverless** 가 가능한 환경이라면 Serverless를 우선 고려하세요.
+
+---
+
 ## 어떤 클러스터를 선택해야 하나요?
 
 | 질문 | 답변 | 추천 |
