@@ -241,6 +241,132 @@ results.tables["eval_results_table"].display()
 
 ---
 
+## 현업 사례: Review App 피드백으로 정확도를 60%에서 85%로 올린 과정
+
+> 🔥 **실전 경험담**
+>
+> 한 금융 고객사에서 "내부 규정 검색 에이전트"를 구축했습니다. 첫 배포 후 Review App에서 테스터 8명이 2주간 테스트한 결과, **만족도(Thumbs Up 비율)가 60%에 불과**했습니다. 주요 불만 사항은 다음과 같았습니다:
+>
+> 1. **검색은 되지만 답변이 너무 일반적** (35% 불만) — "규정 3.2.1항에 따르면..."이 아니라 "관련 규정이 있습니다"식의 답변
+> 2. **관련 없는 문서를 인용** (25% 불만) — "대출 규정"을 물었는데 "예금 규정"을 인용
+> 3. **최신 개정 내용 미반영** (20% 불만) — 2024년 개정된 내용이 아닌 2023년 버전으로 답변
+> 4. **한국어 답변 품질** (20% 불만) — 영어 번역투 문장이 많음
+>
+> **개선 과정 (4주간 3라운드 반복)**:
+>
+> | 라운드 | 조치 | 만족도 변화 |
+> |--------|------|:-----------:|
+> | **1라운드** | 시스템 프롬프트에 "반드시 조항 번호를 인용하라" 추가, 검색 문서 수 3→7개로 증가 | 60% → 70% |
+> | **2라운드** | 문서를 조항 단위로 재분할(Chunking 전략 변경), 구버전 문서 제거 | 70% → 78% |
+> | **3라운드** | 부정 피드백에서 Expected Response를 수집하여 Few-shot 예시로 활용, LLM을 GPT-4o로 교체 | 78% → 85% |
+>
+> **핵심 교훈**: 에이전트 품질은 한 번에 올라가지 않습니다. **Review App → 피드백 분석 → 개선 → 재배포의 반복 사이클**이 핵심이며, 보통 3~5라운드를 거쳐야 프로덕션 수준(80%+ 만족도)에 도달합니다.
+
+---
+
+## 효과적인 테스터 선정 방법
+
+현업에서 Review App의 성공은 **누가 테스트하느냐**에 크게 좌우됩니다.
+
+### 이상적인 테스터 구성
+
+| 역할 | 인원 | 선정 이유 | 기대 기여 |
+|------|:----:|----------|----------|
+| **실제 사용자 (현업 담당자)** | 3~5명 | 실제 업무에서 묻는 질문을 테스트합니다 | 현실적인 질문 패턴 확보 |
+| **도메인 전문가** | 1~2명 | 답변의 정확성을 검증합니다 | Expected Response 작성 |
+| **QA/테스트 전문가** | 1명 | 엣지 케이스, 보안 시나리오를 테스트합니다 | 경계 사례 발견 |
+| **비전문가 (신입사원 등)** | 1~2명 | 초보자 관점에서 이해도를 평가합니다 | UX 개선점 발견 |
+
+> 🔥 **이것을 안 하면**: 개발자만으로 테스터를 구성하면 **"개발자가 기대하는 질문"만 테스트**하게 됩니다. 실제 사용자는 "그 규정 있잖아, 그거 뭐였더라?"처럼 모호한 질문을 하는데, 개발자는 이런 패턴을 테스트하지 않습니다. **실제 사용자를 반드시 테스터에 포함하세요.**
+
+### 테스터 온보딩 체크리스트
+
+```markdown
+## Review App 테스터 가이드
+
+### 시작 전 확인사항
+- [ ] Review App URL에 접속되는지 확인
+- [ ] 테스트 시나리오 문서를 읽었는지 확인
+
+### 테스트 방법
+1. **자연스럽게 질문하세요** — 실제 업무에서 하는 것처럼 질문합니다
+2. **모든 답변에 피드백을 남기세요** — 👍 또는 👎를 반드시 클릭합니다
+3. **👎를 클릭할 때는 반드시 이유를 적어주세요** — "틀림", "불충분" 등 한 줄이라도
+4. **Expected Response를 적극 작성하세요** — "이렇게 답변했어야 해"를 적으면 평가 데이터로 활용됩니다
+5. **다양한 표현으로 같은 질문을 해보세요** — "연차 규정", "휴가 정책", "연차 쓰려면?" 등
+
+### 테스트 목표 (1인당)
+- 최소 30개 질문
+- 부정 피드백 시 100% 코멘트 작성
+- Expected Response 10개 이상 작성
+```
+
+---
+
+## 피드백 분석 프로세스
+
+수집된 피드백을 효과적으로 분석하려면 체계적인 프로세스가 필요합니다.
+
+### Step 1: 부정 피드백 분류
+
+```sql
+-- 부정 피드백을 카테고리별로 분류
+SELECT
+    CASE
+        WHEN feedback_comment LIKE '%틀%' OR feedback_comment LIKE '%오류%' OR feedback_comment LIKE '%잘못%'
+            THEN '오답'
+        WHEN feedback_comment LIKE '%부족%' OR feedback_comment LIKE '%부실%' OR feedback_comment LIKE '%짧%'
+            THEN '불충분한 답변'
+        WHEN feedback_comment LIKE '%관련%없%' OR feedback_comment LIKE '%엉뚱%'
+            THEN '관련 없는 답변'
+        WHEN feedback_comment LIKE '%느%' OR feedback_comment LIKE '%오래%'
+            THEN '응답 속도'
+        ELSE '기타'
+    END AS issue_category,
+    COUNT(*) AS count,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (), 1) AS pct
+FROM catalog.schema.agent_feedback
+WHERE feedback_rating = 'negative'
+GROUP BY 1
+ORDER BY count DESC;
+```
+
+### Step 2: 우선순위 결정
+
+| 우선순위 | 기준 | 조치 |
+|:--------:|------|------|
+| **P0 (즉시)** | 오답 + 빈도 높음 (5건 이상) | 프롬프트 수정, 문서 보강 |
+| **P1 (1주 내)** | 불충분한 답변 + Expected Response 있음 | 검색 설정 조정, Chunking 개선 |
+| **P2 (2주 내)** | 관련 없는 답변 | Vector Search 임계값 조정 |
+| **P3 (백로그)** | 기타 개선 요청 | 다음 스프린트에 반영 |
+
+### Step 3: 개선 효과 측정
+
+```python
+# 버전별 만족도 비교
+version_comparison = spark.sql("""
+    SELECT
+        CASE
+            WHEN timestamp < '2025-03-15' THEN 'v1 (개선 전)'
+            WHEN timestamp < '2025-03-22' THEN 'v2 (프롬프트 개선)'
+            ELSE 'v3 (검색 개선)'
+        END AS version,
+        COUNT(*) AS total,
+        COUNT(CASE WHEN feedback_rating = 'positive' THEN 1 END) AS positive,
+        ROUND(
+            COUNT(CASE WHEN feedback_rating = 'positive' THEN 1 END) * 100.0 / COUNT(*), 1
+        ) AS satisfaction_pct
+    FROM catalog.schema.agent_feedback
+    GROUP BY 1
+    ORDER BY 1
+""")
+version_comparison.display()
+```
+
+> 💡 **현업 팁**: 에이전트 개선은 **2주 스프린트**로 관리하는 것이 효과적입니다. 매 스프린트마다 "피드백 수집 → 분류 → 상위 3개 이슈 해결 → 재배포 → 효과 측정"을 반복합니다. 한 번에 모든 것을 고치려 하지 마세요. **가장 빈도 높은 문제부터 해결**하면 만족도가 빠르게 올라갑니다.
+
+---
+
 ## Review App vs 프로덕션 배포
 
 | 비교 항목 | Review App | 프로덕션 |

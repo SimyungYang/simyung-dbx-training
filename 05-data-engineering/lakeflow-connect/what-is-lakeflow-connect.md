@@ -244,6 +244,103 @@ FROM analytics.bronze.customers;
 
 ---
 
+## 현업 사례: Fivetran에서 Lakeflow Connect로 전환한 기업의 비용 비교
+
+> 🔥 **실전 경험담**
+>
+> 한 중견 이커머스 기업에서 Fivetran으로 MySQL(주문, 고객, 상품 등 15개 테이블)과 Salesforce(10개 오브젝트)를 수집하고 있었습니다. Fivetran의 월 비용은 행(Row) 기반 과금으로 **월 약 $3,500**이었습니다.
+>
+> Lakeflow Connect GA 이후, MySQL 커넥터를 Lakeflow Connect로 전환한 결과는 다음과 같았습니다:
+>
+> | 항목 | Fivetran | Lakeflow Connect | 절감 |
+> |------|:--------:|:----------------:|:----:|
+> | **MySQL (15 테이블)** | $2,100/월 | $800/월 (DBU) | **62% 절감** |
+> | **Salesforce (10 오브젝트)** | $1,400/월 | $1,400/월 (Fivetran 유지) | 0% |
+> | **합계** | $3,500/월 | $2,200/월 | **37% 절감** |
+>
+> Salesforce는 Lakeflow Connect로 아직 전환하지 않았습니다 (당시 GA가 아니었기 때문). **핵심 절감 요인은 Fivetran의 행 기반 과금 vs Lakeflow Connect의 DBU 과금 차이**였습니다. CDC로 변경분만 수집하면 실제 처리량이 적어 DBU 비용이 낮게 유지됩니다.
+
+> 💡 **현업 팁**: 비용 절감 외에도, Lakeflow Connect 전환의 숨은 장점은 **관리 포인트 감소**입니다. Fivetran은 별도 SaaS 콘솔에서 관리해야 하지만, Lakeflow Connect는 Databricks 내에서 모든 것을 관리합니다. Unity Catalog 리니지도 자동으로 추적되어 "이 데이터가 어디에서 온 것인지" 한눈에 파악할 수 있습니다.
+
+---
+
+## CDC 지연시간의 현실
+
+공식 문서에서는 "수초~수분"이라고 안내하지만, 현업에서 체감하는 지연시간은 여러 요인에 따라 달라집니다.
+
+| 영향 요인 | 최적 조건 | 현실적 조건 | 최악의 경우 |
+|----------|:--------:|:---------:|:---------:|
+| **소스 DB 위치** | 같은 리전 | 다른 리전 | 다른 대륙 |
+| **네트워크** | Private Link | VPN | 퍼블릭 인터넷 |
+| **트랜잭션 빈도** | 초당 10건 | 초당 1,000건 | 초당 10,000건+ |
+| **행 크기** | 1KB 미만 | 1~10KB | 100KB+ (LOB 포함) |
+| **체감 지연** | **5~15초** | **30초~2분** | **5~10분** |
+
+> 🔥 **이것을 안 하면**: "CDC니까 실시간이겠지"라고 기대하면 안 됩니다. 한 고객사에서 "주문 후 1초 이내에 대시보드에 반영되어야 한다"는 요구사항을 가지고 Lakeflow Connect를 도입했다가, 실제 지연이 30초~1분이라는 것을 알고 실망한 적이 있습니다. **CDC의 지연시간은 "분 단위 준실시간"이지, "초 단위 실시간"이 아닙니다.** 초 단위 실시간이 필요하면 Kafka + Structured Streaming 조합을 고려해야 합니다.
+
+### 지연시간을 최소화하는 팁
+
+1. **소스 DB와 같은 리전에 Databricks 배포**: 네트워크 지연 최소화
+2. **Private Link 사용**: 퍼블릭 인터넷 대비 지연 50% 이상 감소
+3. **대형 LOB 컬럼 제외**: `TEXT`, `BLOB` 같은 대용량 컬럼은 별도 수집
+4. **Continuous 모드 사용**: Triggered 모드는 폴링 간격만큼 추가 지연 발생
+
+---
+
+## 커넥터가 없는 소스 대응 전략
+
+Lakeflow Connect의 커넥터 수는 아직 Fivetran(300+)이나 Airbyte(350+)에 비해 적습니다. 커넥터가 없는 소스를 처리해야 할 때의 현실적인 대응 전략입니다.
+
+| 대안 | 적합한 경우 | 구현 난이도 | 비용 |
+|------|-----------|:---------:|:----:|
+| **Fivetran/Airbyte 병행** | 커넥터가 없는 소스가 5개 이상 | 낮음 | 높음 (별도 SaaS 비용) |
+| **Lakeflow Jobs + JDBC** | RDBMS 소스, 배치 OK | 중간 | 낮음 (DBU만) |
+| **Lakeflow Jobs + REST API** | SaaS 소스, API 제공 | 중간~높음 | 낮음 |
+| **Auto Loader + 파일** | 소스가 파일을 제공(SFTP, S3) | 낮음 | 매우 낮음 |
+| **Kafka + Structured Streaming** | 초 단위 실시간 필요 | 높음 | 중간 |
+
+### 커스텀 JDBC 수집 예시
+
+```python
+# Lakeflow Jobs에서 JDBC로 직접 수집하는 패턴
+# Lakeflow Connect에 없는 DB2 같은 소스에 활용
+
+def incremental_jdbc_load(spark, source_table, target_table, watermark_col):
+    """증분 수집 패턴: 마지막 수집 시점 이후 변경분만 가져오기"""
+
+    # 마지막 수집 시점 확인
+    last_watermark = spark.sql(f"""
+        SELECT COALESCE(MAX({watermark_col}), '1970-01-01')
+        FROM {target_table}
+    """).collect()[0][0]
+
+    # 변경분만 수집
+    jdbc_url = dbutils.secrets.get("prod-secrets", "db2-jdbc-url")
+    new_data = (spark.read.format("jdbc")
+        .option("url", jdbc_url)
+        .option("user", dbutils.secrets.get("prod-secrets", "db2-user"))
+        .option("password", dbutils.secrets.get("prod-secrets", "db2-pass"))
+        .option("query", f"""
+            SELECT * FROM {source_table}
+            WHERE {watermark_col} > '{last_watermark}'
+        """)
+        .load())
+
+    # Delta 테이블에 MERGE
+    new_data.createOrReplaceTempView("new_data")
+    spark.sql(f"""
+        MERGE INTO {target_table} AS t
+        USING new_data AS s
+        ON t.id = s.id
+        WHEN MATCHED THEN UPDATE SET *
+        WHEN NOT MATCHED THEN INSERT *
+    """)
+```
+
+> 💡 **현업 팁**: 커넥터가 없는 소스가 1~2개라면 커스텀 JDBC로 충분합니다. 하지만 5개 이상이면 **Fivetran을 병행하는 것이 총 비용(개발 인건비 포함)에서 유리**합니다. 커스텀 코드는 유지보수 비용이 숨어 있기 때문입니다 (스키마 변경 대응, 에러 처리, 모니터링 등).
+
+---
+
 ## 다른 수집 도구와의 비교
 
 Lakeflow Connect와 유사한 역할을 하는 외부 도구들과의 비교입니다.

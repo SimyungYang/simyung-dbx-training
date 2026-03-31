@@ -224,6 +224,127 @@ SET TBLPROPERTIES ('delta.enableOptimizeWrite' = 'true');
 
 ---
 
+## 현업 사례: MERGE 성능이 갑자기 10배 느려진 원인 분석
+
+현업에서 MERGE는 가장 많이 사용하는 Delta Lake 명령어이면서, 동시에 **가장 많은 성능 이슈를 일으키는** 명령어입니다. 실제 사례를 통해 MERGE의 내부 동작을 깊이 이해하겠습니다.
+
+### 사례: 전자상거래 회사의 주문 테이블
+
+주문 상태를 업데이트하는 MERGE가 평소 5분 걸리다가, 어느 날 갑자기 50분으로 늘어났습니다.
+
+```
+[상황]
+- 타겟 테이블: orders (10억 건, 500GB, 파티션 없음)
+- 소스 데이터: 일일 변경분 50만 건
+- MERGE 조건: ON target.order_id = source.order_id
+- 평소 실행 시간: 5분
+- 문제 발생 후: 50분 (10배 느려짐)
+```
+
+### MERGE의 내부 동작 이해
+
+MERGE는 내부적으로 3단계로 동작합니다. 각 단계를 이해하면 성능 문제의 원인을 찾을 수 있습니다.
+
+```
+[1단계: Scan (파일 스캔)]
+├── 타겟 테이블의 모든 파일을 스캔하여 매칭할 행을 찾습니다
+├── 이 단계의 비용 = 타겟 테이블 크기에 비례
+└── ⚡ 최적화: Liquid Clustering이나 파티션으로 스캔 범위를 줄입니다
+
+[2단계: Match (매칭)]
+├── ON 조건으로 소스와 타겟의 매칭 행을 식별합니다
+├── Inner Join 또는 Outer Join이 발생합니다
+└── ⚡ 최적화: 매칭 키에 인덱스/클러스터링이 있으면 빠릅니다
+
+[3단계: Write (파일 재작성)]
+├── 매칭된 파일만 새로 씁니다 (Copy-on-Write)
+├── 변경된 행이 1건이라도 해당 파일 전체를 재작성합니다
+└── ⚡ 최적화: 파일이 적절히 클러스터링되면 재작성할 파일 수가 줄어듭니다
+```
+
+### 원인 분석: 왜 10배 느려졌는가
+
+```
+[원인 1: Small File 문제]
+- OPTIMIZE를 2주간 안 돌렸음
+- 1MB 미만 파일이 50,000개 → 파일 열기/닫기 오버헤드 폭증
+
+[원인 2: 클러스터링 없음]
+- order_id 기준 MERGE인데, 데이터가 order_id 순서로 정렬되어 있지 않음
+- 50만 건 변경이 500GB 전체 파일에 골고루 분포 → 거의 모든 파일을 재작성
+
+[원인 3: 소스 데이터 급증]
+- 블랙프라이데이 이벤트로 일일 변경분이 50만 → 500만 건으로 10배 증가
+```
+
+### 대규모 MERGE 최적화 전략
+
+| 전략 | 효과 | 적용 방법 |
+|------|------|----------|
+| **Liquid Clustering** | 스캔 범위 축소 (10~100배) | `CLUSTER BY (merge_key)` — MERGE ON 조건의 키를 클러스터링 키로 설정 |
+| **정기 OPTIMIZE** | Small File 제거 | 매일 OPTIMIZE 실행 (또는 Predictive Optimization 활성화) |
+| **소스 필터링** | 매칭 대상 축소 | MERGE 전에 소스에서 불필요한 행을 미리 필터 |
+| **조건부 MERGE** | 스캔 범위 한정 | `MERGE INTO ... WHERE target.order_date >= '2025-03-01'` |
+| **배치 분할** | 메모리 부족 방지 | 500만 건을 50만 건씩 10회로 분할 실행 |
+
+```sql
+-- 최적화된 MERGE 패턴
+-- 1. 타겟 테이블에 Liquid Clustering 적용
+ALTER TABLE catalog.schema.orders CLUSTER BY (order_date, order_id);
+
+-- 2. MERGE에 조건 추가로 스캔 범위 한정
+MERGE INTO catalog.schema.orders AS target
+USING daily_changes AS source
+ON target.order_id = source.order_id
+   AND target.order_date >= current_date() - INTERVAL 30 DAYS  -- 30일 이내만 스캔
+WHEN MATCHED THEN
+    UPDATE SET target.status = source.status,
+               target.updated_at = current_timestamp()
+WHEN NOT MATCHED THEN
+    INSERT *;
+```
+
+### UPSERT 패턴의 현실적 고려사항
+
+| 고려사항 | 설명 | 권장 |
+|---------|------|------|
+| **멱등성(Idempotency)** | 같은 MERGE를 2번 실행해도 결과가 같아야 합니다 | `WHEN MATCHED AND source.updated_at > target.updated_at` 조건 추가 |
+| **DELETE 동기화** | 소스에서 삭제된 레코드를 어떻게 처리할 것인가 | Soft Delete (`is_deleted` 플래그) 권장. Hard Delete는 리스크가 큼 |
+| **Late Arriving Data** | 3일 전 주문의 상태가 오늘에야 도착하는 경우 | MERGE 조건에 날짜 범위를 충분히 넓게 설정 (예: 7일) |
+| **중복 소스 데이터** | CDC에서 같은 키의 이벤트가 여러 번 올 수 있음 | MERGE 전에 소스에서 `ROW_NUMBER()` 등으로 중복 제거 |
+| **대용량 초기 적재** | 빈 테이블에 10억 건을 MERGE하면 극도로 느림 | 초기 적재는 `INSERT INTO`로, 이후부터 MERGE 사용 |
+
+> ⚠️ **현업에서는 이렇게 합니다**: MERGE의 성능은 "얼마나 많은 파일을 재작성하느냐"에 달려있습니다. Liquid Clustering으로 MERGE 키 기준 데이터를 모아두면, 변경 대상 파일만 재작성하므로 10~100배 빨라집니다. 이것을 안 하면 500GB 테이블에서 1건만 UPDATE해도 수십 GB의 파일을 재작성하게 됩니다.
+
+> 💡 **숫자로 이해하기**: 10억 건 테이블(500GB, 파일 5,000개)에서 50만 건 MERGE 시:
+> - 클러스터링 없음: 5,000개 파일 중 4,800개 재작성 (96%) → **50분**
+> - Liquid Clustering(order_id): 5,000개 파일 중 250개 재작성 (5%) → **3분**
+
+### MERGE 운영 시 반드시 모니터링해야 할 지표
+
+현업에서 MERGE 파이프라인을 안정적으로 운영하려면 다음 지표를 모니터링해야 합니다.
+
+```sql
+-- MERGE 실행 후 확인해야 할 핵심 지표
+DESCRIBE HISTORY catalog.schema.orders LIMIT 5;
+
+-- 확인 항목:
+-- operationMetrics.numTargetRowsInserted: 삽입된 행 수
+-- operationMetrics.numTargetRowsUpdated: 업데이트된 행 수
+-- operationMetrics.numTargetFilesAdded: 새로 생성된 파일 수
+-- operationMetrics.numTargetFilesRemoved: 재작성된 파일 수 ← 이것이 핵심!
+-- operationMetrics.executionTimeMs: 실행 시간 (ms)
+```
+
+| 모니터링 지표 | 정상 범위 | 이상 신호 | 조치 |
+|-------------|---------|---------|------|
+| **재작성 파일 비율** | <20% | >50% | Liquid Clustering 확인, OPTIMIZE 실행 |
+| **실행 시간 추이** | 일정 | 주 단위로 증가 | Small File 문제, 데이터 볼륨 변화 확인 |
+| **삽입 행 수** | 예상 범위 내 | 0건 또는 급증 | 소스 데이터 문제 확인 |
+| **업데이트 행 수** | 예상 범위 내 | 급증 | 중복 소스 데이터 확인 |
+
+---
+
 ## 정리
 
 | 핵심 기능 | 설명 |

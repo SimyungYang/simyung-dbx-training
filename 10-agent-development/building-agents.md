@@ -252,6 +252,230 @@ print(response2.messages[0].content)
 
 ---
 
+## 첫 에이전트를 만들 때 가장 많이 하는 실수 5가지
+
+> 🔥 **현업에서 수십 건의 에이전트 프로젝트를 진행하며 발견한 패턴입니다.**
+
+### 실수 1: 프롬프트 없이 LLM에 직접 질문 전달
+
+```python
+# ❌ 시스템 프롬프트 없이 사용자 질문만 전달
+response = self.llm_client.predict(
+    endpoint="databricks-meta-llama-3-3-70b-instruct",
+    inputs={"messages": [{"role": "user", "content": user_message}]}
+)
+# 결과: 에이전트가 범위 밖의 질문에도 아무 답변을 생성하고,
+# 환각(hallucination)이 빈번하게 발생합니다
+
+# ✅ 명확한 시스템 프롬프트로 역할과 규칙 정의
+system_prompt = """당신은 XX 회사의 고객 지원 전문가입니다.
+규칙:
+1. 제공된 문서에 있는 정보만 사용하여 답변합니다.
+2. 문서에 없는 내용은 "확인 후 답변드리겠습니다"라고 안내합니다.
+3. 항상 한국어로 답변합니다.
+4. 개인정보(전화번호, 주소 등)는 절대 제공하지 않습니다."""
+```
+
+### 실수 2: 에러 처리 없이 Tool 호출
+
+```python
+# ❌ Tool 호출 실패 시 에이전트가 통째로 에러
+result = self.vector_index.similarity_search(query_text=query, num_results=5)
+
+# ✅ Graceful degradation 패턴
+def _safe_search(self, query: str) -> list:
+    try:
+        results = self.vector_index.similarity_search(
+            query_text=query, num_results=5
+        )
+        return results["result"]["data_array"]
+    except Exception as e:
+        # 검색 실패 시 빈 결과 반환, LLM이 "문서를 찾지 못했습니다"로 응답
+        import logging
+        logging.warning(f"Vector search failed: {e}")
+        return []
+```
+
+### 실수 3: 대화 이력을 무한정 전달
+
+```python
+# ❌ 모든 대화 이력을 LLM에 전달 → 토큰 한도 초과, 비용 폭증
+messages_for_llm = [{"role": m.role, "content": m.content} for m in messages]
+
+# ✅ 최근 N턴만 유지 + 시스템 프롬프트 토큰 예산 관리
+MAX_HISTORY = 10  # 최근 10개 메시지만 유지
+recent_messages = messages[-MAX_HISTORY:]
+messages_for_llm = [
+    {"role": "system", "content": system_prompt},
+    *[{"role": m.role, "content": m.content} for m in recent_messages]
+]
+```
+
+> 💡 **현업 팁**: 대화가 20턴을 넘어가면 토큰 비용이 급격히 증가합니다. 대부분의 고객 지원 시나리오에서는 최근 5~10턴이면 충분합니다.
+
+### 실수 4: predict_stream()을 구현하지 않음
+
+```python
+# ❌ predict()만 구현 → 긴 답변에서 사용자가 빈 화면을 오래 봐야 함
+# predict_stream()이 없으면 Review App, Playground에서 스트리밍 미지원
+
+# ✅ 반드시 predict_stream()도 구현하세요
+def predict_stream(self, messages, context=None):
+    for chunk in self._stream_llm_response(messages):
+        yield ChatAgentChunk(
+            delta=ChatAgentMessage(role="assistant", content=chunk)
+        )
+```
+
+### 실수 5: MLflow에 로깅하지 않고 바로 배포
+
+```python
+# ❌ 로깅 없이 배포 → 어떤 버전이 배포되었는지 추적 불가
+# agents.deploy()는 MLflow에 등록된 모델만 배포 가능
+
+# ✅ 항상 MLflow에 로깅한 후 배포
+with mlflow.start_run():
+    mlflow.log_param("llm_model", "llama-3.3-70b")
+    mlflow.log_param("temperature", 0.1)
+    mlflow.pyfunc.log_model(
+        artifact_path="agent",
+        python_model=agent,
+        registered_model_name="catalog.schema.my_agent"
+    )
+# 이후 배포
+agents.deploy(model_name="catalog.schema.my_agent", model_version=1)
+```
+
+---
+
+## ChatAgent vs LangChain 실전 비교
+
+| 비교 항목 | ChatAgent (직접 구현) | LangChain/LangGraph |
+|-----------|---------------------|---------------------|
+| **코드 복잡도** | 낮음 (Python 클래스 하나) | 중간~높음 (Chain, Graph 개념 학습 필요) |
+| **디버깅** | 쉬움 (표준 Python 디버깅) | 어려움 (프레임워크 내부 동작 파악 필요) |
+| **유연성** | 매우 높음 (완전한 제어) | 높음 (프레임워크 확장 가능) |
+| **Databricks 통합** | 네이티브 (MLflow, Review App 자동 연동) | 지원 (mlflow.langchain 모듈) |
+| **멀티 스텝 로직** | 직접 구현해야 합니다 | LangGraph로 상태 머신 구현 가능 |
+| **커뮤니티/생태계** | Databricks 문서 중심 | 대규모 오픈소스 커뮤니티 |
+| **프로덕션 안정성** | 높음 (의존성 최소화) | 중간 (프레임워크 버전 업데이트 영향) |
+| **학습 곡선** | 낮음 (Python만 알면 됨) | 높음 (Chain, Agent, Tool, Memory 개념) |
+
+### 실전 선택 기준
+
+```
+질문: "어떤 방식으로 에이전트를 구축할 것인가?"
+
+├─ "단순 RAG + Tool 호출 (1~3개)"
+│     → ChatAgent 직접 구현
+│     이유: 가장 간단하고 디버깅이 쉽습니다
+│
+├─ "복잡한 멀티 스텝 로직 (조건 분기, 반복, 상태 관리)"
+│     → LangGraph
+│     이유: 상태 머신으로 복잡한 흐름을 선언적으로 정의합니다
+│
+├─ "이미 LangChain 코드가 있음"
+│     → LangChain + mlflow.langchain
+│     이유: 기존 코드를 최대한 활용합니다
+│
+└─ "코드 없이 빠르게"
+      → Agent Bricks
+      이유: 30분 내 배포 가능합니다
+```
+
+> 🔥 **현업에서는**: 에이전트의 80%는 "문서 검색 + Tool 1~2개 호출"로 충분합니다. 이런 경우 **LangChain을 도입하면 오히려 불필요한 복잡성만 추가**됩니다. LangGraph가 정말 필요한 경우는 "에이전트가 스스로 판단하여 여러 단계를 반복적으로 수행해야 하는 경우"뿐입니다. **단순한 것부터 시작하고, 필요할 때만 복잡성을 추가하세요.**
+
+---
+
+## 프로덕션 에이전트의 에러 처리 패턴
+
+프로덕션 에이전트는 다양한 장애 상황에 대비해야 합니다. 아래는 현업에서 검증된 에러 처리 패턴입니다.
+
+### 패턴 1: Circuit Breaker (회로 차단기)
+
+LLM이나 Vector Search가 지속적으로 실패할 때, 무한 재시도 대신 빠르게 실패를 반환합니다.
+
+```python
+import time
+
+class CircuitBreaker:
+    def __init__(self, failure_threshold=3, recovery_timeout=60):
+        self.failure_count = 0
+        self.failure_threshold = failure_threshold
+        self.recovery_timeout = recovery_timeout
+        self.last_failure_time = 0
+        self.state = "CLOSED"  # CLOSED(정상), OPEN(차단), HALF_OPEN(시도)
+
+    def call(self, func, *args, **kwargs):
+        if self.state == "OPEN":
+            if time.time() - self.last_failure_time > self.recovery_timeout:
+                self.state = "HALF_OPEN"
+            else:
+                return "죄송합니다. 시스템이 일시적으로 불안정합니다. 잠시 후 다시 시도해 주세요."
+
+        try:
+            result = func(*args, **kwargs)
+            self.failure_count = 0
+            self.state = "CLOSED"
+            return result
+        except Exception as e:
+            self.failure_count += 1
+            self.last_failure_time = time.time()
+            if self.failure_count >= self.failure_threshold:
+                self.state = "OPEN"
+            raise e
+```
+
+### 패턴 2: Fallback 응답
+
+```python
+def predict(self, messages, context=None):
+    try:
+        # 정상 흐름: RAG + LLM
+        docs = self._search_documents(messages[-1].content)
+        answer = self._generate_response(messages, docs)
+    except Exception as e:
+        # Fallback: 사전 정의된 안내 메시지
+        answer = (
+            "죄송합니다. 현재 시스템에 일시적인 문제가 있어 답변을 드리기 어렵습니다. "
+            "다음 방법으로 도움을 받으실 수 있습니다:\n"
+            "1. 고객센터: 1588-XXXX\n"
+            "2. 이메일: support@company.com\n"
+            "잠시 후 다시 시도해 주시면 감사하겠습니다."
+        )
+        import logging
+        logging.error(f"Agent prediction failed: {e}")
+
+    return ChatAgentResponse(
+        messages=[ChatAgentMessage(role="assistant", content=answer)]
+    )
+```
+
+### 패턴 3: 입력 검증 (Safety Guard)
+
+```python
+def _validate_input(self, user_message: str) -> tuple[bool, str]:
+    """사용자 입력을 검증하고 문제가 있으면 거부합니다."""
+    # 너무 긴 입력 거부
+    if len(user_message) > 2000:
+        return False, "질문이 너무 깁니다. 2,000자 이내로 줄여주세요."
+
+    # 빈 입력 거부
+    if not user_message.strip():
+        return False, "질문을 입력해 주세요."
+
+    # Prompt Injection 기본 방어
+    injection_patterns = ["ignore previous instructions", "system prompt", "당신은 이제부터"]
+    if any(pattern in user_message.lower() for pattern in injection_patterns):
+        return False, "해당 요청은 처리할 수 없습니다."
+
+    return True, ""
+```
+
+> 💡 **현업 팁**: 프로덕션 에이전트에서 가장 중요한 것은 **"절대 에러 페이지를 보여주지 않는 것"** 입니다. LLM이 실패하든, Vector Search가 실패하든, 사용자에게는 항상 자연어로 된 안내 메시지를 반환해야 합니다. 기술적 에러 메시지(stack trace)가 사용자에게 노출되면 신뢰를 잃습니다.
+
+---
+
 ## 에이전트 개발 패턴 비교
 
 | 패턴 | 설명 | 적합한 경우 |

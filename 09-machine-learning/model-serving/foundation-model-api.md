@@ -272,6 +272,128 @@ def call_with_retry(endpoint, inputs, max_retries=5):
 
 ---
 
+## 현업 가이드: Pay-per-token vs Provisioned Throughput 비용 역전점
+
+현업에서 "어느 시점에 Provisioned Throughput으로 전환해야 하는가?"는 가장 많이 받는 질문 중 하나입니다. 구체적인 숫자로 설명합니다.
+
+### 비용 역전점 분석
+
+```
+[Pay-per-token 비용 계산]
+Llama 3.3 70B 기준 (예시 단가):
+- 입력: $0.001 / 1K 토큰
+- 출력: $0.002 / 1K 토큰
+- 평균 요청: 입력 500토큰, 출력 200토큰
+- 1건당 비용: $0.0005 + $0.0004 = $0.0009
+
+월 요청량별 비용:
+├── 1만 건/월:   $9       → Pay-per-token 압승
+├── 10만 건/월:  $90      → Pay-per-token 유리
+├── 50만 건/월:  $450     → 비슷한 구간 (역전점)
+├── 100만 건/월: $900     → Provisioned Throughput 유리
+└── 500만 건/월: $4,500   → Provisioned Throughput 압승
+
+[Provisioned Throughput 비용 계산]
+- 예시: 50 DBU/시간 × 730시간/월 × $0.07/DBU = ~$2,555/월
+- 이 비용에서 무제한 요청 가능 (처리량 범위 내)
+```
+
+> 💡 **현업에서는 이렇게 합니다**: **월 50만 건 이상**의 요청이 예상되면 Provisioned Throughput을 검토합니다. 단, 단순 비용 외에 **응답 지연시간(Latency)** 도 고려하세요. Pay-per-token은 공유 인프라이므로 피크 시간에 지연이 길어질 수 있습니다. 실시간 챗봇처럼 P95 응답 시간이 중요한 경우, 비용이 더 들더라도 Provisioned Throughput을 선택합니다.
+
+### 과금 방식 전환 판단 체크리스트
+
+```
+다음 중 3개 이상 해당하면 Provisioned Throughput으로 전환을 고려하세요:
+
+☐ 월 50만 건 이상의 API 요청이 발생한다
+☐ P95 응답 시간 SLA (예: 3초 이내)가 필요하다
+☐ 트래픽이 예측 가능하고 일정하다 (하루 종일 균등)
+☐ 커스텀 파인튜닝 모델을 서빙해야 한다
+☐ Pay-per-token에서 Rate Limiting에 자주 걸린다
+```
+
+---
+
+## 모델 선택 가이드: 어떤 상황에 어떤 모델을 쓸 것인가
+
+현업에서 "어떤 모델을 써야 하나요?"는 기술 리더가 가장 어려워하는 질문입니다. 모델 선택은 **성능, 비용, 데이터 보안, 라이선스** 4가지 축으로 판단합니다.
+
+### 호스팅 모델 vs 외부 모델 선택 기준
+
+| 판단 기준 | 호스팅 모델 (Llama 등) | 외부 모델 (GPT-4o, Claude 등) |
+|----------|----------------------|---------------------------|
+| **데이터 보안** | 데이터가 Databricks 내부에서만 처리 | 데이터가 외부 API로 전송 |
+| **규제 산업** | 금융/의료/공공에서 필수 | 데이터 외부 전송 불가 시 사용 불가 |
+| **성능 (복잡한 추론)** | 70B도 GPT-4o 대비 약간 낮음 | GPT-4o, Claude Sonnet이 최고 수준 |
+| **비용** | 호스팅 모델이 대체로 저렴 | 외부 모델은 토큰 단가가 더 높음 |
+| **한국어 성능** | Llama 3.3 70B도 한국어 준수 | GPT-4o, Claude가 한국어 최고 |
+| **파인튜닝** | 가능 (Provisioned Throughput) | 제한적 (OpenAI만 일부 지원) |
+
+### 용도별 모델 추천
+
+| 용도 | 1순위 추천 | 2순위 추천 | 이유 |
+|------|-----------|-----------|------|
+| **내부 문서 요약/분류** | Llama 3.3 70B | Llama 3.1 8B | 데이터 보안 + 비용. 분류는 8B로도 충분 |
+| **고객 대면 챗봇** | GPT-4o (외부) | Claude Sonnet (외부) | 한국어 자연스러움이 핵심 |
+| **코드 생성/리뷰** | Claude Sonnet (외부) | GPT-4o (외부) | 코드 품질은 외부 모델이 우수 |
+| **대량 배치 처리 (ai_query)** | Llama 3.1 8B | Llama 3.3 70B | 비용이 핵심. 8B로 충분한 작업이 많음 |
+| **RAG 임베딩** | GTE Large EN | Qwen3-Embedding (외부) | 한국어가 중요하면 Qwen3 |
+| **규제 산업 (금융/의료)** | Llama 3.3 70B | DBRX | 데이터 외부 전송 불가 |
+
+> ⚠️ **현업에서는 이렇게 합니다**: "하나의 모델로 모든 것을 해결하자"는 접근은 비용 낭비입니다. 현업에서는 **용도별로 모델을 다르게** 사용합니다. 단순 분류는 8B 모델, 복잡한 추론은 70B, 고객 대면은 외부 모델. External Model 엔드포인트를 활용하면 코드 변경 없이 모델만 교체할 수 있으므로, A/B 테스트로 최적 모델을 찾는 것이 좋습니다.
+
+---
+
+## Rate Limiting 대응 실전 전략
+
+Pay-per-token에서 Rate Limiting은 "겪어보면 아는" 고통입니다. 실전 대응 전략을 공유합니다.
+
+### Rate Limiting이 문제가 되는 전형적인 시나리오
+
+```
+[시나리오: 대량 배치 처리]
+- 100만 건의 고객 리뷰를 ai_query()로 감성 분석
+- 분당 토큰 제한에 걸려서 처리가 수 시간 → 수일로 늘어남
+- 중간에 실패하면 어디까지 처리했는지 추적 어려움
+```
+
+### 대량 처리를 위한 실전 패턴
+
+```python
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+def batch_process_with_rate_limit(records, endpoint, max_workers=5, delay=0.1):
+    """
+    Rate Limiting을 고려한 대량 배치 처리 패턴
+    - max_workers: 동시 요청 수 (너무 높으면 429 에러)
+    - delay: 요청 간 대기 시간 (Rate Limit 여유)
+    """
+    results = []
+    failed = []
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {}
+        for i, record in enumerate(records):
+            future = executor.submit(call_with_retry, endpoint, record)
+            futures[future] = i
+            time.sleep(delay)  # 요청 간격 조절
+
+        for future in as_completed(futures):
+            idx = futures[future]
+            try:
+                results.append((idx, future.result()))
+            except Exception as e:
+                failed.append((idx, str(e)))
+
+    print(f"성공: {len(results)}, 실패: {len(failed)}")
+    return results, failed
+```
+
+> 💡 **현업 팁**: 대량 배치 처리(100만 건+)에서는 `ai_query()`를 직접 사용하는 것보다, **Spark UDF로 래핑**하고 파티션별로 병렬 처리하는 것이 효율적입니다. 각 파티션에서 적절한 Rate Limiting을 적용하면, Spark의 분산 처리 능력을 활용하면서도 429 에러를 최소화할 수 있습니다.
+
+---
+
 ## 정리
 
 | 핵심 개념 | 설명 |

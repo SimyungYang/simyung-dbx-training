@@ -225,6 +225,159 @@ GROUP BY DATE(order_date), product_category;
 
 ---
 
+## 현업 사례: Informatica 라이선스 비용이 연 5억인 기업이 ELT로 전환한 이유
+
+현업에서 가장 많이 접하는 마이그레이션 동기는 **비용**입니다. 실제 사례를 바탕으로 설명합니다.
+
+### 배경
+
+국내 대형 금융사의 데이터 팀이 운영하던 환경은 다음과 같았습니다:
+
+```
+[기존 ETL 환경]
+├── Informatica PowerCenter 서버 3대 (라이선스: 연 5억 원)
+├── Oracle DW (Exadata: 연 유지보수 8억 원)
+├── ETL 매핑 2,300개 (10년간 누적)
+├── ETL 개발자 4명 (Informatica 전문가, 희소 인력)
+├── 일일 ETL 처리 시간: 12시간 (새벽 1시~오후 1시)
+└── 신규 데이터 소스 추가: 평균 3주 (매핑 설계 → 개발 → 테스트 → 배포)
+```
+
+### 전환 동기 — "비용"만이 아니었습니다
+
+| 동기 | 구체적 상황 | 영향 |
+|------|-----------|------|
+| **라이선스 비용** | Informatica + Oracle 연 13억 원 | 매년 5~10% 인상 통보 |
+| **인력 종속** | Informatica 전문가 4명 중 2명 이직 예정 | 대체 인력 채용 불가 (시장에 없음) |
+| **처리 시간** | 12시간 ETL 윈도우가 포화 | 신규 데이터 소스 추가 불가 |
+| **유연성 부재** | 새 리포트 요청 시 3주 소요 | 비즈니스 팀 불만 폭증 |
+| **ML/AI 불가** | DW에서 Python 실행 불가 | 데이터를 복사해서 별도 환경으로 이동 필요 |
+
+### ELT 전환 후 결과 (18개월 후)
+
+```
+[전환 후 ELT 환경]
+├── Databricks Lakehouse (Lakeflow Jobs + SDP)
+├── Delta Lake on S3
+├── ELT 파이프라인 1,500개 (불필요한 700개 정리)
+├── 데이터 엔지니어 4명 (SQL + Python, 채용 용이)
+├── 일일 처리 시간: 2시간 (서버리스 클러스터 자동 확장)
+└── 신규 데이터 소스 추가: 평균 3일
+```
+
+| 지표 | Before | After | 개선 |
+|------|--------|-------|------|
+| 연간 플랫폼 비용 | 13억 원 | 5억 원 | **62% 절감** |
+| 일일 ETL 시간 | 12시간 | 2시간 | **83% 단축** |
+| 신규 소스 추가 | 3주 | 3일 | **7배 빠름** |
+| 인력 채용 난이도 | 극난 (Informatica) | 보통 (SQL/Python) | **인력풀 100배** |
+
+---
+
+## ETL에서 ELT로 전환할 때 가장 어려운 점
+
+기술적 전환보다 **조직적 전환**이 10배 어렵습니다. 현업에서 겪는 실제 저항과 해결법을 공유합니다.
+
+### 1. 조직 문화의 저항
+
+```
+DBA/ETL 팀의 전형적인 반응:
+"10년간 잘 돌아가는 ETL을 왜 바꿉니까?"
+"Spark는 배워본 적이 없는데요"
+"원본을 그대로 넣으면 데이터 품질은 누가 보장합니까?"
+```
+
+> 💡 **현업에서는 이렇게 합니다**: 기존 ETL 팀을 "적"이 아니라 "주인공"으로 만들어야 합니다. 이 팀이 가장 잘 아는 것은 비즈니스 로직입니다. Informatica 매핑에 들어있는 변환 로직을 SQL로 재작성하는 역할을 맡기면, 자연스럽게 Databricks에 익숙해지면서 동시에 기존 지식이 보존됩니다.
+
+### 2. 기존 코드 자산의 처리
+
+2,300개의 Informatica 매핑을 어떻게 할 것인가? 현실적인 접근법:
+
+| 전략 | 설명 | 적합한 상황 |
+|------|------|-----------|
+| **자동 변환 도구** | Informatica → Spark/SQL 자동 변환 | 단순 매핑 (전체의 40~60%) |
+| **수동 재작성** | 복잡한 로직을 SQL/Python으로 재구현 | 비즈니스 크리티컬 매핑 |
+| **폐기** | 더 이상 사용되지 않는 매핑 제거 | 사용자가 없는 매핑 (보통 30%) |
+
+> ⚠️ **이것을 안 하면**: 2,300개를 전부 1:1로 변환하려다가 2년이 걸리고, 결국 이중 운영 비용만 늘어납니다. **반드시 사용 빈도를 분석**하세요. 대부분의 기업에서 전체 ETL 매핑의 30%는 아무도 사용하지 않는 좀비 파이프라인입니다.
+
+### 3. 데이터 정합성 신뢰 확보
+
+가장 오래 걸리는 단계입니다. 현업에서는 최소 4주간 이중 운영(parallel run)을 합니다.
+
+```sql
+-- 정합성 비교 쿼리 패턴
+-- 기존 DW와 신규 Lakehouse의 결과를 비교합니다
+SELECT
+    'DW' AS source,
+    COUNT(*) AS row_count,
+    SUM(amount) AS total_amount,
+    COUNT(DISTINCT customer_id) AS unique_customers
+FROM oracle_dw.sales.daily_summary
+WHERE date = '2025-03-30'
+
+UNION ALL
+
+SELECT
+    'Lakehouse' AS source,
+    COUNT(*) AS row_count,
+    SUM(amount) AS total_amount,
+    COUNT(DISTINCT customer_id) AS unique_customers
+FROM catalog.gold.daily_summary
+WHERE date = '2025-03-30';
+```
+
+---
+
+## Databricks에서 ELT 구현 실전 패턴
+
+### 패턴 1: CDC 기반 실시간 ELT
+
+운영 DB의 변경분만 캡처하여 적재하는 패턴입니다. 전체를 매번 덤프하는 것보다 **100배 효율적**입니다.
+
+```sql
+-- Lakeflow Connect로 MySQL CDC 수집 (Bronze)
+-- 변경분만 자동으로 캡처하여 Delta 테이블에 적재
+
+-- Silver: CDC 이벤트를 최신 상태로 MERGE
+CREATE OR REFRESH STREAMING TABLE silver_customers
+AS SELECT *
+FROM STREAM(bronze_customers_cdc)
+-- SDP APPLY CHANGES INTO를 사용하면 CDC MERGE를 자동 처리
+```
+
+### 패턴 2: 멀티 소스 조인 ELT
+
+여러 소스의 데이터를 Lakehouse에서 조인하는 패턴입니다.
+
+```sql
+-- Gold: 여러 Silver 테이블을 조인하여 비즈니스 뷰 생성
+CREATE OR REFRESH MATERIALIZED VIEW gold_customer_360
+AS SELECT
+    c.customer_id,
+    c.name,
+    c.segment,
+    o.total_orders,
+    o.total_revenue,
+    o.last_order_date,
+    s.nps_score,
+    s.last_survey_date
+FROM silver_customers c
+LEFT JOIN (
+    SELECT customer_id,
+           COUNT(*) AS total_orders,
+           SUM(amount) AS total_revenue,
+           MAX(order_date) AS last_order_date
+    FROM silver_orders
+    GROUP BY customer_id
+) o ON c.customer_id = o.customer_id
+LEFT JOIN silver_surveys s ON c.customer_id = s.customer_id;
+```
+
+> 💡 **현업 팁**: ELT에서 가장 중요한 것은 **Bronze를 절대 건드리지 않는 것**입니다. Bronze는 "금고에 넣어둔 원본"입니다. 변환 로직이 잘못되면 Silver를 Drop하고 Bronze에서 다시 만들면 됩니다. ETL에서는 이것이 불가능했습니다.
+
+---
+
 ## 정리
 
 | 핵심 개념 | 실무 핵심 |

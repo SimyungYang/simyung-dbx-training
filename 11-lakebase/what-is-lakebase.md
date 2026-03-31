@@ -277,6 +277,110 @@ Lakebase의 Data Sync를 읽기 복제본처럼 활용할 수 있습니다.
 
 ---
 
+## 현업 사례: OLTP 데이터를 분석하려고 매일 ETL을 돌리던 고통이 Data Sync로 사라진 사례
+
+OLTP-OLAP 분리로 인한 고통은 데이터 팀이라면 누구나 겪어본 일입니다. Lakebase의 Data Sync가 이 문제를 어떻게 해결하는지 실제 사례로 공유합니다.
+
+### 사례: SaaS 스타트업의 운영 데이터 분석
+
+```
+[기존 환경]
+├── 운영 DB: AWS RDS PostgreSQL (주문, 고객, 재고 데이터)
+├── 분석 환경: Databricks Lakehouse
+├── ETL: Lakeflow Connect로 RDS → Delta Lake 동기화
+│   ├── 전체 테이블 덤프: 매일 새벽 2시 실행
+│   ├── CDC 파이프라인: Debezium → Kafka → Spark Streaming
+│   └── 데이터 지연: 전체 덤프는 6시간, CDC는 5~30분
+├── 인프라 관리 인력: DBA 1명 (RDS) + 데이터 엔지니어 2명 (ETL)
+└── 월 비용: RDS $800 + Kafka $500 + ETL 클러스터 $1,200 = $2,500
+
+[고통 포인트]
+├── Kafka가 죽으면 CDC 파이프라인 전체 중단 (월 1~2회)
+├── Debezium 커넥터 설정/유지보수에 엔지니어 시간의 30% 소요
+├── RDS 스키마 변경 시 CDC 파이프라인 수동 수정 필요
+├── "오늘 주문 데이터가 대시보드에 반영 안 됐어요" 문의 주 3회
+└── DBA + 데이터 엔지니어 인건비: 연 1.5억 원
+```
+
+### Lakebase Data Sync 전환 후
+
+```
+[전환 후 환경]
+├── 운영 DB: Lakebase (PostgreSQL 호환)
+├── 분석 환경: Databricks Lakehouse (동일)
+├── 동기화: Data Sync (자동, 설정만 하면 됨)
+│   └── 데이터 지연: 5~30초 (거의 실시간)
+├── 인프라 관리 인력: 데이터 엔지니어 1명 (나머지 인력은 다른 프로젝트)
+└── 월 비용: Lakebase $1,500 (ETL/Kafka 비용 소멸) = $1,500
+
+[개선 효과]
+├── Kafka + Debezium 완전 제거 → 장애 포인트 소멸
+├── ETL 파이프라인 코드 2,000줄 → 삭제
+├── 데이터 지연: 6시간 → 30초
+├── "대시보드에 반영 안 됐어요" 문의: 0건
+├── 연간 인프라 비용 절감: $12,000 (40%)
+└── 엔지니어 2명 → 1명 (나머지는 ML 프로젝트에 투입)
+```
+
+> 💡 **현업에서는 이렇게 합니다**: Lakebase의 가장 큰 가치는 "ETL 파이프라인을 제거"하는 것입니다. ETL/CDC 파이프라인은 한 번 만들면 끝이 아니라, **지속적인 유지보수가 필요**합니다. Debezium 버전 업그레이드, Kafka 클러스터 관리, 스키마 변경 대응 등에 엔지니어 시간의 30~50%가 소요됩니다. Data Sync는 이 모든 것을 Databricks가 관리합니다.
+
+---
+
+## RDS vs Lakebase 실전 비교: 언제 어떤 것을 선택해야 하는가
+
+"기존 RDS를 Lakebase로 바꿔야 하나요?"는 현업에서 자주 받는 질문입니다. 솔직한 비교를 드리겠습니다.
+
+### 성능 비교 (실전 기준)
+
+| 워크로드 | RDS PostgreSQL | Lakebase | 승자 |
+|---------|----------------|----------|------|
+| 단건 PK 조회 (SELECT by ID) | 1~3ms | 1~5ms | **RDS** (약간 우위) |
+| 복잡한 조인 쿼리 (OLTP) | 10~100ms | 10~100ms | **비슷** |
+| 대량 INSERT (배치) | 높은 throughput | 높은 throughput | **비슷** |
+| 분석 쿼리 (GROUP BY 집계) | 느림 (OLTP에 부담) | Data Sync → DBSQL로 처리 | **Lakebase** (OLTP 부담 없음) |
+| 동시 연결 수 | 수백 (인스턴스 크기 제한) | 수백 (PostgreSQL 한계 동일) | **비슷** |
+
+### Lakebase가 적합한 워크로드
+
+| 워크로드 | 이유 | 핵심 이점 |
+|---------|------|----------|
+| **Databricks Apps 백엔드** | Streamlit/FastAPI의 데이터 저장 + 즉시 분석 | 동일 플랫폼 내 OLTP+OLAP |
+| **AI 에이전트 상태 관리** | 대화 이력 저장 + ML 파이프라인 연동 | Data Sync로 학습 데이터 자동 준비 |
+| **SaaS 멀티 테넌트 DB** | 테넌트별 DB + 전체 분석이 필요한 경우 | 거버넌스 + 분석 통합 |
+| **마이크로서비스 DB** | 서비스별 독립 DB + 크로스 서비스 분석 | Unity Catalog로 전체 데이터 카탈로그 |
+| **실시간 대시보드 소스** | OLTP 데이터가 실시간으로 대시보드에 반영 | Data Sync 5~30초 지연 |
+
+### Lakebase가 부적합한 워크로드
+
+| 워크로드 | 이유 | 대안 |
+|---------|------|------|
+| **초대규모 OLTP** (10만+ TPS) | PostgreSQL 아키텍처의 한계 | Amazon Aurora, CockroachDB, TiDB |
+| **8TB 초과 데이터** | 현재 8TB 스토리지 제한 | RDS + Read Replica, Aurora |
+| **글로벌 분산 DB** | 단일 리전 한정 | CockroachDB, Spanner |
+| **이미 안정된 RDS 운영** | 전환 리스크 대비 이점이 적음 | 현재 RDS 유지 + Lakeflow Connect |
+| **Databricks를 사용하지 않는 경우** | Data Sync의 가치가 없음 | RDS, Azure DB |
+
+> ⚠️ **현업에서는 이렇게 합니다**: "기존 RDS를 무조건 Lakebase로 바꾸자"는 올바른 접근이 아닙니다. Lakebase의 핵심 가치는 **Data Sync(OLTP→OLAP 자동 동기화)** 입니다. 이미 Lakeflow Connect로 RDS→Delta Lake ETL이 잘 동작하고 있다면, 전환의 이점은 크지 않습니다. 하지만 **새 프로젝트를 시작**하거나, **ETL 파이프라인 유지보수가 고통**이라면, Lakebase가 확실한 해답입니다.
+
+### 마이그레이션 고려사항
+
+기존 RDS에서 Lakebase로 마이그레이션할 때 알아야 할 사항:
+
+```
+[마이그레이션 체크리스트]
+☐ PostgreSQL 호환성 확인 — 사용 중인 PostgreSQL extension이 지원되는가?
+☐ 커넥션 문자열 변경 — 앱의 DB 접속 정보를 Lakebase로 변경
+☐ 스토리지 용량 확인 — 현재 DB 크기가 8TB 이내인가?
+☐ Data Sync 설정 — 동기화할 테이블/스키마 선택
+☐ 성능 테스트 — 핵심 쿼리의 응답 시간이 RDS와 동등한가?
+☐ 모니터링 전환 — CloudWatch → Databricks 시스템 테이블
+☐ 백업 전략 확인 — PITR 보존 기간 설정
+```
+
+> 💡 **현업 팁**: Lakebase는 PostgreSQL 호환이지만, RDS에서 사용하던 일부 extension(PostGIS, TimescaleDB 등)이 아직 지원되지 않을 수 있습니다. 마이그레이션 전에 반드시 사용 중인 extension과 PostgreSQL 고급 기능의 호환성을 확인하세요.
+
+---
+
 ## 정리
 
 | 핵심 기능 | 설명 |
