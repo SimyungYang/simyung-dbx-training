@@ -2,7 +2,7 @@
 
 ## 대시보드란?
 
-> 💡 **AI/BI Dashboard (Lakeview)**는 SQL 쿼리 결과를 **차트, 표, KPI 카운터** 등으로 시각화하는 Databricks의 내장 대시보드 도구입니다. 데이터셋(SQL 쿼리)을 정의하면 AI가 적절한 차트를 추천하기도 합니다.
+> 💡 **AI/BI Dashboard (Lakeview)** 는 SQL 쿼리 결과를 **차트, 표, KPI 카운터** 등으로 시각화하는 Databricks의 내장 대시보드 도구입니다. 데이터셋(SQL 쿼리)을 정의하면 AI가 적절한 차트를 추천하기도 합니다.
 
 ---
 

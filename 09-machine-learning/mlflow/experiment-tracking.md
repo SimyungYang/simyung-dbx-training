@@ -17,7 +17,7 @@
 
 ## 핵심 개념: Experiment와 Run
 
-MLflow의 실험 추적은 **Experiment(실험)**와 **Run(실행)**이라는 두 가지 핵심 단위로 구성됩니다.
+MLflow의 실험 추적은 **Experiment(실험)** 와 **Run(실행)** 이라는 두 가지 핵심 단위로 구성됩니다.
 
 ```mermaid
 graph TD

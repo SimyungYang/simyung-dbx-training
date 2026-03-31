@@ -6,7 +6,7 @@
 
 문제는 각 엔진이 서로 다른 테이블 포맷을 사용한다는 것입니다. Databricks는 Delta Lake, Snowflake와 Trino는 주로 Apache Iceberg를 지원합니다. 동일한 데이터를 여러 포맷으로 복사하면 **데이터 일관성 유지**, **스토리지 비용**, **파이프라인 복잡도** 문제가 발생합니다.
 
-> 💡 **UniForm(Universal Format)**은 하나의 Delta Lake 테이블에 **Iceberg 호환 메타데이터를 자동 생성**하여, 데이터 복사 없이 여러 엔진에서 동일한 데이터를 읽을 수 있게 하는 기능입니다.
+> 💡 **UniForm(Universal Format)** 은 하나의 Delta Lake 테이블에 **Iceberg 호환 메타데이터를 자동 생성**하여, 데이터 복사 없이 여러 엔진에서 동일한 데이터를 읽을 수 있게 하는 기능입니다.
 
 ---
 
@@ -83,7 +83,7 @@ UniForm을 활성화하면 다음 속성이 **자동으로 함께 설정**됩니
 
 ## Iceberg REST Catalog (IRC)
 
-외부 엔진이 UniForm이 활성화된 테이블을 읽으려면, 테이블의 **위치(메타데이터 경로)**를 알아야 합니다. Unity Catalog는 **Iceberg REST Catalog** 표준을 지원하여, 외부 엔진이 HTTP API를 통해 테이블 목록을 조회하고 메타데이터 위치를 확인할 수 있습니다.
+외부 엔진이 UniForm이 활성화된 테이블을 읽으려면, 테이블의 **위치(메타데이터 경로)** 를 알아야 합니다. Unity Catalog는 **Iceberg REST Catalog** 표준을 지원하여, 외부 엔진이 HTTP API를 통해 테이블 목록을 조회하고 메타데이터 위치를 확인할 수 있습니다.
 
 ### 연결 정보
 
@@ -173,7 +173,7 @@ df = spark.table("unity.my_schema.shared_events")
 
 | 항목 | 설명 |
 |------|------|
-| **쓰기는 Delta만** | UniForm 테이블에 데이터를 쓰는 것은 **Databricks(Delta 프로토콜)**에서만 가능합니다. 외부 엔진은 읽기 전용입니다 |
+| **쓰기는 Delta만** | UniForm 테이블에 데이터를 쓰는 것은 **Databricks(Delta 프로토콜)** 에서만 가능합니다. 외부 엔진은 읽기 전용입니다 |
 | **메타데이터 동기화 지연** | Delta 쓰기 후 Iceberg 메타데이터가 자동 생성되지만, 약간의 지연이 있을 수 있습니다 |
 | **Deletion Vectors 호환** | UniForm은 Deletion Vectors와 함께 사용 가능합니다 |
 | **Liquid Clustering 호환** | UniForm과 Liquid Clustering을 동시에 사용할 수 있습니다 |

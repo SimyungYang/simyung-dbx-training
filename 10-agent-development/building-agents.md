@@ -99,7 +99,7 @@ class CustomerSupportAgent(ChatAgent):
 
 ## Unity Catalog Functions를 Tool로 활용
 
-에이전트가 사용할 수 있는 **도구(Tool)**를 Unity Catalog의 SQL/Python 함수로 정의할 수 있습니다. 이렇게 하면 도구에 대한 **거버넌스(권한 관리, 감사)**가 자동으로 적용됩니다.
+에이전트가 사용할 수 있는 **도구(Tool)** 를 Unity Catalog의 SQL/Python 함수로 정의할 수 있습니다. 이렇게 하면 도구에 대한 **거버넌스(권한 관리, 감사)** 가 자동으로 적용됩니다.
 
 ### SQL Function Tool 생성
 

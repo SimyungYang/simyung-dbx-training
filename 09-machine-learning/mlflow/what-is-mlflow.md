@@ -61,7 +61,7 @@ MLflow Models는 다양한 ML 프레임워크(scikit-learn, PyTorch, Hugging Fac
 
 ### Model Registry (모델 레지스트리)
 
-Model Registry는 학습된 모델의 **버전을 관리**하고, 프로덕션 승격을 제어합니다. Unity Catalog와 통합되어 모델에도 데이터 테이블과 동일한 **거버넌스(권한, 리니지, 태그)**가 적용됩니다. Alias 기능으로 `champion`(현재 프로덕션), `challenger`(테스트 중) 등의 레이블을 부여하여 배포 관리를 체계화합니다.
+Model Registry는 학습된 모델의 **버전을 관리**하고, 프로덕션 승격을 제어합니다. Unity Catalog와 통합되어 모델에도 데이터 테이블과 동일한 **거버넌스(권한, 리니지, 태그)** 가 적용됩니다. Alias 기능으로 `champion`(현재 프로덕션), `challenger`(테스트 중) 등의 레이블을 부여하여 배포 관리를 체계화합니다.
 
 ### Tracing (GenAI 트레이싱)
 

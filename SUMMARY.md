@@ -171,10 +171,16 @@
 * [네트워크 보안](12-security-and-governance/network-security.md)
 * [시스템 테이블](12-security-and-governance/system-tables.md)
 
-## 부록
+## 개발 도구
 
 * [Databricks CLI](13-appendix/databricks-cli.md)
-* [Asset Bundles](13-appendix/databricks-asset-bundles.md)
+* [Asset Bundles (DABs)](13-appendix/databricks-asset-bundles.md)
 * [Databricks Apps](13-appendix/databricks-apps.md)
+* [AI Dev Kit](13-appendix/ai-dev-kit.md)
+* [Genie Code](13-appendix/genie-code.md)
+* [Databricks SDK](13-appendix/databricks-sdk.md)
+
+## 부록
+
 * [용어 사전](13-appendix/glossary.md)
 * [학습 로드맵](13-appendix/learning-path.md)

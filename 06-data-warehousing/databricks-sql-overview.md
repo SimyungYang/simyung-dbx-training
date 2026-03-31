@@ -2,7 +2,7 @@
 
 ## Databricks SQL이란?
 
-> 💡 **Databricks SQL (DBSQL)**은 Delta Lake 위의 데이터를 **SQL로 직접 조회하고 분석**할 수 있는 Databricks의 SQL 분석 환경입니다. 별도의 데이터 복사 없이, 레이크하우스 데이터에 대해 **웨어하우스급 SQL 성능**을 제공합니다.
+> 💡 **Databricks SQL (DBSQL)** 은 Delta Lake 위의 데이터를 **SQL로 직접 조회하고 분석**할 수 있는 Databricks의 SQL 분석 환경입니다. 별도의 데이터 복사 없이, 레이크하우스 데이터에 대해 **웨어하우스급 SQL 성능**을 제공합니다.
 
 전통적인 데이터 웨어하우스(Snowflake, Redshift 등)에서는 원본 데이터를 **독자 형식으로 복사**해야 했습니다. Databricks SQL은 이런 복사 과정 없이, **오픈 포맷(Delta Lake)** 데이터를 직접 쿼리합니다. 이로써 데이터 사일로(Data Silo)와 ETL 복잡성을 제거하고, 동일한 데이터에 대해 데이터 엔지니어링과 SQL 분석을 하나의 플랫폼에서 수행할 수 있습니다.
 
@@ -213,7 +213,7 @@ Auth:           OAuth (M2M) 또는 Personal Access Token
 
 ## 비용 관리 및 최적화
 
-SQL Warehouse 비용은 **사용한 DBU(Databricks Unit)**를 기준으로 과금됩니다. 다음 전략으로 비용을 효과적으로 관리할 수 있습니다.
+SQL Warehouse 비용은 **사용한 DBU(Databricks Unit)** 를 기준으로 과금됩니다. 다음 전략으로 비용을 효과적으로 관리할 수 있습니다.
 
 ### Auto Stop (자동 중지)
 

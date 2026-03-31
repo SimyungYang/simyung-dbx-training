@@ -24,7 +24,7 @@ graph LR
     style ONLINE fill:#e8f5e9
 ```
 
-> 💡 **Feature Store 패턴**: 오프라인 스토어(배치 학습용)와 온라인 스토어(실시간 서빙용)를 분리하되, 동일한 피처 정의를 공유하는 것이 현대 ML 아키텍처의 핵심 패턴입니다. 이를 통해 **학습-서빙 편향(Training-Serving Skew)**을 방지할 수 있습니다.
+> 💡 **Feature Store 패턴**: 오프라인 스토어(배치 학습용)와 온라인 스토어(실시간 서빙용)를 분리하되, 동일한 피처 정의를 공유하는 것이 현대 ML 아키텍처의 핵심 패턴입니다. 이를 통해 **학습-서빙 편향(Training-Serving Skew)** 을 방지할 수 있습니다.
 
 ---
 
@@ -62,7 +62,7 @@ graph LR
 ```
 
 1. Feature Table(Delta Lake)에 피처 데이터가 저장됩니다
-2. Online Table이 **Change Data Feed(CDF)**를 통해 변경 사항을 **자동으로 동기화**합니다
+2. Online Table이 **Change Data Feed(CDF)** 를 통해 변경 사항을 **자동으로 동기화**합니다
 3. Model Serving 엔드포인트가 예측 요청을 받으면, Online Table에서 **피처를 자동 조회**합니다
 4. 클라이언트는 **Primary Key만 전송**하면 됩니다 (피처를 직접 전달할 필요 없음)
 
@@ -76,7 +76,7 @@ Online Table은 소스 Delta 테이블의 변경 사항을 세 가지 모드로 
 | **CONTINUOUS** | 스트리밍 파이프라인으로 즉시 반영 | **초 단위** | 실시간 피처 갱신이 필요한 경우 |
 | **SNAPSHOT** | 전체 데이터를 한 번에 동기화 | 분 ~ 시간 | 초기 적재, CDF 미지원 소스 |
 
-> 💡 **TRIGGERED/CONTINUOUS 모드**를 사용하려면 소스 테이블에 **Change Data Feed(CDF)**가 활성화되어 있어야 합니다. CDF는 Delta 테이블의 행 수준 변경 이력을 추적하는 기능입니다.
+> 💡 **TRIGGERED/CONTINUOUS 모드**를 사용하려면 소스 테이블에 **Change Data Feed(CDF)** 가 활성화되어 있어야 합니다. CDF는 Delta 테이블의 행 수준 변경 이력을 추적하는 기능입니다.
 
 ```sql
 -- CDF 활성화 (TRIGGERED/CONTINUOUS 모드에 필수)

@@ -2,7 +2,7 @@
 
 ## SCIM이란?
 
-**SCIM(System for Cross-domain Identity Management)**은 기업의 ID 공급자(IdP)에서 Databricks로 사용자와 그룹 정보를 **자동 동기화**하는 표준 프로토콜입니다.
+**SCIM(System for Cross-domain Identity Management)** 은 기업의 ID 공급자(IdP)에서 Databricks로 사용자와 그룹 정보를 **자동 동기화**하는 표준 프로토콜입니다.
 
 > 💡 기본 개념은 [인증과 접근 제어](./identity-and-access.md)의 "SCIM 프로비저닝" 섹션에서 소개했습니다. 이 문서에서는 실제 설정 절차와 고급 구성을 다룹니다.
 

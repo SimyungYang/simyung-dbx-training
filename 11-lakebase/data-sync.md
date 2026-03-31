@@ -39,7 +39,7 @@ graph LR
     end
 ```
 
-Data Sync는 PostgreSQL의 **WAL(Write-Ahead Log)**을 기반으로 변경사항을 캡처합니다. 전체 데이터를 복사하는 것이 아니라, **변경분(Delta)만 증분 처리**하므로 네트워크 비용과 처리 시간이 최소화됩니다.
+Data Sync는 PostgreSQL의 **WAL(Write-Ahead Log)** 을 기반으로 변경사항을 캡처합니다. 전체 데이터를 복사하는 것이 아니라, **변경분(Delta)만 증분 처리**하므로 네트워크 비용과 처리 시간이 최소화됩니다.
 
 ---
 

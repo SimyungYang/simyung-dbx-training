@@ -11,7 +11,7 @@
 - **혼자 세기 (단일 서버)**: 1,000페이지를 처음부터 끝까지 혼자 읽어야 합니다 → 오래 걸립니다
 - **10명이 나눠서 세기 (Spark)**: 각 사람이 100페이지씩 맡아서 동시에 세고, 마지막에 결과를 합칩니다 → 10배 빠릅니다
 
-이것이 바로 **분산 처리(Distributed Processing)**의 핵심 원리이며, Spark가 하는 일입니다.
+이것이 바로 **분산 처리(Distributed Processing)** 의 핵심 원리이며, Spark가 하는 일입니다.
 
 ---
 
@@ -19,31 +19,9 @@
 
 Spark는 **Driver**와 **Executor**라는 두 가지 역할로 구성됩니다.
 
-```mermaid
-graph TB
-    subgraph Cluster["Spark 클러스터"]
-        D["🧑‍💼 Driver<br/>(작업 지휘자)"]
+![Spark 클러스터 아키텍처 — Driver와 Executor](https://docs.databricks.com/en/_images/spark-cluster-overview.png)
 
-        subgraph Workers["Worker 노드들"]
-            E1["⚙️ Executor 1<br/>(작업자)"]
-            E2["⚙️ Executor 2<br/>(작업자)"]
-            E3["⚙️ Executor 3<br/>(작업자)"]
-        end
-
-        D -->|"작업 분배"| E1
-        D -->|"작업 분배"| E2
-        D -->|"작업 분배"| E3
-
-        E1 -->|"결과 반환"| D
-        E2 -->|"결과 반환"| D
-        E3 -->|"결과 반환"| D
-    end
-
-    DATA["💾 데이터<br/>(S3, ADLS, Delta Lake)"]
-    E1 --> DATA
-    E2 --> DATA
-    E3 --> DATA
-```
+> 출처: [Apache Spark 공식 문서 — Cluster Mode Overview](https://spark.apache.org/docs/latest/cluster-overview.html)
 
 | 구성 요소 | 역할 | 비유 |
 |-----------|------|------|
@@ -82,7 +60,7 @@ df.show()
 
 ### 파티션(Partition) — 분산의 단위
 
-> 💡 **파티션(Partition)**이란 DataFrame의 데이터를 물리적으로 나눈 조각입니다. 각 Executor는 하나 이상의 파티션을 담당하여 병렬로 처리합니다.
+> 💡 **파티션(Partition)** 이란 DataFrame의 데이터를 물리적으로 나눈 조각입니다. 각 Executor는 하나 이상의 파티션을 담당하여 병렬로 처리합니다.
 
 ```mermaid
 graph LR
@@ -103,7 +81,7 @@ graph LR
 
 ## Transformation과 Action
 
-Spark의 연산은 크게 **Transformation(변환)**과 **Action(실행)**으로 나뉩니다. 이 구분은 Spark의 **지연 실행(Lazy Evaluation)** 방식과 직접 관련됩니다.
+Spark의 연산은 크게 **Transformation(변환)** 과 **Action(실행)** 으로 나뉩니다. 이 구분은 Spark의 **지연 실행(Lazy Evaluation)** 방식과 직접 관련됩니다.
 
 ### Transformation (변환) — "계획 세우기"
 

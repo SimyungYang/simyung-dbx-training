@@ -4,15 +4,15 @@
 
 Databricks를 사용하다 보면 "내 데이터는 어디에 저장되는 거지?", "클러스터는 누가 관리하지?", "보안은 어떻게 되는 거지?" 같은 질문이 생깁니다. 이 질문들에 답하려면 Databricks의 아키텍처를 이해해야 합니다.
 
-Databricks 아키텍처의 핵심은 **Control Plane(제어 평면)**과 **Data Plane(데이터 평면)**의 분리입니다.
+Databricks 아키텍처의 핵심은 **Control Plane(제어 평면)** 과 **Data Plane(데이터 평면)** 의 분리입니다.
 
 ---
 
 ## Control Plane vs Data Plane
 
-> 💡 **Control Plane(제어 평면)**이란 Databricks가 직접 관리하는 영역으로, 사용자 인터페이스, 작업 스케줄링, 노트북 관리 등 "관리 기능"을 담당합니다.
+> 💡 **Control Plane(제어 평면)** 이란 Databricks가 직접 관리하는 영역으로, 사용자 인터페이스, 작업 스케줄링, 노트북 관리 등 "관리 기능"을 담당합니다.
 >
-> **Data Plane(데이터 평면)**이란 고객의 클라우드 계정에서 실행되는 영역으로, 실제 데이터 처리와 저장이 이루어지는 곳입니다.
+> **Data Plane(데이터 평면)** 이란 고객의 클라우드 계정에서 실행되는 영역으로, 실제 데이터 처리와 저장이 이루어지는 곳입니다.
 
 ### 비유로 이해하기
 
@@ -25,32 +25,9 @@ Databricks 아키텍처의 핵심은 **Control Plane(제어 평면)**과 **Data 
 
 ### 아키텍처 다이어그램
 
-```mermaid
-graph TB
-    subgraph CP["☁️ Control Plane (Databricks 관리)"]
-        direction TB
-        CP1["🌐 Web Application<br/>(Workspace UI)"]
-        CP2["📋 Job Scheduler<br/>(작업 스케줄링)"]
-        CP3["📓 Notebook 서비스<br/>(노트북 저장·실행 관리)"]
-        CP4["🔑 Identity & Access<br/>(인증·권한 관리)"]
-        CP5["🛡️ Unity Catalog<br/>(메타데이터 관리)"]
-    end
+![Databricks 아키텍처 — Control Plane과 Data Plane](https://docs.databricks.com/en/_images/databricks-architecture-aws.png)
 
-    subgraph DP["🏢 Data Plane (고객 클라우드 계정)"]
-        direction TB
-        DP1["🖥️ Compute Clusters<br/>(Spark 클러스터)"]
-        DP2["💾 Cloud Storage<br/>(S3 / ADLS / GCS)"]
-        DP3["🔒 네트워크<br/>(VPC / VNet)"]
-    end
-
-    CP1 -->|"명령 전달"| DP1
-    CP2 -->|"작업 실행"| DP1
-    DP1 -->|"데이터 읽기/쓰기"| DP2
-    CP5 -->|"메타데이터 관리"| DP2
-
-    style CP fill:#e8f4fd,stroke:#1a73e8
-    style DP fill:#fef7e0,stroke:#f9a825
-```
+> 출처: [Databricks 공식 문서 — Architecture overview](https://docs.databricks.com/aws/en/getting-started/overview.html)
 
 ### 각 영역의 상세 구성
 
@@ -123,7 +100,7 @@ graph LR
 
 ## Workspace의 개념
 
-> 💡 **Workspace(워크스페이스)**란 Databricks에서 작업을 수행하는 **독립적인 작업 환경**입니다. 하나의 조직에서 여러 개의 Workspace를 만들 수 있으며, 각 Workspace는 고유한 URL을 가집니다.
+> 💡 **Workspace(워크스페이스)** 란 Databricks에서 작업을 수행하는 **독립적인 작업 환경**입니다. 하나의 조직에서 여러 개의 Workspace를 만들 수 있으며, 각 Workspace는 고유한 URL을 가집니다.
 
 Workspace는 다음과 같은 구성 요소를 포함합니다.
 

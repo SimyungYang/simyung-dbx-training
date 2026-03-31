@@ -4,7 +4,7 @@
 
 Delta Lake 테이블을 건강하게 유지하려면 OPTIMIZE(소형 파일 병합), VACUUM(불필요한 파일 삭제), ANALYZE TABLE(통계 수집)을 정기적으로 실행해야 합니다. 하지만 수십, 수백 개의 테이블을 관리할 때 이 작업들을 수동으로 스케줄링하고 모니터링하는 것은 상당한 운영 부담입니다.
 
-> 💡 **Predictive Optimization(예측 최적화)**은 Databricks가 테이블의 상태를 **자동으로 모니터링**하고, 최적의 시점에 **OPTIMIZE, VACUUM, ANALYZE를 자동 실행**하는 기능입니다. 사용자가 별도의 유지 보수 작업을 스케줄링할 필요가 없어집니다.
+> 💡 **Predictive Optimization(예측 최적화)** 은 Databricks가 테이블의 상태를 **자동으로 모니터링**하고, 최적의 시점에 **OPTIMIZE, VACUUM, ANALYZE를 자동 실행**하는 기능입니다. 사용자가 별도의 유지 보수 작업을 스케줄링할 필요가 없어집니다.
 
 비유하자면, 자동차의 **자동 정비 시스템**과 같습니다. 운전자가 일일이 엔진 오일 교환 주기를 기억하지 않아도, 시스템이 상태를 감지하여 최적의 시점에 정비를 수행합니다.
 
@@ -112,7 +112,7 @@ DESCRIBE TABLE EXTENDED my_catalog.my_schema.orders;
 
 ### 시스템 테이블을 통한 모니터링
 
-Predictive Optimization의 실행 이력은 **시스템 테이블(System Tables)**에서 확인할 수 있습니다.
+Predictive Optimization의 실행 이력은 **시스템 테이블(System Tables)** 에서 확인할 수 있습니다.
 
 ```sql
 -- Predictive Optimization 실행 이력 조회

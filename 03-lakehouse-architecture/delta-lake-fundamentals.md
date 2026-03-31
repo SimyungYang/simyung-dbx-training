@@ -80,7 +80,7 @@ INSERT INTO catalog.schema.customers VALUES
 (3, '박민수', 'ms.park@email.com', '대구', '2025-03-10');
 ```
 
-위 INSERT 문이 실행 중에 네트워크 오류가 발생해도, Delta Lake는 **원자성(Atomicity)**을 보장하여 불완전한 데이터가 테이블에 남지 않습니다.
+위 INSERT 문이 실행 중에 네트워크 오류가 발생해도, Delta Lake는 **원자성(Atomicity)** 을 보장하여 불완전한 데이터가 테이블에 남지 않습니다.
 
 ---
 
@@ -88,9 +88,9 @@ INSERT INTO catalog.schema.customers VALUES
 
 ### 개념
 
-> 💡 **타임 트래블(Time Travel)**이란 Delta 테이블의 **과거 시점 데이터**를 조회하거나 복원할 수 있는 기능입니다. Delta Lake는 모든 변경 사항을 트랜잭션 로그에 기록하기 때문에, 이전 버전의 데이터로 되돌아갈 수 있습니다.
+> 💡 **타임 트래블(Time Travel)** 이란 Delta 테이블의 **과거 시점 데이터**를 조회하거나 복원할 수 있는 기능입니다. Delta Lake는 모든 변경 사항을 트랜잭션 로그에 기록하기 때문에, 이전 버전의 데이터로 되돌아갈 수 있습니다.
 
-이 기능은 마치 **문서의 버전 관리(Version Control)**와 같습니다. Google Docs에서 이전 편집 내역으로 되돌릴 수 있는 것처럼, Delta 테이블도 이전 버전으로 되돌릴 수 있습니다.
+이 기능은 마치 **문서의 버전 관리(Version Control)** 와 같습니다. Google Docs에서 이전 편집 내역으로 되돌릴 수 있는 것처럼, Delta 테이블도 이전 버전으로 되돌릴 수 있습니다.
 
 ### 사용 방법
 
@@ -128,7 +128,7 @@ DESCRIBE HISTORY catalog.schema.customers;
 
 ### 스키마 강제 (Schema Enforcement)
 
-> 💡 **스키마 강제(Schema Enforcement)**란 테이블에 정의된 스키마에 맞지 않는 데이터를 삽입하려고 하면 **자동으로 거부**하는 기능입니다.
+> 💡 **스키마 강제(Schema Enforcement)** 란 테이블에 정의된 스키마에 맞지 않는 데이터를 삽입하려고 하면 **자동으로 거부**하는 기능입니다.
 
 ```sql
 -- customers 테이블에 잘못된 데이터 삽입 시도
@@ -139,7 +139,7 @@ INSERT INTO catalog.schema.customers VALUES
 
 ### 스키마 진화 (Schema Evolution)
 
-> 💡 **스키마 진화(Schema Evolution)**란 기존 테이블의 스키마(구조)를 데이터를 유실하지 않고 **안전하게 변경**할 수 있는 기능입니다. 새로운 컬럼 추가, 컬럼 이름 변경 등이 가능합니다.
+> 💡 **스키마 진화(Schema Evolution)** 란 기존 테이블의 스키마(구조)를 데이터를 유실하지 않고 **안전하게 변경**할 수 있는 기능입니다. 새로운 컬럼 추가, 컬럼 이름 변경 등이 가능합니다.
 
 ```sql
 -- 새 컬럼 추가
@@ -160,7 +160,7 @@ SELECT * FROM catalog.schema.customers;
 
 ## 핵심 기능 4: 트랜잭션 로그 (Delta Log)
 
-모든 Delta Lake의 기능은 **트랜잭션 로그(Delta Log)**를 기반으로 동작합니다.
+모든 Delta Lake의 기능은 **트랜잭션 로그(Delta Log)** 를 기반으로 동작합니다.
 
 ### 동작 원리
 

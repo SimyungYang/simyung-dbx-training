@@ -289,11 +289,11 @@ graph LR
 
 ### DBU (Databricks Unit)
 
-> 💡 **DBU(Databricks Unit)**는 Databricks의 과금 단위입니다. 사용한 컴퓨팅 리소스의 양을 DBU로 환산하여 과금합니다. DBU당 단가는 워크로드 유형(SQL, Jobs, All-Purpose 등)과 요금 플랜에 따라 다릅니다.
+> 💡 **DBU(Databricks Unit)** 는 Databricks의 과금 단위입니다. 사용한 컴퓨팅 리소스의 양을 DBU로 환산하여 과금합니다. DBU당 단가는 워크로드 유형(SQL, Jobs, All-Purpose 등)과 요금 플랜에 따라 다릅니다.
 
 ### 서버리스 vs 클래식 비용 비교
 
-서버리스의 DBU 단가는 클래식보다 높지만, **총 비용(TCO)**은 서버리스가 더 낮은 경우가 많습니다.
+서버리스의 DBU 단가는 클래식보다 높지만, **총 비용(TCO)** 은 서버리스가 더 낮은 경우가 많습니다.
 
 | 비용 요소 | Customer-Managed | Serverless |
 |-----------|-----------------|------------|

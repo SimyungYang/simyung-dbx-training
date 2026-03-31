@@ -4,7 +4,7 @@
 
 실제 데이터 수집 환경에서는 소스 시스템의 스키마가 **사전 공지 없이 변경**되는 일이 빈번합니다. 새 컬럼이 추가되거나, 기존 컬럼의 타입이 바뀌거나, 예상하지 못한 데이터 형식이 들어오기도 합니다. Auto Loader의 스키마 추론과 진화 기능은 이러한 변화를 **자동으로 감지하고 대응**하여 파이프라인의 중단을 최소화합니다.
 
-> 💡 **스키마 추론(Schema Inference)**은 데이터에서 컬럼 이름과 타입을 자동으로 파악하는 것이고, **스키마 진화(Schema Evolution)**는 소스 스키마가 변경되었을 때 자동으로 대응하는 것입니다.
+> 💡 **스키마 추론(Schema Inference)** 은 데이터에서 컬럼 이름과 타입을 자동으로 파악하는 것이고, **스키마 진화(Schema Evolution)** 는 소스 스키마가 변경되었을 때 자동으로 대응하는 것입니다.
 
 ---
 
@@ -34,7 +34,7 @@ df = (spark.readStream
 
 ## inferColumnTypes (컬럼 타입 추론)
 
-기본적으로 Auto Loader는 모든 컬럼을 `STRING`으로 추론합니다. `inferColumnTypes`를 `true`로 설정하면 실제 데이터 값을 분석하여 **적절한 타입(INT, DOUBLE, TIMESTAMP 등)**을 추론합니다.
+기본적으로 Auto Loader는 모든 컬럼을 `STRING`으로 추론합니다. `inferColumnTypes`를 `true`로 설정하면 실제 데이터 값을 분석하여 **적절한 타입(INT, DOUBLE, TIMESTAMP 등)** 을 추론합니다.
 
 ```python
 # inferColumnTypes 비활성화 (기본값) — 모든 컬럼이 STRING
@@ -99,7 +99,7 @@ df = (spark.readStream
 2. `schemaLocation`에 새 스키마 버전이 저장됩니다
 3. 스트림을 재시작하면 새 스키마가 자동으로 적용됩니다
 
-> 💡 **SDP(선언적 파이프라인)**에서는 스트림 재시작이 자동으로 처리되므로, `addNewColumns` 모드를 사용하면 개입 없이 스키마가 진화합니다.
+> 💡 **SDP(선언적 파이프라인)** 에서는 스트림 재시작이 자동으로 처리되므로, `addNewColumns` 모드를 사용하면 개입 없이 스키마가 진화합니다.
 
 ### rescue 모드
 

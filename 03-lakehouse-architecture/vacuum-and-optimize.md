@@ -13,7 +13,7 @@ Delta Lake 테이블은 시간이 지나면서 두 가지 문제가 자연스럽
 
 ## 소형 파일 문제 (Small File Problem)
 
-> 💡 **Small File Problem(소형 파일 문제)**이란 테이블에 매우 작은 크기의 파일이 대량으로 쌓이는 현상입니다. 각 파일을 열고 닫는 I/O 오버헤드가 누적되어 쿼리 성능이 심각하게 저하됩니다.
+> 💡 **Small File Problem(소형 파일 문제)** 이란 테이블에 매우 작은 크기의 파일이 대량으로 쌓이는 현상입니다. 각 파일을 열고 닫는 I/O 오버헤드가 누적되어 쿼리 성능이 심각하게 저하됩니다.
 
 ### 언제 발생하나요?
 
@@ -139,7 +139,7 @@ SET TBLPROPERTIES ('delta.deletedFileRetentionDuration' = 'interval 30 days');
 
 ## ANALYZE TABLE (통계 수집)
 
-> 💡 **ANALYZE TABLE**은 테이블의 **컬럼 통계(statistics)**를 수집하는 명령입니다. 쿼리 최적화기(Query Optimizer)가 이 통계를 활용하여 더 효율적인 실행 계획을 수립합니다.
+> 💡 **ANALYZE TABLE**은 테이블의 **컬럼 통계(statistics)** 를 수집하는 명령입니다. 쿼리 최적화기(Query Optimizer)가 이 통계를 활용하여 더 효율적인 실행 계획을 수립합니다.
 
 ### 사용법
 

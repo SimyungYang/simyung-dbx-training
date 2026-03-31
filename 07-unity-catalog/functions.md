@@ -2,9 +2,9 @@
 
 ## UC 함수란?
 
-Unity Catalog에서 **함수(Function)**는 재사용 가능한 로직을 SQL 또는 Python으로 정의하여, 카탈로그에 등록하고 권한을 관리할 수 있는 객체입니다. 일반 데이터베이스의 UDF(User-Defined Function)와 유사하지만, Unity Catalog의 거버넌스(권한, 리니지, 감사)가 적용된다는 점이 핵심입니다.
+Unity Catalog에서 **함수(Function)** 는 재사용 가능한 로직을 SQL 또는 Python으로 정의하여, 카탈로그에 등록하고 권한을 관리할 수 있는 객체입니다. 일반 데이터베이스의 UDF(User-Defined Function)와 유사하지만, Unity Catalog의 거버넌스(권한, 리니지, 감사)가 적용된다는 점이 핵심입니다.
 
-> 💡 **UDF(User-Defined Function, 사용자 정의 함수)**란 사용자가 직접 작성한 함수를 의미합니다. Databricks에서는 SQL과 Python 두 언어로 UDF를 작성할 수 있으며, Unity Catalog에 등록하여 조직 전체에서 공유할 수 있습니다.
+> 💡 **UDF(User-Defined Function, 사용자 정의 함수)** 란 사용자가 직접 작성한 함수를 의미합니다. Databricks에서는 SQL과 Python 두 언어로 UDF를 작성할 수 있으며, Unity Catalog에 등록하여 조직 전체에서 공유할 수 있습니다.
 
 ---
 
@@ -133,7 +133,7 @@ CREATE OR REPLACE FUNCTION production.utils.extract_json_field(
 
 ## 테이블 반환 함수 (Table Function)
 
-테이블 반환 함수는 단일 값이 아닌 **행 집합(테이블)**을 반환합니다.
+테이블 반환 함수는 단일 값이 아닌 **행 집합(테이블)** 을 반환합니다.
 
 ```sql
 -- 날짜 범위를 생성하는 테이블 반환 함수
@@ -153,7 +153,7 @@ FROM production.utils.date_range('2025-01-01', '2025-01-07');
 
 ## 에이전트 도구로서의 UC 함수
 
-> 🆕 **UC Functions as Tools**: Unity Catalog 함수는 AI 에이전트의 **도구(Tool)**로 활용할 수 있습니다. 에이전트가 함수를 호출하여 데이터 조회, 계산, 외부 API 연동 등을 수행합니다.
+> 🆕 **UC Functions as Tools**: Unity Catalog 함수는 AI 에이전트의 **도구(Tool)** 로 활용할 수 있습니다. 에이전트가 함수를 호출하여 데이터 조회, 계산, 외부 API 연동 등을 수행합니다.
 
 ```python
 # AI 에이전트에서 UC 함수를 도구로 사용하는 예시

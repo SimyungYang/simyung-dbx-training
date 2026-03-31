@@ -43,7 +43,7 @@ timeline
 
 Google은 전 세계 웹 페이지를 크롤링하여 저장해야 했습니다. 기존의 파일 시스템으로는 이 규모를 감당할 수 없었습니다.
 
-> 💡 **GFS(Google File System)**는 수천 대의 저렴한 서버에 데이터를 분산 저장하는 파일 시스템입니다. 하나의 파일을 여러 조각으로 나누어 여러 서버에 복제본을 저장하므로, 일부 서버가 고장 나도 데이터가 유실되지 않습니다.
+> 💡 **GFS(Google File System)** 는 수천 대의 저렴한 서버에 데이터를 분산 저장하는 파일 시스템입니다. 하나의 파일을 여러 조각으로 나누어 여러 서버에 복제본을 저장하므로, 일부 서버가 고장 나도 데이터가 유실되지 않습니다.
 
 ### MapReduce — 2004
 
@@ -70,7 +70,7 @@ Reduce (집계): 모든 서버의 결과를 합침
 
 Google의 논문을 읽은 **Doug Cutting**(Apache Lucene의 개발자)이 이를 오픈소스로 구현한 것이 **Apache Hadoop**입니다.
 
-> 💡 **Apache Hadoop**은 GFS를 구현한 **HDFS(Hadoop Distributed File System)**와 MapReduce를 구현한 **Hadoop MapReduce**를 핵심으로 하는 오픈소스 빅데이터 프레임워크입니다.
+> 💡 **Apache Hadoop**은 GFS를 구현한 **HDFS(Hadoop Distributed File System)** 와 MapReduce를 구현한 **Hadoop MapReduce**를 핵심으로 하는 오픈소스 빅데이터 프레임워크입니다.
 
 ### Hadoop 생태계의 성장
 

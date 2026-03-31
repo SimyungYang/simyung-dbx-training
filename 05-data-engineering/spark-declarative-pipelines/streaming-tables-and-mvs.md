@@ -17,7 +17,7 @@ SDP(Spark Declarative Pipelines)는 이 두 가지 상황에 최적화된 서로
 
 ### 개념
 
-**Streaming Table**은 새로 도착한 데이터만 **증분(Incremental)**으로 처리하여 추가하는 테이블입니다. 한 번 처리된 데이터는 다시 처리하지 않으며, **Append-Only** 방식으로 동작합니다.
+**Streaming Table**은 새로 도착한 데이터만 **증분(Incremental)** 으로 처리하여 추가하는 테이블입니다. 한 번 처리된 데이터는 다시 처리하지 않으며, **Append-Only** 방식으로 동작합니다.
 
 ### 핵심 특성
 

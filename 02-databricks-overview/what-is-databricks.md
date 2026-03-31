@@ -38,7 +38,7 @@ Databricks 팀은 Spark뿐만 아니라 **Delta Lake**(데이터 저장), **MLfl
 
 ### 핵심 가치: "데이터 인텔리전스 플랫폼"
 
-Databricks는 스스로를 **"Data Intelligence Platform"**이라고 정의합니다. 이는 단순히 데이터를 저장하고 처리하는 것을 넘어, 데이터에서 **지능(Intelligence)**을 추출하는 전체 과정을 지원한다는 의미입니다.
+Databricks는 스스로를 **"Data Intelligence Platform"**이라고 정의합니다. 이는 단순히 데이터를 저장하고 처리하는 것을 넘어, 데이터에서 **지능(Intelligence)** 을 추출하는 전체 과정을 지원한다는 의미입니다.
 
 ```mermaid
 graph TB

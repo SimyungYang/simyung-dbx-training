@@ -52,7 +52,7 @@ graph LR
 
 #### 1단계: 데이터 준비 (Feature Engineering)
 
-ML 모델의 성능은 데이터 품질에 크게 좌우됩니다. Databricks의 Feature Engineering 기능을 사용하면, Lakehouse에 저장된 원본 데이터로부터 **피처(Feature)**를 추출하고 재사용 가능한 피처 테이블로 관리할 수 있습니다. 피처 테이블은 학습과 서빙에서 동일한 피처를 일관되게 사용하도록 보장하여, **학습-서빙 불일치(Training-Serving Skew)** 문제를 방지합니다.
+ML 모델의 성능은 데이터 품질에 크게 좌우됩니다. Databricks의 Feature Engineering 기능을 사용하면, Lakehouse에 저장된 원본 데이터로부터 **피처(Feature)** 를 추출하고 재사용 가능한 피처 테이블로 관리할 수 있습니다. 피처 테이블은 학습과 서빙에서 동일한 피처를 일관되게 사용하도록 보장하여, **학습-서빙 불일치(Training-Serving Skew)** 문제를 방지합니다.
 
 #### 2단계: 실험 및 학습 (MLflow Tracking)
 

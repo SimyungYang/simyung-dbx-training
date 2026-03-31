@@ -2,7 +2,7 @@
 
 ## 개념
 
-> 💡 **Spark Declarative Pipelines (SDP)**는 데이터 변환 파이프라인을 **"무엇을(What)"** 만들지 선언하면, Databricks가 **"어떻게(How)"** 실행할지를 자동으로 관리해 주는 프레임워크입니다. 이전에는 **Delta Live Tables (DLT)**라는 이름으로 불렸습니다.
+> 💡 **Spark Declarative Pipelines (SDP)** 는 데이터 변환 파이프라인을 **"무엇을(What)"** 만들지 선언하면, Databricks가 **"어떻게(How)"** 실행할지를 자동으로 관리해 주는 프레임워크입니다. 이전에는 **Delta Live Tables (DLT)** 라는 이름으로 불렸습니다.
 
 Apache Spark Structured Streaming 위에 구축된 추상화 레이어로, 배치와 스트리밍 데이터 파이프라인을 SQL 또는 Python으로 생성할 수 있습니다. 클라우드 스토리지 파일 수집, 메시지 버스 소비, 증분 배치/스트리밍 변환을 모두 지원합니다.
 

@@ -4,7 +4,7 @@
 
 데이터 플랫폼에서 가장 근본적인 보안 질문은 **"이 사람이 누구이며, 무엇을 할 수 있는가?"** 입니다. 아무리 강력한 암호화와 네트워크 보안을 구축해도, ID 관리가 허술하면 권한 없는 사용자가 민감 데이터에 접근하거나 퇴사자의 계정이 방치되는 보안 사고가 발생할 수 있습니다.
 
-> 💡 **IAM(Identity and Access Management)**은 "누가(Who) 무엇에(What) 어떤 권한으로(How) 접근할 수 있는가"를 체계적으로 관리하는 보안 프레임워크입니다. Databricks는 기업의 기존 ID 시스템(Okta, Azure AD/Entra ID, Google Workspace 등)과 연동하여 통합적인 ID 관리를 제공합니다.
+> 💡 **IAM(Identity and Access Management)** 은 "누가(Who) 무엇에(What) 어떤 권한으로(How) 접근할 수 있는가"를 체계적으로 관리하는 보안 프레임워크입니다. Databricks는 기업의 기존 ID 시스템(Okta, Azure AD/Entra ID, Google Workspace 등)과 연동하여 통합적인 ID 관리를 제공합니다.
 
 ```mermaid
 graph TB
@@ -88,7 +88,7 @@ graph LR
 
 ### 서비스 프린시펄 (Service Principal)
 
-> 💡 **Service Principal(서비스 프린시펄)**은 사람이 아닌 **애플리케이션/자동화 시스템**을 위한 계정입니다. 개인 계정으로 프로덕션 파이프라인을 실행하면, 그 사람이 퇴사하면 파이프라인이 중단됩니다. Service Principal을 사용하면 이 문제를 방지할 수 있습니다.
+> 💡 **Service Principal(서비스 프린시펄)** 은 사람이 아닌 **애플리케이션/자동화 시스템**을 위한 계정입니다. 개인 계정으로 프로덕션 파이프라인을 실행하면, 그 사람이 퇴사하면 파이프라인이 중단됩니다. Service Principal을 사용하면 이 문제를 방지할 수 있습니다.
 
 ```python
 # Service Principal로 인증 (Python SDK)
@@ -113,7 +113,7 @@ w = WorkspaceClient(
 
 ## SSO (Single Sign-On) 설정
 
-> 💡 **SSO(Single Sign-On)**란 한 번 로그인하면 여러 서비스에 추가 로그인 없이 접근할 수 있는 인증 방식입니다. 회사에서 Okta로 로그인하면 Databricks, Slack, JIRA 등에 별도 로그인 없이 바로 접근하는 것이 SSO입니다.
+> 💡 **SSO(Single Sign-On)** 란 한 번 로그인하면 여러 서비스에 추가 로그인 없이 접근할 수 있는 인증 방식입니다. 회사에서 Okta로 로그인하면 Databricks, Slack, JIRA 등에 별도 로그인 없이 바로 접근하는 것이 SSO입니다.
 
 ### 지원 프로토콜
 
@@ -154,7 +154,7 @@ sequenceDiagram
 
 ## SCIM 프로비저닝
 
-> 💡 **SCIM(System for Cross-domain Identity Management)**은 사용자와 그룹 정보를 기업의 ID 공급자(IdP)에서 Databricks로 **자동 동기화**하는 표준 프로토콜입니다.
+> 💡 **SCIM(System for Cross-domain Identity Management)** 은 사용자와 그룹 정보를 기업의 ID 공급자(IdP)에서 Databricks로 **자동 동기화**하는 표준 프로토콜입니다.
 
 ### SCIM의 동작
 
@@ -196,7 +196,7 @@ SCIM은 **Account 수준**에서 설정하는 것이 권장됩니다.
 
 ## MFA (다중 인증)
 
-> 💡 **MFA(Multi-Factor Authentication)**는 비밀번호 외에 추가 인증 수단(OTP, 푸시 알림, 보안 키)을 요구하여 계정 보안을 강화하는 방법입니다. 비밀번호가 유출되더라도 MFA가 있으면 무단 접근을 방지할 수 있습니다.
+> 💡 **MFA(Multi-Factor Authentication)** 는 비밀번호 외에 추가 인증 수단(OTP, 푸시 알림, 보안 키)을 요구하여 계정 보안을 강화하는 방법입니다. 비밀번호가 유출되더라도 MFA가 있으면 무단 접근을 방지할 수 있습니다.
 
 ### MFA 적용 방식
 
@@ -267,7 +267,7 @@ w = WorkspaceClient(
 
 ## PAT (Personal Access Token) 관리
 
-> 💡 **PAT(Personal Access Token)**는 `dapi` 접두사가 붙는 개인용 API 토큰입니다. 간단한 API 호출이나 개발 환경에서 사용하지만, OAuth보다 보안성이 낮으므로 프로덕션에서는 권장하지 않습니다.
+> 💡 **PAT(Personal Access Token)** 는 `dapi` 접두사가 붙는 개인용 API 토큰입니다. 간단한 API 호출이나 개발 환경에서 사용하지만, OAuth보다 보안성이 낮으므로 프로덕션에서는 권장하지 않습니다.
 
 ### PAT vs OAuth 비교
 

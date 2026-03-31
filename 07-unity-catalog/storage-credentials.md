@@ -2,7 +2,7 @@
 
 ## 스토리지 자격 증명이란?
 
-**스토리지 자격 증명(Storage Credential)**은 Unity Catalog가 클라우드 스토리지(S3, ADLS, GCS)에 접근할 때 사용하는 **인증 정보 객체**입니다. 외부 로케이션(External Location)을 생성하려면 반드시 스토리지 자격 증명이 필요합니다.
+**스토리지 자격 증명(Storage Credential)** 은 Unity Catalog가 클라우드 스토리지(S3, ADLS, GCS)에 접근할 때 사용하는 **인증 정보 객체**입니다. 외부 로케이션(External Location)을 생성하려면 반드시 스토리지 자격 증명이 필요합니다.
 
 > 💡 **비유**: 스토리지 자격 증명은 "건물 마스터키"와 같습니다. 이 키가 있어야 외부 로케이션(건물 내 특정 사무실)에 접근할 수 있습니다. Databricks는 사용자의 클라우드 자격 증명 대신, Unity Catalog가 관리하는 자격 증명으로 스토리지에 접근합니다.
 
@@ -174,7 +174,7 @@ DROP STORAGE CREDENTIAL aws_s3_credential;
 
 ## AWS IAM Role 신뢰 정책 설정
 
-AWS에서 Storage Credential을 사용하려면, IAM Role의 **신뢰 정책(Trust Policy)**에 Databricks를 추가해야 합니다.
+AWS에서 Storage Credential을 사용하려면, IAM Role의 **신뢰 정책(Trust Policy)** 에 Databricks를 추가해야 합니다.
 
 ```json
 {

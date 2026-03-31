@@ -9,7 +9,7 @@
 | **Delta Lake** | Databricks | Spark 기반, 가장 오래된 레이크하우스 포맷입니다 |
 | **Apache Iceberg** | Netflix → Apache Foundation | 엔진 독립적, 빠르게 채택 확산 중입니다 |
 
-실무에서는 Databricks(Delta Lake)와 다른 플랫폼(Snowflake, Athena 등 Iceberg 사용)이 공존하는 경우가 많습니다. 이 문서에서는 두 포맷 간의 **상호 운용성(Interoperability)**을 어떻게 확보하는지 살펴보겠습니다.
+실무에서는 Databricks(Delta Lake)와 다른 플랫폼(Snowflake, Athena 등 Iceberg 사용)이 공존하는 경우가 많습니다. 이 문서에서는 두 포맷 간의 **상호 운용성(Interoperability)** 을 어떻게 확보하는지 살펴보겠습니다.
 
 ---
 
@@ -34,7 +34,7 @@
 
 ### 개념
 
-> 💡 **UniForm(유니폼)**은 Delta Lake 테이블을 **Iceberg 포맷으로도 읽을 수 있게** 해주는 Databricks의 호환성 기능입니다. 하나의 Delta 테이블을 생성하면, Iceberg 클라이언트에서도 동일한 테이블을 읽을 수 있습니다.
+> 💡 **UniForm(유니폼)** 은 Delta Lake 테이블을 **Iceberg 포맷으로도 읽을 수 있게** 해주는 Databricks의 호환성 기능입니다. 하나의 Delta 테이블을 생성하면, Iceberg 클라이언트에서도 동일한 테이블을 읽을 수 있습니다.
 
 ```mermaid
 graph TB

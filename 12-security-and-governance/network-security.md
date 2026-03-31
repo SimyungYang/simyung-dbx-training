@@ -14,6 +14,7 @@
 
 Databricks는 크게 **Control Plane**과 **Data Plane**이라는 두 영역으로 나뉩니다. 이 구조를 이해하는 것이 네트워크 보안 설정의 출발점입니다.
 
+<!-- 📌 대체 예정: Databricks 네트워크 아키텍처 공식 이미지 확보 후 교체 -->
 ```mermaid
 graph TB
     subgraph "Databricks 관리 영역"
@@ -128,6 +129,7 @@ curl -X POST "https://<workspace-url>/api/2.0/ip-access-lists" \
 
 ### Front-end vs Back-end Private Link
 
+<!-- 📌 대체 예정: Private Link 아키텍처 공식 이미지 확보 후 교체 -->
 ```mermaid
 graph LR
     subgraph "고객 네트워크"
@@ -198,7 +200,7 @@ Databricks Data Plane VPC (10.2.0.0/16)
 
 ### 방화벽/NAT Gateway를 통한 아웃바운드 제어
 
-Customer-Managed VPC에서는 아웃바운드 트래픽을 제어하여 **데이터 유출(Data Exfiltration)**을 방지할 수 있습니다.
+Customer-Managed VPC에서는 아웃바운드 트래픽을 제어하여 **데이터 유출(Data Exfiltration)** 을 방지할 수 있습니다.
 
 | 허용해야 할 아웃바운드 대상 | 용도 |
 |---------------------------|------|
@@ -233,7 +235,7 @@ Customer-Managed VPC에서는 아웃바운드 트래픽을 제어하여 **데이
 }
 ```
 
-> 💡 **데이터 유출 방지(Data Exfiltration Prevention)**란, 허가되지 않은 경로로 데이터가 외부로 빠져나가는 것을 막는 보안 정책입니다. 예를 들어, Databricks 클러스터에서 임의의 외부 S3 버킷으로 데이터를 복사하는 것을 차단합니다.
+> 💡 **데이터 유출 방지(Data Exfiltration Prevention)** 란, 허가되지 않은 경로로 데이터가 외부로 빠져나가는 것을 막는 보안 정책입니다. 예를 들어, Databricks 클러스터에서 임의의 외부 S3 버킷으로 데이터를 복사하는 것을 차단합니다.
 
 ---
 
