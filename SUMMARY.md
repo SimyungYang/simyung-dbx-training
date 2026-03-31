@@ -132,6 +132,7 @@
   * [Model Serving 개요](09-machine-learning/model-serving/model-serving-overview.md)
   * [Foundation Model API](09-machine-learning/model-serving/foundation-model-api.md)
   * [커스텀 모델 배포](09-machine-learning/model-serving/custom-model-deployment.md)
+  * [AI Gateway](09-machine-learning/model-serving/ai-gateway.md)
   * [엔드포인트 모니터링](09-machine-learning/model-serving/endpoint-monitoring.md)
 * [Feature Engineering](09-machine-learning/feature-engineering/README.md)
   * [Feature Engineering 개요](09-machine-learning/feature-engineering/feature-engineering-overview.md)
