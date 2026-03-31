@@ -14,20 +14,21 @@ Databricks 아키텍처의 핵심은 **Control Plane(제어 평면)** 과 **Data
 >
 > **Data Plane(데이터 평면)** 이란 고객의 클라우드 계정에서 실행되는 영역으로, 실제 데이터 처리와 저장이 이루어지는 곳입니다.
 
-### 비유로 이해하기
+이 분리가 중요한 이유를 실무 관점에서 설명드리겠습니다.
 
-항공 관제 시스템을 떠올려 보겠습니다.
+**데이터 주권(Data Sovereignty)**: 고객의 데이터는 항상 **고객의 클라우드 계정(S3, ADLS, GCS)에 저장**됩니다. Databricks Control Plane은 메타데이터와 실행 명령만 관리하고, 실제 데이터는 절대 Databricks 측으로 이동하지 않습니다. 이것은 GDPR, HIPAA, 금융 규제에서 요구하는 데이터 레지던시 요건을 충족하는 핵심 설계입니다.
 
-- **관제탑(Control Plane)** = Databricks가 운영합니다. 비행 계획을 관리하고, 이착륙 순서를 조율하며, 전체 상황을 모니터링합니다.
-- **활주로와 비행기(Data Plane)** = 고객의 클라우드 계정에 있습니다. 실제로 비행기(데이터 처리)가 뜨고 내리는 곳이며, 승객(데이터)은 이 영역에만 존재합니다.
+**경쟁사와의 차이**: Snowflake는 데이터를 자체 관리 스토리지에 저장하므로, 데이터 이동(egress) 비용과 벤더 종속이 발생합니다. Databricks는 오픈 포맷(Delta Lake/Parquet)으로 고객 스토리지에 저장하므로, 언제든 다른 도구에서 직접 읽을 수 있습니다.
 
-이 분리 덕분에 **고객의 데이터는 항상 고객의 클라우드 계정 안에 머물러 있어** 보안과 규정 준수 요건을 충족할 수 있습니다.
+**실전에서의 의미**: Control Plane 장애가 발생해도 데이터는 안전합니다. 고객의 S3 버킷에 그대로 있으므로, 다른 Spark 클러스터나 Trino, Snowflake에서도 Delta/Parquet 파일을 직접 읽을 수 있습니다. 이런 아키텍처 덕분에 특정 벤더에 완전히 종속되는 리스크가 크게 줄어듭니다.
 
 ### 아키텍처 다이어그램
 
-![Databricks 아키텍처 — Control Plane과 Data Plane](https://docs.databricks.com/en/_images/databricks-architecture-aws.png)
+![Databricks 아키텍처 — Control Plane과 Data Plane](https://docs.databricks.com/aws/en/_images/databricks-architecture-aws.png)
 
 > 출처: [Databricks 공식 문서 — Architecture overview](https://docs.databricks.com/aws/en/getting-started/overview.html)
+
+<!-- 📌 이미지가 표시되지 않는 경우: Databricks 공식 문서의 Architecture overview 페이지에서 최신 이미지 URL을 확인하세요 -->
 
 ### 각 영역의 상세 구성
 
