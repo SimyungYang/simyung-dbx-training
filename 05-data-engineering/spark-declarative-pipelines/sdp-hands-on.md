@@ -4,25 +4,14 @@
 
 온라인 쇼핑몰의 **주문 데이터(JSON)** 와 **고객 마스터 데이터(CDC)** 를 수집하여, Medallion 아키텍처 기반의 분석 파이프라인을 구축합니다. Bronze(원본 수집) → Silver(정제·검증) → Gold(비즈니스 집계) 3계층 파이프라인을 SDP(Spark Declarative Pipelines)로 구현합니다.
 
-```mermaid
-graph LR
-    S1["📁 JSON 파일<br/>(주문)"] --> B1["🥉 bronze_orders"]
-    S2["📋 CDC 스트림<br/>(고객)"] --> B2["🥉 bronze_customers"]
-
-    B1 --> Si1["🥈 silver_orders<br/>(정제 + Expectations)"]
-    B2 --> Si2["🥈 silver_customers<br/>(SCD Type 1)"]
-
-    Si1 --> G1["🥇 gold_customer_revenue<br/>(고객별 매출)"]
-    Si2 --> G1
-    Si1 --> G2["🥇 gold_daily_kpi<br/>(일별 KPI)"]
-
-    style B1 fill:#cd7f32,color:#fff
-    style B2 fill:#cd7f32,color:#fff
-    style Si1 fill:#c0c0c0,color:#000
-    style Si2 fill:#c0c0c0,color:#000
-    style G1 fill:#ffd700,color:#000
-    style G2 fill:#ffd700,color:#000
-```
+| 계층 | 테이블 | 소스 | 설명 |
+|------|--------|------|------|
+| **Bronze** | bronze_orders | JSON 파일 (주문) | Auto Loader로 원본 수집 |
+|  | bronze_customers | CDC 스트림 (고객) | CDC 데이터를 수집 |
+| **Silver** | silver_orders | bronze_orders | 정제 + Expectations 적용 |
+|  | silver_customers | bronze_customers | SCD Type 1 처리 |
+| **Gold** | gold_customer_revenue | silver_orders + silver_customers | 고객별 매출 집계 |
+|  | gold_daily_kpi | silver_orders | 일별 KPI 집계 |
 
 ---
 
@@ -224,16 +213,13 @@ GROUP BY DATE(order_date);
 1. Pipeline 상세 페이지에서 **Start** 클릭
 2. 실행 과정을 실시간으로 모니터링:
 
-```mermaid
-graph TD
-    INIT["🔄 초기화<br/>(인프라 프로비저닝)"]
-    BRONZE["🥉 Bronze 수집<br/>(Auto Loader 실행)"]
-    SILVER["🥈 Silver 변환<br/>(타입 변환, 정제)"]
-    GOLD["🥇 Gold 집계<br/>(JOIN + GROUP BY)"]
-    DONE["✅ 완료"]
-
-    INIT --> BRONZE --> SILVER --> GOLD --> DONE
-```
+| 단계 | 작업 | 설명 |
+|------|------|------|
+| 1 | 초기화 | 인프라를 프로비저닝합니다 |
+| 2 | Bronze 수집 | Auto Loader로 데이터를 수집합니다 |
+| 3 | Silver 변환 | 타입 변환, 정제를 수행합니다 |
+| 4 | Gold 집계 | JOIN + GROUP BY로 비즈니스 집계를 생성합니다 |
+| 5 | 완료 | 파이프라인 실행이 완료됩니다 |
 
 ---
 

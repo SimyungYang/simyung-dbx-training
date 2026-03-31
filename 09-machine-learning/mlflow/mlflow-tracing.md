@@ -6,16 +6,13 @@ GenAI 애플리케이션(RAG 챗봇, AI 에이전트 등)은 전통적인 소프
 
 > 💡 **MLflow Tracing**은 GenAI 앱의 **실행 흐름을 단계별로 추적**하는 기능입니다. 각 단계(Span)의 입력, 출력, 지연 시간, 토큰 사용량을 기록하여, 디버깅과 성능 최적화를 가능하게 합니다.
 
-```mermaid
-graph TB
-    subgraph Trace["Trace: 사용자 질문 → 답변"]
-        S1["Span 1: 질문 전처리<br/>입력: '환불 규정이 뭔가요?'<br/>출력: 정규화된 쿼리<br/>⏱️ 5ms"]
-        S2["Span 2: Vector Search<br/>입력: 정규화된 쿼리<br/>출력: 관련 문서 3건<br/>⏱️ 45ms"]
-        S3["Span 3: LLM 호출<br/>입력: 프롬프트 + 컨텍스트<br/>출력: 답변 텍스트<br/>⏱️ 1,200ms<br/>🪙 토큰: 입력 850, 출력 120"]
+**Trace 예시: 사용자 질문 → 답변**
 
-        S1 --> S2 --> S3
-    end
-```
+| Span | 작업 | 입력 | 출력 | 소요 시간 |
+|------|------|------|------|-----------|
+| Span 1 | 질문 전처리 | "환불 규정이 뭔가요?" | 정규화된 쿼리 | 5ms |
+| Span 2 | Vector Search | 정규화된 쿼리 | 관련 문서 3건 | 45ms |
+| Span 3 | LLM 호출 | 프롬프트 + 컨텍스트 | 답변 텍스트 (토큰: 입력 850, 출력 120) | 1,200ms |
 
 ---
 
@@ -219,15 +216,14 @@ ORDER BY day DESC;
 
 Model Serving 엔드포인트에 배포된 에이전트는 **자동으로 모든 요청이 트레이싱**됩니다. Inference Table과 결합하여 프로덕션 품질을 모니터링할 수 있습니다.
 
-```mermaid
-graph LR
-    USER["사용자 요청"] --> EP["Model Serving<br/>Endpoint"]
-    EP --> AGENT["AI 에이전트"]
-    AGENT --> TRACE["MLflow Trace<br/>(자동 기록)"]
-    AGENT --> INF["Inference Table<br/>(입출력 기록)"]
-    TRACE --> DASH["📊 모니터링<br/>대시보드"]
-    INF --> DASH
-```
+| 구성 요소 | 역할 | 연결 |
+|-----------|------|------|
+| **사용자 요청** | 요청을 전송합니다 | Model Serving Endpoint로 전달 |
+| **Model Serving Endpoint** | 요청을 수신합니다 | AI 에이전트에 전달 |
+| **AI 에이전트** | 요청을 처리합니다 | MLflow Trace + Inference Table에 기록 |
+| **MLflow Trace** | 실행 흐름을 자동 기록합니다 | 모니터링 대시보드에 데이터 제공 |
+| **Inference Table** | 입출력을 기록합니다 | 모니터링 대시보드에 데이터 제공 |
+| **모니터링 대시보드** | 종합 모니터링을 제공합니다 | Trace + Inference Table 데이터를 시각화 |
 
 ---
 

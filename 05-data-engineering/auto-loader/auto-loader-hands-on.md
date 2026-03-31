@@ -303,17 +303,12 @@ SDP(선언적 파이프라인)에서 Auto Loader를 사용하여 Bronze → Silv
 
 ### 파이프라인 구조
 
-```mermaid
-graph LR
-    A[📁 CSV/JSON 파일] --> B[🥉 Bronze<br/>원본 수집]
-    B --> C[🥈 Silver<br/>정제/검증]
-    C --> D[🥇 Gold<br/>비즈니스 집계]
-
-    style A fill:#f5f5f5
-    style B fill:#e8d5b7
-    style C fill:#d0d0d0
-    style D fill:#ffd700
-```
+| 단계 | 계층 | 설명 |
+|------|------|------|
+| 1 | CSV/JSON 파일 | 원본 파일 소스입니다 |
+| 2 | Bronze (원본 수집) | 원본 데이터를 그대로 수집합니다 |
+| 3 | Silver (정제/검증) | 데이터를 정제하고 검증합니다 |
+| 4 | Gold (비즈니스 집계) | 비즈니스 요구에 맞게 집계합니다 |
 
 ### SDP 노트북 코드
 

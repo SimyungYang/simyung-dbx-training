@@ -6,23 +6,12 @@
 
 > 💡 **IAM(Identity and Access Management)** 은 "누가(Who) 무엇에(What) 어떤 권한으로(How) 접근할 수 있는가"를 체계적으로 관리하는 보안 프레임워크입니다. Databricks는 기업의 기존 ID 시스템(Okta, Azure AD/Entra ID, Google Workspace 등)과 연동하여 통합적인 ID 관리를 제공합니다.
 
-```mermaid
-graph TB
-    subgraph "기업 ID 시스템 (IdP)"
-        IDP["🏢 Okta / Azure Entra ID<br/>/ Google Workspace"]
-    end
-
-    subgraph "Databricks"
-        ACC["계정 수준 (Account)"]
-        WS1["워크스페이스 A"]
-        WS2["워크스페이스 B"]
-    end
-
-    IDP -->|"SSO (SAML/OIDC)"| ACC
-    IDP -->|"SCIM 동기화"| ACC
-    ACC -->|"ID Federation"| WS1
-    ACC -->|"ID Federation"| WS2
-```
+| 구성 요소 | 역할 | 연결 |
+|-----------|------|------|
+| **기업 ID 시스템 (IdP)** | Okta / Azure Entra ID / Google Workspace | SSO (SAML/OIDC) + SCIM 동기화 → Databricks |
+| **Databricks 계정 수준 (Account)** | 중앙 ID 관리 | ID Federation으로 워크스페이스에 전파 |
+| **워크스페이스 A** | 개별 작업 환경 | Account에서 ID Federation |
+| **워크스페이스 B** | 개별 작업 환경 | Account에서 ID Federation |
 
 ---
 
@@ -39,27 +28,13 @@ Databricks의 ID 관리는 **두 가지 수준**에서 이루어집니다.
 
 > 💡 **ID Federation**은 Account 수준에서 관리하는 사용자/그룹을 **별도 추가 없이** 워크스페이스에서 사용할 수 있게 해주는 기능입니다. ID Federation이 활성화되면, Account에 사용자를 추가하면 해당 사용자가 모든 연합 워크스페이스에서 인증할 수 있습니다.
 
-```mermaid
-graph LR
-    subgraph "Account 수준"
-        U1["사용자: alice@corp.com"]
-        G1["그룹: data-engineers"]
-        SP1["SP: etl-pipeline"]
-    end
+| Account 수준 프린시펄 | 워크스페이스 A (Federation ON) | 워크스페이스 B (Federation ON) |
+|---------------------|---------------------------|---------------------------|
+| 사용자: alice@corp.com | 자동 접근 가능 | 자동 접근 가능 |
+| 그룹: data-engineers | 자동 접근 가능 | - |
+| SP: etl-pipeline | - | - |
 
-    subgraph "워크스페이스 A (Federation ON)"
-        A_U1["alice → 자동 접근 가능"]
-        A_G1["data-engineers → 자동 접근 가능"]
-    end
-
-    subgraph "워크스페이스 B (Federation ON)"
-        B_U1["alice → 자동 접근 가능"]
-    end
-
-    U1 --> A_U1
-    U1 --> B_U1
-    G1 --> A_G1
-```
+> Identity Federation이 활성화된 워크스페이스에서는 Account 수준 사용자/그룹이 자동으로 접근 가능합니다.
 
 ---
 
@@ -124,19 +99,14 @@ w = WorkspaceClient(
 
 ### SSO 설정 흐름
 
-```mermaid
-sequenceDiagram
-    participant Admin as 관리자
-    participant IdP as ID Provider (Okta)
-    participant DBX as Databricks Account
-
-    Admin->>IdP: 1. Databricks 앱 생성
-    IdP-->>Admin: 2. SAML 메타데이터 URL 발급
-    Admin->>DBX: 3. Account Console → SSO 설정
-    Admin->>DBX: 4. SAML 메타데이터 URL 입력
-    DBX-->>Admin: 5. SSO 테스트 → 성공
-    Admin->>DBX: 6. SSO 강제 활성화 (선택)
-```
+| 단계 | 발신 | 수신 | 내용 |
+|------|------|------|------|
+| 1 | 관리자 | ID Provider (Okta) | Databricks 앱을 생성합니다 |
+| 2 | Okta | 관리자 | SAML 메타데이터 URL을 발급합니다 |
+| 3 | 관리자 | Databricks Account | Account Console에서 SSO를 설정합니다 |
+| 4 | 관리자 | Databricks Account | SAML 메타데이터 URL을 입력합니다 |
+| 5 | Databricks Account | 관리자 | SSO 테스트를 수행합니다 → 성공 |
+| 6 | 관리자 | Databricks Account | SSO 강제 활성화 (선택) |
 
 ### SSO 설정 단계 (Okta 예시)
 
@@ -158,14 +128,11 @@ sequenceDiagram
 
 ### SCIM의 동작
 
-```mermaid
-graph LR
-    IDP["🏢 ID Provider<br/>(Okta, Azure AD)"] -->|"SCIM 동기화<br/>(자동)"| DBX["☁️ Databricks<br/>Account"]
-
-    IDP -->|"사용자 추가"| DBX
-    IDP -->|"사용자 삭제"| DBX
-    IDP -->|"그룹 변경"| DBX
-```
+| 이벤트 | 방향 | 설명 |
+|--------|------|------|
+| **사용자 추가** | ID Provider → Databricks Account | SCIM 동기화로 자동 반영됩니다 |
+| **사용자 삭제** | ID Provider → Databricks Account | SCIM 동기화로 자동 반영됩니다 |
+| **그룹 변경** | ID Provider → Databricks Account | SCIM 동기화로 자동 반영됩니다 |
 
 | SCIM으로 동기화되는 정보 | 설명 |
 |------------------------|------|
@@ -217,20 +184,14 @@ Databricks는 OAuth 2.0을 지원하여 안전한 토큰 기반 인증을 제공
 
 사용자가 브라우저를 통해 인증하는 흐름입니다. Databricks CLI, SDK에서 사용합니다.
 
-```mermaid
-sequenceDiagram
-    participant User as 사용자 (CLI/SDK)
-    participant Browser as 브라우저
-    participant DBX as Databricks
-
-    User->>Browser: 1. 인증 요청 (브라우저 열림)
-    Browser->>DBX: 2. 로그인 (SSO)
-    DBX-->>Browser: 3. Authorization Code 발급
-    Browser-->>User: 4. Code 전달
-    User->>DBX: 5. Code → Access Token 교환
-    DBX-->>User: 6. Access Token + Refresh Token
-    Note over User: 토큰 자동 갱신
-```
+| 단계 | 발신 | 수신 | 내용 |
+|------|------|------|------|
+| 1 | 사용자 (CLI/SDK) | 브라우저 | 인증 요청 (브라우저가 열림) |
+| 2 | 브라우저 | Databricks | 로그인 (SSO) |
+| 3 | Databricks | 브라우저 | Authorization Code 발급 |
+| 4 | 브라우저 | 사용자 | Code 전달 |
+| 5 | 사용자 | Databricks | Code → Access Token 교환 |
+| 6 | Databricks | 사용자 | Access Token + Refresh Token 발급 (토큰 자동 갱신) |
 
 ```bash
 # Databricks CLI에서 OAuth U2M 인증
@@ -242,15 +203,11 @@ databricks auth login --host https://dbc-abc123.cloud.databricks.com
 
 Service Principal이 Client ID + Secret으로 토큰을 발급받는 흐름입니다.
 
-```mermaid
-sequenceDiagram
-    participant App as 자동화 스크립트
-    participant DBX as Databricks
-
-    App->>DBX: 1. Client ID + Secret 전송
-    DBX-->>App: 2. Access Token 발급
-    App->>DBX: 3. API 호출 (Bearer Token)
-```
+| 단계 | 발신 | 수신 | 내용 |
+|------|------|------|------|
+| 1 | 자동화 스크립트 | Databricks | Client ID + Secret 전송 |
+| 2 | Databricks | 자동화 스크립트 | Access Token 발급 |
+| 3 | 자동화 스크립트 | Databricks | API 호출 (Bearer Token) |
 
 ```python
 # M2M OAuth 인증
@@ -309,13 +266,11 @@ w = WorkspaceClient(
 
 ID Federation이 활성화된 환경에서, 특정 사용자/그룹만 워크스페이스에 접근하도록 제한할 수 있습니다.
 
-```mermaid
-graph TD
-    ACC["Account<br/>(모든 사용자)"]
-    ACC -->|"할당"| WS1["워크스페이스: Production<br/>→ data-engineers, data-analysts"]
-    ACC -->|"할당"| WS2["워크스페이스: Development<br/>→ data-engineers, ml-engineers"]
-    ACC -->|"미할당"| WS3["워크스페이스: Finance<br/>→ finance-team만"]
-```
+| 워크스페이스 | 할당된 그룹 | 설명 |
+|------------|-----------|------|
+| **Production** | data-engineers, data-analysts | 프로덕션 작업 환경입니다 |
+| **Development** | data-engineers, ml-engineers | 개발/실험 환경입니다 |
+| **Finance** | finance-team만 | 재무팀 전용 환경입니다 (미할당 사용자는 접근 불가) |
 
 ---
 

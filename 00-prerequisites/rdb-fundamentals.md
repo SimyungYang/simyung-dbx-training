@@ -76,15 +76,12 @@ INNER JOIN orders o ON c.customer_id = o.customer_id;
 
 ### 주요 JOIN 유형
 
-```mermaid
-graph TB
-    subgraph Joins["JOIN 유형"]
-        IJ["INNER JOIN<br/>양쪽 모두 일치하는 것만"]
-        LJ["LEFT JOIN<br/>왼쪽 테이블 전체 + 오른쪽 일치"]
-        RJ["RIGHT JOIN<br/>오른쪽 테이블 전체 + 왼쪽 일치"]
-        FJ["FULL OUTER JOIN<br/>양쪽 모두 전체"]
-    end
-```
+| JOIN 유형 | 설명 |
+|-----------|------|
+| **INNER JOIN** | 양쪽 모두 일치하는 것만 반환합니다 |
+| **LEFT JOIN** | 왼쪽 테이블 전체 + 오른쪽 일치하는 것을 반환합니다 |
+| **RIGHT JOIN** | 오른쪽 테이블 전체 + 왼쪽 일치하는 것을 반환합니다 |
+| **FULL OUTER JOIN** | 양쪽 모두 전체를 반환합니다 |
 
 | JOIN 유형 | 설명 | 사용 예시 |
 |-----------|------|----------|

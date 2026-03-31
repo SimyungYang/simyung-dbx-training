@@ -63,23 +63,17 @@ ALTER TABLE catalog.schema.orders CLUSTER BY NONE;
 
 ### Liquid Clustering의 동작 원리
 
-```mermaid
-graph TB
-    subgraph Before["OPTIMIZE 전"]
-        F1["파일 1: 서울(3월), 부산(2월)"]
-        F2["파일 2: 대구(3월), 서울(1월)"]
-        F3["파일 3: 부산(3월), 서울(2월)"]
-    end
+**OPTIMIZE 전후 비교**
 
-    subgraph After["OPTIMIZE 후 (CLUSTER BY region, order_date)"]
-        G1["파일 1: 서울 (1~2월)"]
-        G2["파일 2: 서울 (3월)"]
-        G3["파일 3: 부산 (2~3월)"]
-        G4["파일 4: 대구 (3월)"]
-    end
-
-    Before -->|"OPTIMIZE"| After
-```
+| 상태 | 파일 | 내용 |
+|------|------|------|
+| **OPTIMIZE 전** | 파일 1 | 서울(3월), 부산(2월) — 여러 지역이 혼합 |
+|  | 파일 2 | 대구(3월), 서울(1월) — 여러 지역이 혼합 |
+|  | 파일 3 | 부산(3월), 서울(2월) — 여러 지역이 혼합 |
+| **OPTIMIZE 후** (CLUSTER BY region, order_date) | 파일 1 | 서울 (1~2월) — 지역별로 정렬 |
+|  | 파일 2 | 서울 (3월) |
+|  | 파일 3 | 부산 (2~3월) |
+|  | 파일 4 | 대구 (3월) |
 
 `WHERE region = '서울' AND order_date >= '2025-03-01'` 쿼리를 실행하면:
 - **최적화 전**: 3개 파일을 모두 스캔해야 합니다
@@ -137,15 +131,15 @@ SQL Editor에서 쿼리를 실행한 후 **Query Profile** 탭을 클릭하면, 
 
 ### 성능 개선 판단 플로우
 
-```mermaid
-graph TD
-    Q{"쿼리가 느린가요?"}
-    Q -->|"스캔량이 많음"| A["Liquid Clustering 적용<br/>필요한 컬럼만 SELECT"]
-    Q -->|"Shuffle이 많음"| B["JOIN 키에 Clustering<br/>브로드캐스트 JOIN 검토"]
-    Q -->|"Spill 발생"| C["Warehouse 크기 증가<br/>집계 단계 분리"]
-    Q -->|"파일 수가 많음"| D["OPTIMIZE 실행<br/>Small File 문제 해결"]
-    Q -->|"통계 오래됨"| E["ANALYZE TABLE 실행"]
-```
+**쿼리 성능 문제 해결 가이드**
+
+| 증상 | 원인 | 해결 방법 |
+|------|------|----------|
+| 스캔량이 많음 | 불필요한 데이터를 읽고 있습니다 | Liquid Clustering 적용, 필요한 컬럼만 SELECT |
+| Shuffle이 많음 | JOIN 시 데이터 재분배가 과도합니다 | JOIN 키에 Clustering, 브로드캐스트 JOIN 검토 |
+| Spill 발생 | 메모리가 부족합니다 | Warehouse 크기 증가, 집계 단계 분리 |
+| 파일 수가 많음 | Small File 문제입니다 | OPTIMIZE 실행 |
+| 통계 오래됨 | 최적화에 사용하는 통계가 부정확합니다 | ANALYZE TABLE 실행 |
 
 ---
 

@@ -17,18 +17,15 @@
 
 ## 핵심 개념
 
-```mermaid
-graph LR
-    A["원본 데이터<br/>(트랜잭션, 로그 등)"] --> B["피처 계산<br/>(집계, 변환)"]
-    B --> C["피처 테이블<br/>(Unity Catalog)"]
-    C --> D["학습 데이터 생성<br/>(FeatureLookup)"]
-    C --> E["온라인 서빙<br/>(Online Store)"]
-    D --> F["모델 학습"]
-    F --> G["모델 배포"]
-    G --> E
-
-    style C fill:#e1f5fe
-```
+| 단계 | 작업 | 설명 |
+|------|------|------|
+| 1 | 원본 데이터 | 트랜잭션, 로그 등의 소스 데이터입니다 |
+| 2 | 피처 계산 | 집계, 변환을 수행하여 피처를 생성합니다 |
+| 3 | 피처 테이블 (Unity Catalog) | 피처를 중앙 저장소에 관리합니다 (핵심) |
+| 4a | 학습 데이터 생성 | FeatureLookup으로 학습 데이터를 구성합니다 |
+| 4b | 온라인 서빙 | Online Store에서 실시간 피처를 제공합니다 |
+| 5 | 모델 학습 | 학습 데이터로 모델을 학습합니다 |
+| 6 | 모델 배포 | 배포된 모델이 Online Store에서 피처를 조회합니다 |
 
 ### 피처 테이블 vs 일반 Delta 테이블
 
@@ -191,16 +188,13 @@ display(training_df)
 
 ### FeatureLookup이 모델에 기록되는 원리
 
-```mermaid
-graph TD
-    A["fe.create_training_set()"] --> B["Training Set 생성<br/>(피처 조회 메타데이터 포함)"]
-    B --> C["모델 학습<br/>(sklearn, XGBoost 등)"]
-    C --> D["fe.log_model()"]
-    D --> E["MLflow에 모델 + 피처 메타데이터 저장"]
-    E --> F["서빙 시 자동으로<br/>피처 테이블에서 조회"]
-
-    style F fill:#e8f5e9
-```
+| 단계 | 작업 | 설명 |
+|------|------|------|
+| 1 | `fe.create_training_set()` | Training Set을 생성합니다 (피처 조회 메타데이터 포함) |
+| 2 | 모델 학습 | sklearn, XGBoost 등으로 모델을 학습합니다 |
+| 3 | `fe.log_model()` | 모델을 로깅합니다 |
+| 4 | MLflow 저장 | 모델 + 피처 메타데이터를 MLflow에 저장합니다 |
+| 5 | 서빙 시 자동 조회 | 서빙 시 자동으로 피처 테이블에서 피처를 조회합니다 |
 
 > 💡 **핵심 원리**: `fe.log_model()`로 모델을 저장하면, 어떤 피처 테이블에서 어떤 피처를 사용했는지가 모델에 기록됩니다. 서빙 시에는 기본 키만 전달하면 나머지 피처는 자동으로 피처 테이블에서 조회됩니다.
 

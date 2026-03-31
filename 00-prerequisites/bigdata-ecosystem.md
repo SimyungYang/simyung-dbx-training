@@ -8,58 +8,24 @@
 
 ## 영역별 기술 지도
 
-```mermaid
-graph TB
-    subgraph Ingestion["📥 데이터 수집"]
-        I1["Apache Kafka"]
-        I2["Apache Flink"]
-        I3["AWS Kinesis"]
-        I4["Fivetran / Airbyte"]
-        I5["Lakeflow Connect"]
-    end
-
-    subgraph Storage["💾 데이터 저장"]
-        S1["Delta Lake"]
-        S2["Apache Iceberg"]
-        S3["Apache Hudi"]
-        S4["AWS S3 / ADLS / GCS"]
-    end
-
-    subgraph Processing["⚙️ 데이터 처리"]
-        P1["Apache Spark"]
-        P2["Apache Flink"]
-        P3["dbt"]
-        P4["Trino / Presto"]
-    end
-
-    subgraph Analytics["📊 분석 & BI"]
-        A1["Databricks SQL"]
-        A2["Snowflake"]
-        A3["BigQuery"]
-        A4["Redshift"]
-        A5["Tableau / Power BI / Looker"]
-    end
-
-    subgraph ML["🤖 AI / ML"]
-        M1["MLflow"]
-        M2["TensorFlow / PyTorch"]
-        M3["Hugging Face"]
-        M4["SageMaker"]
-    end
-
-    subgraph Gov["🛡️ 거버넌스"]
-        G1["Unity Catalog"]
-        G2["Apache Atlas"]
-        G3["Collibra / Alation"]
-    end
-
-    Ingestion --> Storage
-    Storage --> Processing
-    Processing --> Analytics
-    Processing --> ML
-    Gov -.-> Storage
-    Gov -.-> Analytics
-```
+| 영역 | 기술 | 설명 |
+|------|------|------|
+| **데이터 수집** | Apache Kafka | 실시간 스트리밍 수집 |
+|  | Apache Flink | 스트림 처리 |
+|  | AWS Kinesis | AWS 스트리밍 서비스 |
+|  | Fivetran / Airbyte | ELT 수집 도구 |
+|  | Lakeflow Connect | Databricks 수집 서비스 |
+| **데이터 저장** | Delta Lake | 레이크하우스 테이블 포맷 |
+|  | Apache Iceberg | 오픈 테이블 포맷 |
+|  | Apache Hudi | 오픈 테이블 포맷 |
+|  | AWS S3 / ADLS / GCS | 클라우드 오브젝트 스토리지 |
+| **데이터 처리** | Apache Spark | 대규모 분산 처리 |
+|  | SQL (Databricks SQL 등) | SQL 기반 분석 |
+| **데이터 분석/시각화** | Databricks AI/BI | 대시보드 + Genie |
+|  | Tableau / Power BI / Looker | 외부 BI 도구 |
+| **ML/AI** | MLflow | ML 실험 관리 |
+|  | PyTorch / TensorFlow | 딥러닝 프레임워크 |
+|  | Agent Framework | AI 에이전트 개발 |
 
 ---
 
@@ -167,25 +133,17 @@ graph TB
 
 ## 빅 플레이어 포지션 맵
 
-```mermaid
-quadrantChart
-    title 데이터 플랫폼 포지션
-    x-axis "SQL/분석 중심" --> "엔지니어링/ML 중심"
-    y-axis "온프레미스" --> "클라우드 네이티브"
-    quadrant-1 "클라우드 + 엔지니어링/ML"
-    quadrant-2 "클라우드 + SQL/분석"
-    quadrant-3 "온프레미스 + SQL/분석"
-    quadrant-4 "온프레미스 + 엔지니어링/ML"
-    Databricks: [0.75, 0.9]
-    Snowflake: [0.3, 0.85]
-    BigQuery: [0.35, 0.95]
-    Redshift: [0.25, 0.8]
-    "Microsoft Fabric": [0.5, 0.85]
-    Hadoop: [0.7, 0.15]
-    Cloudera: [0.6, 0.35]
-    Oracle: [0.2, 0.3]
-    Teradata: [0.15, 0.25]
-```
+**데이터 플랫폼 포지션 비교**
+
+| 플랫폼 | SQL/분석 ↔ 엔지니어링/ML | 온프레미스 ↔ 클라우드 | 특징 |
+|--------|----------------------|---------------------|------|
+| **Databricks** | 엔지니어링/ML 중심 | 클라우드 네이티브 | Spark 기반 통합 플랫폼 |
+| **Snowflake** | SQL/분석 중심 | 클라우드 네이티브 | 클라우드 데이터 웨어하우스 |
+| **BigQuery** | SQL/분석 중심 | 클라우드 네이티브 | Google 서버리스 분석 |
+| **Redshift** | SQL/분석 중심 | 클라우드 | AWS 데이터 웨어하우스 |
+| **Microsoft Fabric** | 중간 | 클라우드 네이티브 | Microsoft 통합 분석 |
+| **Hadoop** | 엔지니어링 중심 | 온프레미스 | 레거시 분산 처리 |
+| **Teradata** | SQL/분석 중심 | 온프레미스 | 레거시 데이터 웨어하우스 |
 
 ---
 

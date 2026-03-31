@@ -203,22 +203,16 @@ print(response["output"])
 
 ## 도구 호출 흐름
 
-```mermaid
-sequenceDiagram
-    participant U as 사용자
-    participant A as 에이전트 (LLM)
-    participant T as 도구 (UC 함수)
-    participant D as 데이터 (Delta Table)
-
-    U->>A: "주문 12345 상태를 알려주세요"
-    A->>A: 의도 분석: 주문 상태 조회 필요
-    A->>T: get_order_status(order_id=12345)
-    T->>D: SELECT * FROM orders WHERE order_id=12345
-    D-->>T: {status: "배송중", estimated_arrival: "2025-04-02"}
-    T-->>A: 조회 결과 반환
-    A->>A: 결과를 자연어로 변환
-    A-->>U: "주문 12345는 현재 배송 중이며, 4월 2일 도착 예정입니다."
-```
+| 단계 | 발신 | 수신 | 내용 |
+|------|------|------|------|
+| 1 | 사용자 | 에이전트 (LLM) | "주문 12345 상태를 알려주세요" |
+| 2 | 에이전트 | (내부 처리) | 의도 분석: 주문 상태 조회 필요 |
+| 3 | 에이전트 | 도구 (UC 함수) | `get_order_status(order_id=12345)` 호출 |
+| 4 | 도구 | 데이터 (Delta Table) | `SELECT * FROM orders WHERE order_id=12345` 실행 |
+| 5 | 데이터 | 도구 | `{status: "배송중", estimated_arrival: "2025-04-02"}` 반환 |
+| 6 | 도구 | 에이전트 | 조회 결과 반환 |
+| 7 | 에이전트 | (내부 처리) | 결과를 자연어로 변환 |
+| 8 | 에이전트 | 사용자 | "주문 12345는 현재 배송 중이며, 4월 2일 도착 예정입니다." |
 
 ---
 

@@ -189,22 +189,16 @@ spark.createDataFrame(eval_dataset).write.mode("overwrite").saveAsTable(
 
 ### 에이전트 개선 사이클
 
-```mermaid
-flowchart TD
-    A["1. 에이전트 배포<br/>(agents.deploy)"] --> B["2. Review App에서<br/>테스터 피드백 수집"]
-    B --> C["3. 부정 피드백 분석"]
-    C --> D["4. 평가 데이터셋<br/>업데이트"]
-    D --> E["5. 에이전트 개선<br/>(프롬프트, 도구, RAG)"]
-    E --> F["6. Agent Evaluation<br/>으로 성능 측정"]
-    F --> G{"7. 품질 기준<br/>충족?"}
-    G -->|"아니요"| E
-    G -->|"예"| H["8. 새 버전 배포"]
-    H --> B
-
-    style B fill:#e1f5fe
-    style D fill:#fff3e0
-    style F fill:#e8f5e9
-```
+| 단계 | 작업 | 설명 |
+|------|------|------|
+| 1 | 에이전트 배포 | `agents.deploy()`로 에이전트를 배포합니다 |
+| 2 | 피드백 수집 | Review App에서 테스터가 피드백을 남깁니다 |
+| 3 | 부정 피드백 분석 | 낮은 평가를 받은 응답 패턴을 분석합니다 |
+| 4 | 평가 데이터셋 업데이트 | 피드백을 평가 데이터셋에 반영합니다 |
+| 5 | 에이전트 개선 | 프롬프트, 도구, RAG를 수정합니다 |
+| 6 | 성능 측정 | Agent Evaluation으로 성능을 측정합니다 |
+| 7 | 품질 기준 충족 여부 | 미충족 시 5단계로 돌아갑니다 |
+| 8 | 새 버전 배포 | 품질 기준 충족 시 새 버전을 배포하고, 2단계로 돌아가 반복합니다 |
 
 ---
 

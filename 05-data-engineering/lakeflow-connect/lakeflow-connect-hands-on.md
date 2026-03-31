@@ -4,33 +4,16 @@
 
 운영 중인 MySQL 데이터베이스의 **고객(customers) 테이블**과 **주문(orders) 테이블**을 Databricks 레이크하우스로 **실시간 CDC 수집**합니다. 수집된 Bronze 데이터를 SDP 파이프라인으로 변환하여 Silver 계층까지 구성하는 전체 흐름을 실습합니다.
 
-```mermaid
-graph LR
-    subgraph Source["📦 소스 MySQL"]
-        T1["ecommerce.customers"]
-        T2["ecommerce.orders"]
-    end
-
-    subgraph Connect["⚙️ Lakeflow Connect"]
-        CONN["Connection:<br/>mysql_ecommerce"]
-        PIPE["Ingestion Pipeline:<br/>ecommerce_ingestion"]
-    end
-
-    subgraph Target["💾 Databricks"]
-        B1["analytics.bronze.customers"]
-        B2["analytics.bronze.orders"]
-        S1["analytics.silver.customers"]
-        S2["analytics.silver.orders"]
-    end
-
-    T1 --> CONN
-    T2 --> CONN
-    CONN --> PIPE
-    PIPE --> B1
-    PIPE --> B2
-    B1 -->|"SDP 변환"| S1
-    B2 -->|"SDP 변환"| S2
-```
+| 계층 | 구성 요소 | 설명 |
+|------|-----------|------|
+| **소스 MySQL** | ecommerce.customers | 고객 테이블 |
+|  | ecommerce.orders | 주문 테이블 |
+| **Lakeflow Connect** | Connection: mysql_ecommerce | MySQL 연결 정보 |
+|  | Ingestion Pipeline: ecommerce_ingestion | 수집 파이프라인 |
+| **Databricks (Bronze)** | analytics.bronze.customers | 수집된 고객 데이터 |
+|  | analytics.bronze.orders | 수집된 주문 데이터 |
+| **Databricks (Silver)** | analytics.silver.customers | 정제된 고객 데이터 |
+|  | analytics.silver.orders | 정제된 주문 데이터 |
 
 ---
 

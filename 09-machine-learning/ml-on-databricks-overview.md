@@ -28,17 +28,14 @@ ML을 수행할 수 있는 플랫폼은 여러 가지가 있습니다. 각각의
 
 Databricks에서의 ML 워크플로우는 크게 5단계로 구성됩니다. 각 단계가 유기적으로 연결되어 있어, 한 플랫폼 안에서 전체 ML 라이프사이클을 관리할 수 있습니다.
 
-```mermaid
-graph LR
-    D["💾 1. 데이터 준비<br/>Feature Engineering"]
-    T["🔬 2. 실험/학습<br/>MLflow Tracking"]
-    R["📋 3. 모델 등록<br/>UC Model Registry"]
-    S["🚀 4. 모델 배포<br/>Model Serving"]
-    M["📊 5. 모니터링<br/>Inference Tables"]
-
-    D --> T --> R --> S --> M
-    M -->|"재학습/개선"| T
-```
+| 단계 | 작업 | 설명 |
+|------|------|------|
+| 1 | 데이터 준비 | Feature Engineering으로 학습 데이터를 준비합니다 |
+| 2 | 실험/학습 | MLflow Tracking으로 실험을 추적하며 모델을 학습합니다 |
+| 3 | 모델 등록 | UC Model Registry에 모델을 등록하여 버전 관리합니다 |
+| 4 | 모델 배포 | Model Serving으로 REST API 엔드포인트에 배포합니다 |
+| 5 | 모니터링 | Inference Tables로 성능을 모니터링합니다 |
+| ↩ | 재학습/개선 | 모니터링 결과를 바탕으로 실험/학습 단계로 돌아가 반복합니다 |
 
 | 단계 | Databricks 도구 | 역할 | 전통적 도구 (비교) |
 |------|----------------|------|------------------|

@@ -12,21 +12,18 @@
 
 Job Run은 다음과 같은 생명주기를 거칩니다.
 
-```mermaid
-stateDiagram-v2
-    [*] --> QUEUED: 트리거 발생
-    QUEUED --> PENDING: 대기열에서 선택
-    PENDING --> RUNNING: 클러스터 준비 완료
-    RUNNING --> TERMINATING: 실행 완료/실패
-    TERMINATING --> TERMINATED: 정상 종료
-    TERMINATING --> FAILED: 오류 발생
-    TERMINATING --> TIMED_OUT: 타임아웃
-    RUNNING --> CANCELLING: 사용자 취소
-    CANCELLING --> CANCELLED: 취소 완료
-
-    FAILED --> PENDING: 재시도 (max_retries > 0)
-    TIMED_OUT --> PENDING: retry_on_timeout = true
-```
+| 상태 | 전이 조건 | 다음 상태 |
+|------|----------|-----------|
+| (시작) | 트리거 발생 | QUEUED |
+| QUEUED | 대기열에서 선택 | PENDING |
+| PENDING | 클러스터 준비 완료 | RUNNING |
+| RUNNING | 실행 완료/실패 | TERMINATING |
+| TERMINATING | 정상 종료 | TERMINATED |
+| TERMINATING | 오류 발생 | FAILED |
+| TERMINATING | 타임아웃 | TIMED_OUT |
+| RUNNING | 사용자 취소 | CANCELLING → CANCELLED |
+| FAILED | 재시도 (max_retries > 0) | PENDING |
+| TIMED_OUT | retry_on_timeout = true | PENDING |
 
 ### 상태별 설명
 
@@ -273,21 +270,12 @@ ORDER BY total_dbus DESC;
 
 ### Spark UI 활용
 
-```mermaid
-flowchart LR
-    A[성능 문제 감지] --> B[Spark UI 접근]
-    B --> C{어디서 느린가?}
-    C -->|Job 단계| D[Jobs 탭<br/>스테이지별 시간 확인]
-    C -->|셔플 문제| E[Stages 탭<br/>Shuffle Read/Write 확인]
-    C -->|데이터 편향| F[Tasks 탭<br/>태스크별 시간 편차 확인]
-    C -->|메모리 문제| G[Executors 탭<br/>GC 시간, 메모리 사용량]
-
-    style A fill:#ffebee
-    style D fill:#e8f5e9
-    style E fill:#e8f5e9
-    style F fill:#e8f5e9
-    style G fill:#e8f5e9
-```
+| 증상 | Spark UI 탭 | 확인 항목 |
+|------|-------------|----------|
+| Job 단계에서 느림 | Jobs 탭 | 스테이지별 시간을 확인합니다 |
+| 셔플 문제 | Stages 탭 | Shuffle Read/Write를 확인합니다 |
+| 데이터 편향 | Tasks 탭 | 태스크별 시간 편차를 확인합니다 |
+| 메모리 문제 | Executors 탭 | GC 시간, 메모리 사용량을 확인합니다 |
 
 ---
 

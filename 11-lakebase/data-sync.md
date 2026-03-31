@@ -19,25 +19,15 @@
 
 ## 동기화 아키텍처
 
-```mermaid
-graph LR
-    subgraph OLTP["Lakebase (OLTP)"]
-        APP["🌐 웹 앱"] -->|"INSERT/UPDATE/DELETE"| LB["Lakebase<br/>PostgreSQL"]
-        LB --> WAL["WAL<br/>(Write-Ahead Log)"]
-    end
-
-    subgraph SYNC["Data Sync Engine"]
-        WAL -->|"변경 감지"| CDC["CDC<br/>캡처"]
-        CDC -->|"변환 & 적용"| WRITER["Delta<br/>Writer"]
-    end
-
-    subgraph OLAP["Delta Lake (OLAP)"]
-        WRITER --> DT["Delta Table<br/>(Unity Catalog)"]
-        DT --> SQL["📊 Databricks SQL"]
-        DT --> ML["🤖 ML 학습"]
-        DT --> BI["📈 AI/BI 대시보드"]
-    end
-```
+| 계층 | 구성 요소 | 역할 |
+|------|-----------|------|
+| **Lakebase (OLTP)** | 웹 앱 | INSERT/UPDATE/DELETE를 수행합니다 |
+|  | Lakebase (PostgreSQL) | OLTP 데이터를 저장합니다 |
+|  | WAL (Write-Ahead Log) | 변경 사항을 기록합니다 |
+| **Data Sync Engine** | CDC 캡처 | WAL에서 변경 사항을 감지합니다 |
+|  | Delta Writer | 변환 및 적용을 수행합니다 |
+| **Delta Lake (OLAP)** | Delta Table | 분석용 데이터로 저장됩니다 |
+|  | SQL/BI/ML | 분석, 대시보드, ML 학습에 활용됩니다 |
 
 Data Sync는 PostgreSQL의 **WAL(Write-Ahead Log)** 을 기반으로 변경사항을 캡처합니다. 전체 데이터를 복사하는 것이 아니라, **변경분(Delta)만 증분 처리**하므로 네트워크 비용과 처리 시간이 최소화됩니다.
 
@@ -303,30 +293,15 @@ SET MODE CONTINUOUS;
 
 다음은 이커머스 앱의 주문 데이터를 실시간으로 분석하는 전체 흐름입니다.
 
-```mermaid
-graph TD
-    subgraph APP["웹 애플리케이션"]
-        USER["👤 고객"] -->|"주문"| WEB["주문 API<br/>(FastAPI)"]
-    end
-
-    subgraph OLTP["Lakebase"]
-        WEB -->|"INSERT"| ORDERS["orders 테이블"]
-        WEB -->|"UPDATE"| INVENTORY["inventory 테이블"]
-    end
-
-    subgraph SYNC["Data Sync (CONTINUOUS)"]
-        ORDERS -->|"실시간"| SYNC1["orders_sync"]
-        INVENTORY -->|"실시간"| SYNC2["inventory_sync"]
-    end
-
-    subgraph ANALYTICS["Delta Lake + Analytics"]
-        SYNC1 --> D_ORDERS["orders_delta"]
-        SYNC2 --> D_INV["inventory_delta"]
-        D_ORDERS --> DASH["📊 매출 대시보드"]
-        D_ORDERS --> ALERT["🔔 이상 주문 감지"]
-        D_INV --> REORDER["📦 자동 재주문"]
-    end
-```
+| 계층 | 구성 요소 | 역할 |
+|------|-----------|------|
+| **웹 애플리케이션** | 고객 → 주문 API (FastAPI) | 주문을 접수합니다 |
+| **Lakebase** | orders 테이블 | INSERT로 주문 데이터를 저장합니다 |
+|  | inventory 테이블 | UPDATE로 재고를 갱신합니다 |
+| **Data Sync (CONTINUOUS)** | orders_sync | orders 테이블 변경 사항을 실시간 동기화합니다 |
+|  | inventory_sync | inventory 테이블 변경 사항을 실시간 동기화합니다 |
+| **Delta Lake** | analytics.bronze.orders | 분석용 주문 데이터 |
+|  | analytics.bronze.inventory | 분석용 재고 데이터 |
 
 ```sql
 -- Delta Lake에서 실시간 매출 분석 쿼리 (DBSQL에서 실행)

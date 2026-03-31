@@ -31,29 +31,14 @@
 ## Databricks Vector Search 아키텍처
 
 <!-- 📌 대체 예정: Vector Search 아키텍처 공식 이미지 확보 후 교체 -->
-```mermaid
-graph TB
-    subgraph Prepare["1️⃣ 데이터 준비"]
-        DT["Delta 테이블<br/>(원본 텍스트)"]
-    end
-
-    subgraph Index["2️⃣ 인덱스 생성"]
-        EP["Vector Search Endpoint"]
-        IDX["Vector Search Index"]
-        EMB["임베딩 모델<br/>(자동 벡터 변환)"]
-    end
-
-    subgraph Query["3️⃣ 검색"]
-        Q["질문 텍스트"]
-        R["유사 문서 결과"]
-    end
-
-    DT -->|"Delta Sync"| IDX
-    DT --> EMB -->|"벡터 변환"| IDX
-    EP --> IDX
-    Q -->|"질문 임베딩 → 유사도 검색"| IDX
-    IDX --> R
-```
+| 단계 | 구성 요소 | 설명 |
+|------|-----------|------|
+| **1. 데이터 준비** | Delta 테이블 | 원본 텍스트가 저장된 소스 테이블입니다 |
+| **2. 인덱스 생성** | Vector Search Endpoint | 인덱스를 호스팅하는 컴퓨팅 리소스입니다 |
+|  | 임베딩 모델 | 텍스트를 벡터로 자동 변환합니다 |
+|  | Vector Search Index | Delta Sync로 소스 테이블과 동기화되어 임베딩 벡터를 저장합니다 |
+| **3. 검색** | 질문 텍스트 | 질문이 임베딩으로 변환되어 유사도 검색이 수행됩니다 |
+|  | 유사 문서 결과 | 인덱스에서 가장 유사한 문서가 반환됩니다 |
 
 | 구성 요소 | 역할 |
 |-----------|------|
@@ -272,12 +257,12 @@ results = index.similarity_search(
 )
 ```
 
-```mermaid
-graph LR
-    Q["질문"] --> VS["Vector Search<br/>(20개 후보)"]
-    VS --> RR["Reranker<br/>(5개 선별)"]
-    RR --> R["최종 결과"]
-```
+| 단계 | 구성 요소 | 설명 |
+|------|-----------|------|
+| 1 | 질문 | 사용자의 검색 질문입니다 |
+| 2 | Vector Search | 20개 후보 문서를 넓게 검색합니다 |
+| 3 | Reranker | LLM 기반으로 재순위화하여 상위 5개를 선별합니다 |
+| 4 | 최종 결과 | 가장 관련성 높은 5개 문서가 반환됩니다 |
 
 ---
 

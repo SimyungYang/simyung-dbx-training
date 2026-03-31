@@ -6,17 +6,14 @@
 
 > 💡 Databricks에서 AI 에이전트를 배포한다는 것은, 에이전트를 **Model Serving Endpoint**로 호스팅하여 REST API로 접근할 수 있게 만드는 것입니다. 배포된 에이전트는 웹 앱, 슬랙 봇, 내부 도구 등 다양한 채널에서 호출할 수 있습니다.
 
-```mermaid
-flowchart LR
-    A["에이전트 개발<br/>(노트북)"] --> B["MLflow 로깅<br/>(모델 패키징)"]
-    B --> C["UC 모델 등록<br/>(버전 관리)"]
-    C --> D["Model Serving<br/>(엔드포인트 배포)"]
-    D --> E["Review App<br/>(테스트/피드백)"]
-    D --> F["프로덕션<br/>(REST API)"]
-
-    style D fill:#4a9eff,color:#fff,stroke:#333,stroke-width:2px
-    style F fill:#9f9,stroke:#333
-```
+| 단계 | 작업 | 설명 |
+|------|------|------|
+| 1 | 에이전트 개발 | 노트북에서 에이전트를 개발합니다 |
+| 2 | MLflow 로깅 | 모델을 패키징하여 MLflow에 기록합니다 |
+| 3 | UC 모델 등록 | Unity Catalog에 등록하여 버전 관리합니다 |
+| 4 | Model Serving | 엔드포인트로 배포합니다 (핵심 단계) |
+| 5a | Review App | 테스터가 피드백을 제공합니다 |
+| 5b | 프로덕션 | REST API로 실제 서비스에 사용됩니다 |
 
 ---
 
@@ -289,22 +286,16 @@ agents.set_permissions(
 
 ### 버전 업데이트 전략
 
-```mermaid
-flowchart TD
-    A["새 에이전트 버전<br/>개발 (v4)"] --> B["MLflow 로깅<br/>+ UC 등록"]
-    B --> C["Review App에서<br/>테스트"]
-    C --> D{"테스트<br/>통과?"}
-    D -->|"No"| A
-    D -->|"Yes"| E["엔드포인트 업데이트<br/>(v3 → v4)"]
-    E --> F["모니터링<br/>(Inference Tables)"]
-    F --> G{"이상<br/>징후?"}
-    G -->|"Yes"| H["롤백<br/>(v4 → v3)"]
-    G -->|"No"| I["champion 앨리어스<br/>v4로 이동"]
-
-    style E fill:#ff9f4a,color:#fff
-    style H fill:#f99,stroke:#333
-    style I fill:#9f9,stroke:#333
-```
+| 단계 | 작업 | 설명 |
+|------|------|------|
+| 1 | 새 버전 개발 (v4) | 에이전트의 새 버전을 개발합니다 |
+| 2 | MLflow 로깅 + UC 등록 | 모델을 기록하고 등록합니다 |
+| 3 | Review App 테스트 | Review App에서 테스터가 검증합니다 |
+| 4 | 테스트 통과 여부 판단 | 통과하지 못하면 1단계로 돌아갑니다 |
+| 5 | 엔드포인트 업데이트 | v3에서 v4로 업데이트합니다 |
+| 6 | 모니터링 | Inference Tables로 성능을 모니터링합니다 |
+| 7a | 이상 징후 발견 시 | 롤백 (v4 → v3)을 수행합니다 |
+| 7b | 정상 운영 시 | champion 앨리어스를 v4로 이동합니다 |
 
 ### 엔드포인트 업데이트
 

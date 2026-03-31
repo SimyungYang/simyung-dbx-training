@@ -8,24 +8,16 @@
 
 이 구분이 중요한 이유는 **비용, 성능, 보안, 유지보수** 측면에서 각각 최적의 선택이 달라지기 때문입니다. 잘못된 선택은 불필요한 스토리지 비용 증가나 쿼리 성능 저하로 이어질 수 있습니다.
 
-```mermaid
-graph TD
-    A[데이터 객체] --> B[테이블 Table]
-    A --> C[뷰 View]
-    B --> D[관리형 테이블<br>Managed Table]
-    B --> E[외부 테이블<br>External Table]
-    C --> F[일반 뷰<br>View]
-    C --> G[임시 뷰<br>Temporary View]
-    C --> H[구체화된 뷰<br>Materialized View]
-    B --> I[스트리밍 테이블<br>Streaming Table]
+**데이터 객체 분류**
 
-    style D fill:#4CAF50,color:#fff
-    style E fill:#FF9800,color:#fff
-    style F fill:#2196F3,color:#fff
-    style G fill:#9C27B0,color:#fff
-    style H fill:#E91E63,color:#fff
-    style I fill:#00BCD4,color:#fff
-```
+| 대분류 | 유형 | 설명 |
+|--------|------|------|
+| **테이블 (Table)** | 관리형 테이블 (Managed Table) | Databricks가 데이터와 메타데이터를 모두 관리합니다 |
+|  | 외부 테이블 (External Table) | 외부 스토리지의 데이터를 참조합니다 |
+|  | 스트리밍 테이블 (Streaming Table) | 스트리밍 데이터를 수집합니다 |
+| **뷰 (View)** | 일반 뷰 (View) | SQL 쿼리를 저장하며, 실행 시 계산됩니다 |
+|  | 임시 뷰 (Temporary View) | 세션 내에서만 유효한 뷰입니다 |
+|  | 구체화된 뷰 (Materialized View) | 결과를 미리 계산하여 저장하는 뷰입니다 |
 
 ---
 
@@ -76,24 +68,18 @@ COMMENT '외부 스토리지에 저장된 주문 테이블';
 
 Databricks에서 생성되는 모든 테이블은 기본적으로 **Delta Lake** 형식입니다. Delta 테이블은 **Parquet 데이터 파일**과 **트랜잭션 로그(_delta_log)** 로 구성됩니다.
 
-```mermaid
-graph LR
-    subgraph "Delta Table 내부 구조"
-        direction TB
-        A["📁 테이블 디렉토리"] --> B["📂 _delta_log/"]
-        A --> C["📄 part-00000.parquet"]
-        A --> D["📄 part-00001.parquet"]
-        A --> E["📄 part-00002.parquet"]
-        B --> F["📝 00000.json<br>(커밋 로그)"]
-        B --> G["📝 00001.json<br>(커밋 로그)"]
-        B --> H["📝 00010.checkpoint.parquet<br>(체크포인트)"]
-    end
+**Delta Table 내부 구조**
 
-    style B fill:#FF9800,color:#fff
-    style C fill:#4CAF50,color:#fff
-    style D fill:#4CAF50,color:#fff
-    style E fill:#4CAF50,color:#fff
-```
+| 경로 | 파일 유형 | 설명 |
+|------|----------|------|
+| `테이블 디렉토리/` | 루트 | 테이블의 최상위 디렉토리입니다 |
+| `_delta_log/` | 트랜잭션 로그 | 모든 변경 이력을 기록합니다 |
+| `_delta_log/00000.json` | 커밋 로그 | 개별 트랜잭션의 변경 사항입니다 |
+| `_delta_log/00001.json` | 커밋 로그 | 개별 트랜잭션의 변경 사항입니다 |
+| `_delta_log/00010.checkpoint.parquet` | 체크포인트 | 로그를 주기적으로 요약한 스냅샷입니다 |
+| `part-00000.parquet` | 데이터 파일 | 실제 데이터가 Parquet 형식으로 저장됩니다 |
+| `part-00001.parquet` | 데이터 파일 | 실제 데이터가 Parquet 형식으로 저장됩니다 |
+| `part-00002.parquet` | 데이터 파일 | 실제 데이터가 Parquet 형식으로 저장됩니다 |
 
 | 구성 요소 | 설명 |
 |-----------|------|

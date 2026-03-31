@@ -80,20 +80,14 @@ schedule:
 
 ### 동작 원리
 
-```mermaid
-sequenceDiagram
-    participant V as 외부 벤더
-    participant S as S3 Bucket
-    participant D as Databricks
-    participant J as Job
-
-    V->>S: 파일 업로드 (orders_20250331.csv)
-    D->>S: 주기적 폴링 (새 파일 감지)
-    S-->>D: 새 파일 발견!
-    D->>J: Job 트리거
-    J->>S: 파일 읽기 및 처리
-    J-->>D: 처리 완료
-```
+| 단계 | 발신 | 수신 | 내용 |
+|------|------|------|------|
+| 1 | 외부 벤더 | S3 Bucket | 파일 업로드 (orders_20250331.csv) |
+| 2 | Databricks | S3 Bucket | 주기적 폴링 (새 파일 감지) |
+| 3 | S3 Bucket | Databricks | 새 파일 발견 알림 |
+| 4 | Databricks | Job | Job을 트리거합니다 |
+| 5 | Job | S3 Bucket | 파일을 읽고 처리합니다 |
+| 6 | Job | Databricks | 처리 완료 |
 
 ### 설정 옵션
 
@@ -132,19 +126,13 @@ trigger:
 
 ### 동작 원리
 
-```mermaid
-sequenceDiagram
-    participant A as Job A (수집)
-    participant T as Delta Table
-    participant D as Databricks
-    participant B as Job B (변환)
-
-    A->>T: 데이터 INSERT/UPDATE
-    D->>T: 테이블 변경 감지
-    D->>B: Job B 트리거
-    B->>T: 변경된 데이터 읽기
-    B-->>D: 처리 완료
-```
+| 단계 | 발신 | 수신 | 내용 |
+|------|------|------|------|
+| 1 | Job A (수집) | Delta Table | 데이터 INSERT/UPDATE |
+| 2 | Databricks | Delta Table | 테이블 변경 감지 |
+| 3 | Databricks | Job B (변환) | Job B를 트리거합니다 |
+| 4 | Job B | Delta Table | 변경된 데이터를 읽습니다 |
+| 5 | Job B | Databricks | 처리 완료 |
 
 ### 설정 방법
 
@@ -307,18 +295,11 @@ queue:
 
 ### 대기열(Queue) 동작
 
-```mermaid
-flowchart TD
-    A[새 트리거 발생] --> B{현재 실행 중?}
-    B -->|아니오| C[즉시 실행]
-    B -->|예| D{queue.enabled?}
-    D -->|true| E[대기열에 추가<br/>순서대로 실행]
-    D -->|false| F[실행 스킵<br/>알림 발송]
-
-    style C fill:#e8f5e9
-    style E fill:#fff3e0
-    style F fill:#ffebee
-```
+| 조건 | 상태 | 동작 |
+|------|------|------|
+| 새 트리거 발생 + 현재 미실행 | 즉시 실행 | Job을 바로 실행합니다 |
+| 새 트리거 발생 + 현재 실행 중 + `queue.enabled=true` | 대기열에 추가 | 순서대로 실행합니다 |
+| 새 트리거 발생 + 현재 실행 중 + `queue.enabled=false` | 실행 스킵 | 알림을 발송합니다 |
 
 ---
 

@@ -17,20 +17,12 @@ Databricks Model Serving은 세 가지 유형의 엔드포인트를 제공합니
 | **Custom Model Endpoint** | MLflow로 등록한 **사용자 커스텀 모델**(scikit-learn, PyTorch, ChatAgent 등) 배포 | 자체 ML 모델, AI 에이전트 배포 |
 
 <!-- 📌 대체 예정: Model Serving 아키텍처 공식 이미지 확보 후 교체 -->
-```mermaid
-graph TB
-    APP["📱 애플리케이션"]
-
-    subgraph ModelServing["Model Serving"]
-        FM["Foundation Model API<br/>Llama, DBRX, Claude"]
-        EM["External Model<br/>OpenAI, Anthropic 프록시"]
-        CM["Custom Model<br/>MLflow 모델, Agent"]
-    end
-
-    APP -->|"REST API"| FM
-    APP -->|"REST API"| EM
-    APP -->|"REST API"| CM
-```
+| 구성 요소 | 역할 | 설명 |
+|-----------|------|------|
+| **애플리케이션** | 클라이언트 | REST API로 Model Serving에 요청합니다 |
+| **Foundation Model API** | 기본 LLM | Llama, DBRX, Claude 등을 제공합니다 |
+| **External Model** | 외부 LLM 프록시 | OpenAI, Anthropic 등 외부 모델을 프록시합니다 |
+| **Custom Model** | 사용자 모델 | MLflow 모델, Agent 등을 배포합니다 |
 
 ---
 

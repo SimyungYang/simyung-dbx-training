@@ -18,17 +18,12 @@
 
 실시간 데이터 처리 시스템은 일반적으로 세 가지 구성 요소로 이루어집니다.
 
-```mermaid
-graph LR
-    P["📱 Producer<br/>(데이터 생산자)<br/>앱, 센서, 서버"]
-    Q["📬 Message Queue<br/>(메시지 큐)<br/>Kafka, Kinesis"]
-    C["⚙️ Consumer<br/>(데이터 소비자)<br/>Spark, Flink"]
-    S["💾 Storage<br/>(저장소)<br/>Delta Lake"]
-
-    P -->|"이벤트 발행"| Q
-    Q -->|"이벤트 전달"| C
-    C -->|"처리 결과 저장"| S
-```
+| 구성 요소 | 역할 | 예시 |
+|-----------|------|------|
+| **Producer (데이터 생산자)** | 이벤트를 발행합니다 | 앱, 센서, 서버 |
+| **Message Queue (메시지 큐)** | 이벤트를 전달합니다 | Kafka, Kinesis |
+| **Consumer (데이터 소비자)** | 이벤트를 처리합니다 | Spark, Flink |
+| **Storage (저장소)** | 처리 결과를 저장합니다 | Delta Lake |
 
 | 구성 요소 | 역할 | 비유 |
 |-----------|------|------|
@@ -47,22 +42,16 @@ graph LR
 
 ### 핵심 개념
 
-```mermaid
-graph TB
-    subgraph Kafka["Apache Kafka 클러스터"]
-        subgraph Topic["📋 Topic: 'orders'"]
-            P0["Partition 0<br/>msg1, msg4, msg7..."]
-            P1["Partition 1<br/>msg2, msg5, msg8..."]
-            P2["Partition 2<br/>msg3, msg6, msg9..."]
-        end
-    end
+**Apache Kafka 구조**
 
-    Prod1["Producer 1<br/>(주문 서비스)"] --> Topic
-    Prod2["Producer 2<br/>(모바일 앱)"] --> Topic
-
-    Topic --> Con1["Consumer Group A<br/>(실시간 분석)"]
-    Topic --> Con2["Consumer Group B<br/>(데이터 레이크 적재)"]
-```
+| 구성 요소 | 역할 | 설명 |
+|-----------|------|------|
+| **Topic: "orders"** | 메시지 채널 | 주문 관련 이벤트를 저장합니다 |
+| Partition 0 | 병렬 처리 단위 | msg1, msg4, msg7... |
+| Partition 1 | 병렬 처리 단위 | msg2, msg5, msg8... |
+| Partition 2 | 병렬 처리 단위 | msg3, msg6, msg9... |
+| **Producer** | 데이터 생산자 | 주문 서비스, 모바일 앱 등이 Topic에 메시지를 전송합니다 |
+| **Consumer Group** | 데이터 소비자 | 각 Partition을 분담하여 병렬로 메시지를 처리합니다 |
 
 | 개념 | 설명 |
 |------|------|
@@ -154,24 +143,16 @@ orders = (df
 
 > 💡 **이벤트 드리븐 아키텍처(Event-Driven Architecture, EDA)** 란 시스템의 구성 요소들이 **이벤트**를 중심으로 통신하는 아키텍처 패턴입니다. A 서비스에서 발생한 이벤트를 Kafka 같은 메시지 큐에 발행하면, 관심 있는 다른 서비스들이 이를 구독하여 처리합니다.
 
-```mermaid
-graph LR
-    subgraph Services["마이크로서비스"]
-        OS["주문 서비스"]
-        PS["결제 서비스"]
-        IS["재고 서비스"]
-        NS["알림 서비스"]
-        AS["분석 서비스"]
-    end
+**이벤트 드리븐 아키텍처 (마이크로서비스)**
 
-    K["📬 Kafka<br/>(이벤트 버스)"]
-
-    OS -->|"주문 생성 이벤트"| K
-    K -->|"구독"| PS
-    K -->|"구독"| IS
-    K -->|"구독"| NS
-    K -->|"구독"| AS
-```
+| 서비스 | 역할 | Kafka 연동 |
+|--------|------|-----------|
+| **주문 서비스** | 주문 생성 이벤트 발행 | Producer |
+| **Kafka (이벤트 버스)** | 이벤트를 중앙에서 관리 | 메시지 브로커 |
+| **결제 서비스** | 주문 이벤트 구독 → 결제 처리 | Consumer |
+| **재고 서비스** | 주문 이벤트 구독 → 재고 차감 | Consumer |
+| **알림 서비스** | 주문 이벤트 구독 → 알림 발송 | Consumer |
+| **분석 서비스** | 주문 이벤트 구독 → 데이터 분석 | Consumer |
 
 ### EDA의 장점
 
@@ -188,13 +169,13 @@ graph LR
 
 Databricks는 **Spark Structured Streaming**을 기반으로 실시간 처리를 지원하며, 이를 Medallion 아키텍처와 결합하여 사용합니다.
 
-```mermaid
-graph LR
-    K["Kafka / Kinesis"] -->|"스트리밍 수집"| B["🥉 Bronze<br/>(Streaming Table)"]
-    B -->|"실시간 변환"| S["🥈 Silver<br/>(Streaming Table)"]
-    S -->|"집계"| G["🥇 Gold<br/>(Materialized View)"]
-    G --> D["📊 실시간 대시보드"]
-```
+| 계층 | 구성 요소 | 역할 |
+|------|-----------|------|
+| **소스** | Kafka / Kinesis | 스트리밍 데이터를 수집합니다 |
+| **Bronze** | Streaming Table | 원본 데이터를 수집합니다 |
+| **Silver** | Streaming Table | 실시간 변환을 수행합니다 |
+| **Gold** | Materialized View | 집계 결과를 제공합니다 |
+| **출력** | 실시간 대시보드 | Gold 데이터를 시각화합니다 |
 
 | Databricks 기능 | 역할 |
 |----------------|------|

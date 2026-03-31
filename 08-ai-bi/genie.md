@@ -8,16 +8,13 @@
 
 ## Genie의 동작 방식
 
-```mermaid
-graph LR
-    Q["👤 '이번 달 서울 매출이<br/>전월 대비 어떻게 됐어?'"]
-    AI["🧞 Genie AI<br/>1. 질문 이해<br/>2. 테이블 매핑<br/>3. SQL 생성"]
-    SQL["📝 생성된 SQL:<br/>SELECT month,<br/>SUM(amount)...<br/>WHERE city='서울'"]
-    WH["🖥️ SQL Warehouse<br/>쿼리 실행"]
-    R["📊 결과 + 차트"]
-
-    Q --> AI --> SQL --> WH --> R
-```
+| 단계 | 구성 요소 | 설명 |
+|------|-----------|------|
+| 1 | 사용자 질문 | "이번 달 서울 매출이 전월 대비 어떻게 됐어?" |
+| 2 | Genie AI | 질문을 이해하고, 테이블을 매핑하고, SQL을 생성합니다 |
+| 3 | 생성된 SQL | `SELECT month, SUM(amount)... WHERE city='서울'` |
+| 4 | SQL Warehouse | 쿼리를 실행합니다 |
+| 5 | 결과 + 차트 | 실행 결과를 차트와 함께 표시합니다 |
 
 1. 사용자가 **자연어**로 질문을 입력합니다
 2. Genie AI가 질문을 분석하고, 등록된 테이블의 스키마와 지시사항을 참고하여 **SQL을 생성**합니다

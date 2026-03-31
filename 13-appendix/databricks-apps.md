@@ -6,15 +6,15 @@
 
 > 💡 **Databricks Apps**는 Databricks 플랫폼 위에서 **웹 애플리케이션을 개발, 배포, 호스팅**할 수 있는 관리형 서비스입니다. Streamlit, Gradio, Flask, FastAPI, Dash 등 Python 웹 프레임워크를 지원하며, **별도의 인프라 관리 없이** Databricks의 데이터와 AI 모델에 안전하게 접근하는 앱을 만들 수 있습니다.
 
-```mermaid
-graph LR
-    DEV["👨‍💻 개발자<br/>Python 앱 코드"] -->|"databricks apps deploy"| APPS["☁️ Databricks Apps<br/>(관리형 컨테이너)"]
-    APPS --> DWH["📊 SQL Warehouse<br/>(데이터 조회)"]
-    APPS --> SERVE["🤖 Model Serving<br/>(AI 추론)"]
-    APPS --> LB["🗄️ Lakebase<br/>(OLTP 데이터)"]
-    APPS --> SECRET["🔐 Secrets<br/>(자격 증명)"]
-    USER["👥 최종 사용자<br/>(브라우저)"] -->|"OAuth 인증"| APPS
-```
+| 구성 요소 | 역할 | 연결 |
+|-----------|------|------|
+| **개발자** | Python 앱 코드 작성 | `databricks apps deploy`로 배포 |
+| **Databricks Apps (관리형 컨테이너)** | 앱 호스팅 | SQL Warehouse, Model Serving, Lakebase, Secrets에 접근 |
+| **SQL Warehouse** | 데이터 조회 | 앱에서 SQL로 데이터를 조회합니다 |
+| **Model Serving** | AI 추론 | 앱에서 ML 모델을 호출합니다 |
+| **Lakebase** | OLTP 데이터 | 앱에서 트랜잭션 데이터를 읽고 씁니다 |
+| **Secrets** | 자격 증명 | 민감 정보를 안전하게 관리합니다 |
+| **최종 사용자 (브라우저)** | 앱 사용 | OAuth 인증으로 앱에 접속합니다 |
 
 ---
 
@@ -38,29 +38,15 @@ Databricks Apps는 다양한 Python 웹 프레임워크를 지원합니다. 각 
 
 Databricks Apps는 내부적으로 **컨테이너 기반** 아키텍처로 동작합니다.
 
-```mermaid
-graph TB
-    subgraph "Databricks Workspace"
-        subgraph "Databricks Apps"
-            APP["🐳 앱 컨테이너<br/>(Python 프로세스)"]
-            PROXY["🔐 인증 프록시<br/>(OAuth 2.0)"]
-        end
-
-        subgraph "리소스 바인딩"
-            WH["SQL Warehouse"]
-            EP["Model Serving Endpoint"]
-            SEC["Secret Scope"]
-            SP["Service Principal"]
-        end
-    end
-
-    BROWSER["🌐 브라우저"] -->|"HTTPS"| PROXY
-    PROXY -->|"인증된 요청"| APP
-    APP -->|"리소스 사용"| WH
-    APP -->|"리소스 사용"| EP
-    APP -->|"리소스 사용"| SEC
-    APP -.->|"앱 ID로 실행"| SP
-```
+| 계층 | 구성 요소 | 역할 |
+|------|-----------|------|
+| **Databricks Apps** | 앱 컨테이너 (Python 프로세스) | 앱 코드를 실행합니다 |
+|  | 인증 프록시 (OAuth 2.0) | 사용자 인증을 처리합니다 |
+| **리소스 바인딩** | SQL Warehouse | 데이터 조회에 사용됩니다 |
+|  | Model Serving Endpoint | AI 모델 호출에 사용됩니다 |
+|  | Secret Scope | 자격 증명을 관리합니다 |
+|  | Service Principal | 자동화된 접근에 사용됩니다 |
+| **외부** | 브라우저 (사용자) | OAuth 인증 후 앱에 접속합니다 |
 
 ### 핵심 아키텍처 구성 요소
 
@@ -194,14 +180,13 @@ def get_user_client(request_headers):
 
 Databricks Apps의 개발은 **로컬 개발 → 배포 → 테스트 → 반복** 사이클을 따릅니다.
 
-```mermaid
-graph LR
-    A["1️⃣ 로컬 개발<br/>app.py + app.yaml"] --> B["2️⃣ 배포<br/>CLI 또는 UI"]
-    B --> C["3️⃣ 테스트<br/>앱 URL 접속"]
-    C --> D["4️⃣ 로그 확인<br/>문제 진단"]
-    D -->|"수정 필요"| A
-    D -->|"완료"| E["5️⃣ 프로덕션<br/>공유"]
-```
+| 단계 | 작업 | 설명 |
+|------|------|------|
+| 1 | 로컬 개발 | app.py + app.yaml을 작성합니다 |
+| 2 | 배포 | CLI 또는 UI로 배포합니다 |
+| 3 | 테스트 | 앱 URL에 접속하여 테스트합니다 |
+| 4 | 로그 확인 | 문제를 진단합니다. 수정이 필요하면 1단계로 돌아갑니다 |
+| 5 | 프로덕션 | 완료 후 공유합니다 |
 
 ### 로컬 프로젝트 구조
 

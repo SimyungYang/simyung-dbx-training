@@ -31,15 +31,14 @@ SDP(Spark Declarative Pipelines)는 이 두 가지 상황에 최적화된 서로
 
 ### 지원하는 소스 유형
 
-```mermaid
-flowchart TD
-    ST["Streaming Table"] --- S1["클라우드 스토리지<br/>(Auto Loader)"]
-    ST --- S2["Kafka / Event Hub<br/>(메시지 큐)"]
-    ST --- S3["다른 Streaming Table<br/>(체이닝)"]
-    ST --- S4["CDC 소스<br/>(APPLY CHANGES)"]
+**Streaming Table 소스 유형**
 
-    style ST fill:#4a9eff,color:#fff,stroke:#333,stroke-width:2px
-```
+| 소스 유형 | 설명 |
+|-----------|------|
+| 클라우드 스토리지 (Auto Loader) | S3, ADLS, GCS 등에서 파일을 자동 수집합니다 |
+| Kafka / Event Hub (메시지 큐) | 실시간 메시지 스트림을 수집합니다 |
+| 다른 Streaming Table (체이닝) | 이전 Streaming Table의 출력을 입력으로 사용합니다 |
+| CDC 소스 (APPLY CHANGES) | CDC 변경 데이터를 처리합니다 |
 
 ### SQL 예제
 
@@ -173,22 +172,14 @@ def gold_daily_revenue():
 
 ### 언제 무엇을 선택할까?
 
-```mermaid
-flowchart TD
-    Start["데이터 처리 요구사항?"] --> Q1{"새 데이터만 계속<br/>추가되는가?"}
-    Q1 -->|"Yes"| Q2{"단순 변환/필터만<br/>필요한가?"}
-    Q1 -->|"No<br/>(UPDATE/DELETE 포함)"| Q3{"CDC 처리가<br/>필요한가?"}
+**데이터 처리 유형 선택 가이드**
 
-    Q2 -->|"Yes"| ST["✅ Streaming Table"]
-    Q2 -->|"No<br/>(집계/JOIN 필요)"| MV["✅ Materialized View"]
-
-    Q3 -->|"Yes"| STCDC["✅ Streaming Table<br/>+ APPLY CHANGES"]
-    Q3 -->|"No"| MV
-
-    style ST fill:#4a9eff,color:#fff
-    style MV fill:#ff9f4a,color:#fff
-    style STCDC fill:#4a9eff,color:#fff
-```
+| 질문 | 조건 | 권장 유형 |
+|------|------|----------|
+| 새 데이터만 계속 추가되는가? | Yes + 단순 변환/필터만 필요 | Streaming Table |
+| 새 데이터만 계속 추가되는가? | Yes + 집계/JOIN 필요 | Materialized View |
+| UPDATE/DELETE 포함? | CDC 처리 필요 | Streaming Table + APPLY CHANGES |
+| UPDATE/DELETE 포함? | CDC 불필요 | Materialized View |
 
 ### 의사결정 가이드
 
@@ -211,36 +202,16 @@ flowchart TD
 
 ### Medallion 아키텍처 적용 예제
 
-```mermaid
-flowchart LR
-    subgraph Bronze ["Bronze (원본 수집)"]
-        B1["ST: bronze_orders<br/>(Auto Loader)"]
-        B2["ST: bronze_customers<br/>(CDC)"]
-    end
+**Medallion 아키텍처에서의 Streaming Table과 Materialized View 활용**
 
-    subgraph Silver ["Silver (정제/통합)"]
-        S1["ST: silver_orders<br/>(필터 + 타입 변환)"]
-        S2["ST: silver_customers<br/>(APPLY CHANGES)"]
-    end
-
-    subgraph Gold ["Gold (비즈니스 집계)"]
-        G1["MV: gold_daily_revenue<br/>(일별 매출)"]
-        G2["MV: gold_customer_orders<br/>(고객별 주문 요약)"]
-    end
-
-    B1 --> S1
-    B2 --> S2
-    S1 --> G1
-    S1 --> G2
-    S2 --> G2
-
-    style B1 fill:#4a9eff,color:#fff
-    style B2 fill:#4a9eff,color:#fff
-    style S1 fill:#4a9eff,color:#fff
-    style S2 fill:#4a9eff,color:#fff
-    style G1 fill:#ff9f4a,color:#fff
-    style G2 fill:#ff9f4a,color:#fff
-```
+| 계층 | 테이블 | 유형 | 설명 |
+|------|--------|------|------|
+| **Bronze (원본 수집)** | bronze_orders | Streaming Table | Auto Loader로 수집 |
+|  | bronze_customers | Streaming Table | CDC로 수집 |
+| **Silver (정제/통합)** | silver_orders | Streaming Table | 필터 + 타입 변환 |
+|  | silver_customers | Streaming Table | APPLY CHANGES 처리 |
+| **Gold (비즈니스 집계)** | gold_daily_revenue | Materialized View | 일별 매출 집계 |
+|  | gold_customer_orders | Materialized View | 고객별 주문 요약 |
 
 ### 전체 파이프라인 코드 (SQL)
 

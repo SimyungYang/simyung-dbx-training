@@ -14,20 +14,12 @@
 
 기존에는 OLTP(MySQL, PostgreSQL)와 OLAP(Databricks)를 **별도로 운영**하고, ETL로 데이터를 복사해야 했습니다. 이로 인해 여러 문제가 발생했습니다.
 
-```mermaid
-graph LR
-    subgraph Before["❌ 기존: 별도 운영"]
-        APP1["🌐 웹 앱"] --> PG["PostgreSQL<br/>(OLTP)"]
-        PG -->|"ETL 복사<br/>(시간 지연)"| DL["Delta Lake<br/>(OLAP)"]
-        DL --> BI["📊 대시보드"]
-    end
+**기존 vs Lakebase 비교**
 
-    subgraph After["✅ Lakebase: 통합"]
-        APP2["🌐 웹 앱"] --> LB["Lakebase<br/>(OLTP)"]
-        LB -->|"자동 실시간 동기화<br/>(Data Sync)"| DL2["Delta Lake<br/>(OLAP)"]
-        DL2 --> BI2["📊 대시보드"]
-    end
-```
+| 방식 | 흐름 | 특징 |
+|------|------|------|
+| **기존 (별도 운영)** | 웹 앱 → PostgreSQL (OLTP) → ETL 복사 (시간 지연) → Delta Lake (OLAP) → 대시보드 | 별도 데이터베이스 운영, ETL로 인한 지연 |
+| **Lakebase (통합)** | 웹 앱 → Lakebase (OLTP) → 자동 실시간 동기화 (Data Sync) → Delta Lake (OLAP) → 대시보드 | 통합 관리, 실시간 동기화 |
 
 | 기존 문제 | Lakebase의 해결 |
 |-----------|---------------|
@@ -91,14 +83,14 @@ Lakebase의 가장 차별화된 기능은 **Data Sync**입니다.
 
 > 💡 **Data Sync**는 Lakebase의 데이터를 **자동으로 Delta Lake 테이블에 동기화**하는 기능입니다. Lakebase에서 INSERT/UPDATE/DELETE된 데이터가 거의 실시간으로 Delta 테이블에 반영됩니다.
 
-```mermaid
-graph LR
-    APP["🌐 앱<br/>(OLTP 쿼리)"] -->|"INSERT/UPDATE"| LB["Lakebase<br/>(PostgreSQL)"]
-    LB -->|"자동 Data Sync<br/>(거의 실시간)"| DL["Delta Lake<br/>(분석용)"]
-    DL --> SQL["📊 DBSQL 분석"]
-    DL --> ML["🤖 MLflow 학습"]
-    DL --> BI["📈 AI/BI 대시보드"]
-```
+| 구성 요소 | 역할 | 설명 |
+|-----------|------|------|
+| **앱 (OLTP 쿼리)** | INSERT/UPDATE 수행 | Lakebase에 데이터를 쓰고 읽습니다 |
+| **Lakebase (PostgreSQL)** | OLTP 데이터 저장 | PostgreSQL 호환 데이터베이스입니다 |
+| **Delta Lake (분석용)** | 자동 Data Sync로 거의 실시간 동기화 | 분석용 데이터를 제공합니다 |
+| **DBSQL 분석** | SQL 분석 | Delta Lake 데이터를 SQL로 분석합니다 |
+| **MLflow 학습** | ML 모델 학습 | Delta Lake 데이터로 모델을 학습합니다 |
+| **AI/BI 대시보드** | 시각화 | 대시보드로 데이터를 시각화합니다 |
 
 | 장점 | 설명 |
 |------|------|

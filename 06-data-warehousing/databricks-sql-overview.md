@@ -6,23 +6,12 @@
 
 전통적인 데이터 웨어하우스(Snowflake, Redshift 등)에서는 원본 데이터를 **독자 형식으로 복사**해야 했습니다. Databricks SQL은 이런 복사 과정 없이, **오픈 포맷(Delta Lake)** 데이터를 직접 쿼리합니다. 이로써 데이터 사일로(Data Silo)와 ETL 복잡성을 제거하고, 동일한 데이터에 대해 데이터 엔지니어링과 SQL 분석을 하나의 플랫폼에서 수행할 수 있습니다.
 
-```mermaid
-graph LR
-    subgraph "전통적 방식"
-        A1[Data Lake] -->|ETL 복사| B1[Data Warehouse]
-        B1 --> C1[BI 도구]
-    end
+**전통적 방식 vs Databricks SQL 방식**
 
-    subgraph "Databricks SQL 방식"
-        A2[Delta Lake<br>레이크하우스] --> B2[SQL Warehouse<br>Photon 엔진]
-        B2 --> C2[SQL Editor]
-        B2 --> D2[BI 도구]
-        B2 --> E2[AI/BI Dashboard]
-    end
-
-    style A2 fill:#4CAF50,color:#fff
-    style B2 fill:#2196F3,color:#fff
-```
+| 방식 | 흐름 | 설명 |
+|------|------|------|
+| **전통적 방식** | Data Lake → (ETL 복사) → Data Warehouse → BI 도구 | 데이터를 별도 웨어하우스로 복사해야 합니다 |
+| **Databricks SQL 방식** | Delta Lake (레이크하우스) → SQL Warehouse (Photon 엔진) → SQL Editor / BI 도구 / AI/BI Dashboard | 복사 없이 레이크하우스에서 직접 분석합니다 |
 
 ---
 
@@ -54,23 +43,15 @@ graph LR
 
 SQL Warehouse는 DBSQL의 **컴퓨팅 엔진**입니다. Photon이라는 C++ 네이티브 실행 엔진을 탑재하여 기존 Spark SQL 대비 **최대 12배** 빠른 성능을 제공합니다.
 
-```mermaid
-graph TB
-    subgraph "SQL Warehouse 아키텍처"
-        A[사용자 쿼리] --> B[Query Router]
-        B --> C[Query Optimizer<br>비용 기반 최적화]
-        C --> D[Photon Engine<br>C++ 네이티브 벡터화]
-        D --> E[클라우드 스토리지<br>Delta Lake]
+**SQL Warehouse 아키텍처**
 
-        F[자동 스케일링] -.-> D
-        G[결과 캐시] -.-> B
-        H[디스크 캐시<br>로컬 SSD] -.-> D
-    end
-
-    style D fill:#E91E63,color:#fff
-    style G fill:#FF9800,color:#fff
-    style H fill:#FF9800,color:#fff
-```
+| 구성 요소 | 역할 | 설명 |
+|-----------|------|------|
+| **사용자 쿼리** | 입력 | Query Router로 전달됩니다 |
+| **Query Router** | 라우팅 | 쿼리를 적절한 처리 경로로 분배합니다 (결과 캐시 활용 가능) |
+| **Query Optimizer** | 최적화 | 비용 기반 최적화를 수행합니다 |
+| **Photon Engine** | 실행 엔진 | C++ 네이티브 벡터화 처리 (자동 스케일링 + 디스크 캐시 지원) |
+| **클라우드 스토리지** | 데이터 소스 | Delta Lake에서 데이터를 읽습니다 |
 
 ### Photon 엔진
 

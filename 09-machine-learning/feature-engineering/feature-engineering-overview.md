@@ -32,16 +32,15 @@
 
 ## Feature Engineering 워크플로우
 
-```mermaid
-graph LR
-    D["💾 원본 데이터<br/>(Delta 테이블)"] --> FE["⚙️ 피처 계산<br/>(Spark/SQL)"]
-    FE --> FT["📋 Feature Table<br/>(Unity Catalog)"]
-    FT --> TRAIN["🔬 모델 학습<br/>(FeatureLookup)"]
-    FT --> OT["⚡ Online Table<br/>(실시간 서빙)"]
-    TRAIN --> REG["📦 모델 등록<br/>(피처 의존성 기록)"]
-    REG --> SERVE["🚀 Model Serving<br/>(자동 피처 조회)"]
-    OT --> SERVE
-```
+| 단계 | 구성 요소 | 설명 |
+|------|-----------|------|
+| 1 | 원본 데이터 (Delta 테이블) | 소스 데이터입니다 |
+| 2 | 피처 계산 (Spark/SQL) | 원본 데이터에서 피처를 계산합니다 |
+| 3 | Feature Table (Unity Catalog) | 계산된 피처를 저장하고 관리합니다 |
+| 4a | 모델 학습 (FeatureLookup) | Feature Table에서 피처를 조회하여 학습합니다 |
+| 4b | Online Table (실시간 서빙) | Feature Table을 실시간 조회 가능한 형태로 동기화합니다 |
+| 5 | 모델 등록 | 피처 의존성을 기록하며 모델을 등록합니다 |
+| 6 | Model Serving | 자동으로 Online Table에서 피처를 조회하여 추론합니다 |
 
 ---
 

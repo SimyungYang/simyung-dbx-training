@@ -51,21 +51,12 @@ df = (spark.readStream
 
 ### 모드 선택 기준
 
-```mermaid
-flowchart TD
-    A[파일 발견 모드 선택] --> B{디렉토리 파일 수?}
-    B -->|< 10만 개| C{실시간 필요?}
-    B -->|> 10만 개| D[File Notification 권장]
-    C -->|아니오| E[Directory Listing<br/>간편 설정]
-    C -->|예| D
-    D --> F{클라우드 권한 있음?}
-    F -->|예| G[File Notification 설정]
-    F -->|아니오| H[Directory Listing +<br/>incremental listing 활성화]
-
-    style E fill:#e8f5e9
-    style G fill:#e1f5fe
-    style H fill:#fff3e0
-```
+| 질문 | 조건 | 권장 모드 |
+|------|------|----------|
+| 디렉토리 파일 수? | < 10만 개 + 실시간 불필요 | Directory Listing (간편 설정) |
+| 디렉토리 파일 수? | < 10만 개 + 실시간 필요 | File Notification |
+| 디렉토리 파일 수? | > 10만 개 + 클라우드 권한 있음 | File Notification 설정 |
+| 디렉토리 파일 수? | > 10만 개 + 클라우드 권한 없음 | Directory Listing + incremental listing 활성화 |
 
 > ⚠️ **Incremental Listing**: Directory Listing 모드에서 `cloudFiles.useIncrementalListing`을 `true`로 설정하면, 이전 스캔 이후 수정된 파일만 확인하여 성능을 크게 개선할 수 있습니다. 단, 파일이 시간순으로 정렬된 디렉토리 구조(예: `/year=2025/month=03/`)에서만 효과적입니다.
 

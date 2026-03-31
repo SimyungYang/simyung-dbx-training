@@ -19,19 +19,12 @@
 
 MLflow의 실험 추적은 **Experiment(실험)** 와 **Run(실행)** 이라는 두 가지 핵심 단위로 구성됩니다.
 
-```mermaid
-graph TD
-    A["MLflow Tracking Server"] --> B["Experiment: 사기 탐지 모델"]
-    A --> C["Experiment: 추천 시스템"]
-
-    B --> D["Run 1: RF baseline<br/>accuracy=0.92"]
-    B --> E["Run 2: XGBoost v1<br/>accuracy=0.95"]
-    B --> F["Run 3: XGBoost v2<br/>accuracy=0.96"]
-
-    D --> G["Parameters<br/>Metrics<br/>Artifacts<br/>Tags"]
-    E --> H["Parameters<br/>Metrics<br/>Artifacts<br/>Tags"]
-    F --> I["Parameters<br/>Metrics<br/>Artifacts<br/>Tags"]
-```
+| 계층 | 구성 요소 | 예시 |
+|------|-----------|------|
+| **MLflow Tracking Server** | 최상위 | 모든 실험을 관리합니다 |
+| **Experiment** | 프로젝트 단위 | "사기 탐지 모델", "추천 시스템" |
+| **Run** | 개별 실험 실행 | Run 1: RF baseline (accuracy=0.92), Run 2: XGBoost v1 (accuracy=0.95), Run 3: XGBoost v2 (accuracy=0.96) |
+| **Run 기록 항목** | 각 Run에 포함 | Parameters, Metrics, Artifacts, Tags |
 
 | 구성 요소 | 설명 | 예시 |
 |-----------|------|------|
@@ -320,16 +313,14 @@ with mlflow.start_run(run_name="hyperopt-distributed"):
 
 Databricks에서 MLflow를 사용하면 추가적인 편의 기능을 활용할 수 있습니다.
 
-```mermaid
-graph LR
-    A["Databricks Notebook"] -->|자동 연결| B["MLflow Experiment"]
-    B --> C["Run 기록"]
-    C --> D["Unity Catalog<br/>모델 레지스트리"]
-    C --> E["아티팩트 스토리지<br/>(클라우드 스토리지)"]
-
-    F["MLflow UI"] --> B
-    G["Experiment API"] --> B
-```
+| 구성 요소 | 연결 대상 | 설명 |
+|-----------|-----------|------|
+| **Databricks Notebook** | MLflow Experiment | 자동으로 연결됩니다 |
+| **MLflow Experiment** | Run 기록 | 실험 실행 기록을 관리합니다 |
+| **Run 기록** | Unity Catalog 모델 레지스트리 | 모델을 등록합니다 |
+| **Run 기록** | 아티팩트 스토리지 | 클라우드 스토리지에 아티팩트를 저장합니다 |
+| **MLflow UI** | MLflow Experiment | UI에서 실험을 조회합니다 |
+| **Experiment API** | MLflow Experiment | API로 실험을 프로그래밍 방식으로 접근합니다 |
 
 | 기능 | 설명 |
 |------|------|

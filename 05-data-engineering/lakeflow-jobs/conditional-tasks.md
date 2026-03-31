@@ -12,18 +12,13 @@
 
 If/Else 태스크는 **조건 표현식의 결과에 따라 다른 태스크 분기를 실행**합니다. 별도의 컴퓨트 리소스를 사용하지 않으며, DAG의 흐름을 제어하는 역할만 합니다.
 
-```mermaid
-graph TD
-    A["📥 데이터 수집"] --> B["✅ 데이터 검증"]
-    B --> C{"🔀 If/Else<br/>row_count > 0?"}
-    C -->|True| D["📊 Gold 테이블 갱신"]
-    C -->|False| E["🚨 알림 발송"]
-    D --> F["📧 성공 알림"]
-
-    style C fill:#f3e5f5
-    style D fill:#e8f5e9
-    style E fill:#ffebee
-```
+| 단계 | 작업 | 설명 |
+|------|------|------|
+| 1 | 데이터 수집 | 데이터를 수집합니다 |
+| 2 | 데이터 검증 | 수집된 데이터를 검증합니다 |
+| 3 | If/Else 분기 | `row_count > 0` 조건을 평가합니다 |
+| 4a | True → Gold 테이블 갱신 | 데이터가 있으면 Gold 테이블을 갱신하고 성공 알림을 발송합니다 |
+| 4b | False → 알림 발송 | 데이터가 없으면 경고 알림을 발송합니다 |
 
 ### 조건 표현식
 
@@ -90,18 +85,12 @@ tasks:
 
 For Each 태스크는 **입력 리스트의 각 항목에 대해 중첩된 태스크를 반복 실행**합니다. 멀티 테넌트 처리, 파티션별 처리, 여러 테이블에 대한 동일 작업 등에 활용됩니다.
 
-```mermaid
-graph TD
-    A["📋 테넌트 목록 생성"] --> B["🔄 For Each<br/>[tenant_A, tenant_B, tenant_C]"]
-    B --> C1["🔧 process(tenant_A)"]
-    B --> C2["🔧 process(tenant_B)"]
-    B --> C3["🔧 process(tenant_C)"]
-    C1 --> D["✅ 완료"]
-    C2 --> D
-    C3 --> D
-
-    style B fill:#e1f5fe
-```
+| 단계 | 작업 | 설명 |
+|------|------|------|
+| 1 | 테넌트 목록 생성 | `[tenant_A, tenant_B, tenant_C]` 목록을 생성합니다 |
+| 2 | For Each 반복 | 각 테넌트에 대해 병렬로 처리를 실행합니다 |
+| 3 | 개별 처리 | `process(tenant_A)`, `process(tenant_B)`, `process(tenant_C)` 가 병렬 실행됩니다 |
+| 4 | 완료 | 모든 테넌트 처리가 완료됩니다 |
 
 ### YAML 설정 예제
 

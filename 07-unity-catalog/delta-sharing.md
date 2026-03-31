@@ -29,26 +29,14 @@ Delta Sharing은 이 문제를 해결합니다.
 
 ## Delta Sharing의 구성 요소
 
-```mermaid
-graph LR
-    subgraph Provider["📤 제공자 (Provider)"]
-        DT["Delta 테이블"]
-        SHARE["Share<br/>(공유 단위)"]
-    end
-
-    subgraph Recipient["📥 수신자 (Recipient)"]
-        R1["Databricks<br/>(다른 워크스페이스)"]
-        R2["Spark<br/>(외부 클러스터)"]
-        R3["pandas<br/>(Python)"]
-        R4["Power BI<br/>(BI 도구)"]
-    end
-
-    DT --> SHARE
-    SHARE -->|"읽기 권한"| R1
-    SHARE -->|"읽기 권한"| R2
-    SHARE -->|"읽기 권한"| R3
-    SHARE -->|"읽기 권한"| R4
-```
+| 역할 | 구성 요소 | 설명 |
+|------|-----------|------|
+| **제공자 (Provider)** | Delta 테이블 | 공유할 원본 데이터입니다 |
+|  | Share (공유 단위) | 테이블을 묶어 공유하는 단위입니다 |
+| **수신자 (Recipient)** | Databricks (다른 워크스페이스) | 읽기 권한으로 데이터에 접근합니다 |
+|  | Spark (외부 클러스터) | 읽기 권한으로 데이터에 접근합니다 |
+|  | pandas (Python) | 읽기 권한으로 데이터에 접근합니다 |
+|  | Power BI (BI 도구) | 읽기 권한으로 데이터에 접근합니다 |
 
 | 구성 요소 | 설명 |
 |-----------|------|

@@ -12,19 +12,14 @@
 
 AI Gateway는 Model Serving 엔드포인트 앞에 위치하는 **프록시 계층**으로, 모든 요청과 응답을 모니터링하고 제어합니다.
 
-```mermaid
-flowchart LR
-    U["👤 사용자"] --> GW["🛡️ AI Gateway"]
-    GW --> IF["🔍 입력 필터"]
-    IF --> EP["🤖 Model Serving<br/>Endpoint"]
-    EP --> OF["🔍 출력 필터"]
-    OF --> GW
-    GW --> U
-
-    style GW fill:#ff9800,color:#fff
-    style IF fill:#e1f5fe
-    style OF fill:#e8f5e9
-```
+| 단계 | 구성 요소 | 설명 |
+|------|-----------|------|
+| 1 | 사용자 | 요청을 AI Gateway로 전송합니다 |
+| 2 | AI Gateway | 모든 요청/응답을 모니터링하고 제어하는 프록시 계층입니다 |
+| 3 | 입력 필터 | 사용자 요청을 검사합니다 (Safety, Topic, PII) |
+| 4 | Model Serving Endpoint | 에이전트가 요청을 처리합니다 |
+| 5 | 출력 필터 | 에이전트 응답을 검사합니다 (Safety, PII, 키워드) |
+| 6 | 사용자 | 필터링된 응답을 수신합니다 |
 
 ---
 

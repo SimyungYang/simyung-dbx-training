@@ -20,17 +20,13 @@
 
 ## CDC 데이터 흐름
 
-```mermaid
-flowchart LR
-    A["운영 DB<br/>(MySQL, PostgreSQL 등)"] -->|"변경 로그<br/>(Binlog, WAL)"| B["CDC 도구<br/>(Debezium, Lakeflow Connect)"]
-    B -->|"CDC 이벤트<br/>(JSON/Avro)"| C["Bronze<br/>(원본 CDC 레코드)"]
-    C -->|"APPLY CHANGES<br/>INTO"| D["Silver<br/>(최신 상태 또는 이력)"]
-    D --> E["Gold<br/>(비즈니스 뷰)"]
-
-    style B fill:#f9f,stroke:#333,stroke-width:2px
-    style C fill:#ffd,stroke:#333
-    style D fill:#dfd,stroke:#333
-```
+| 단계 | 구성 요소 | 설명 |
+|------|-----------|------|
+| 1 | 운영 DB (MySQL, PostgreSQL 등) | 변경 로그(Binlog, WAL)를 생성합니다 |
+| 2 | CDC 도구 (Debezium, Lakeflow Connect) | CDC 이벤트(JSON/Avro)를 전달합니다 |
+| 3 | Bronze (원본 CDC 레코드) | 원본 CDC 레코드를 저장합니다 |
+| 4 | Silver (최신 상태 또는 이력) | `APPLY CHANGES INTO`로 최신 상태 또는 이력을 관리합니다 |
+| 5 | Gold (비즈니스 뷰) | 비즈니스 요구에 맞는 뷰를 생성합니다 |
 
 ---
 

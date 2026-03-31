@@ -20,27 +20,13 @@
 
 ## 통합 아키텍처
 
-```mermaid
-graph TD
-    subgraph USER["사용자"]
-        BROWSER["👤 웹 브라우저"]
-    end
-
-    subgraph DBXAPPS["Databricks Apps"]
-        BROWSER -->|"HTTPS"| APP["Python 앱<br/>(Streamlit/FastAPI)"]
-        APP -->|"OAuth 자동 인증"| AUTH["Databricks<br/>OAuth"]
-    end
-
-    subgraph LAKEBASE["Lakebase"]
-        AUTH -->|"인증된 연결"| LB["PostgreSQL<br/>호환 DB"]
-    end
-
-    subgraph ANALYTICS["분석 환경"]
-        LB -->|"Data Sync<br/>(자동)"| DELTA["Delta Lake"]
-        DELTA --> DBSQL["📊 DBSQL<br/>분석"]
-        DELTA --> AIBI["📈 AI/BI<br/>대시보드"]
-    end
-```
+| 계층 | 구성 요소 | 역할 |
+|------|-----------|------|
+| **사용자** | 웹 브라우저 | HTTPS로 앱에 접속합니다 |
+| **Databricks Apps** | Python 앱 (Streamlit/FastAPI) | 웹 애플리케이션을 실행합니다 |
+|  | Databricks OAuth | 자동 인증을 처리합니다 |
+| **Lakebase** | PostgreSQL 호환 DB | 인증된 연결로 데이터를 읽고 씁니다 |
+| **분석 환경** | Delta Lake | Data Sync로 동기화된 데이터를 분석합니다 |
 
 이 아키텍처의 핵심 장점은 **인증이 자동으로 처리된다는 것**입니다. Databricks Apps에서 실행되는 앱은 워크스페이스의 OAuth 인증을 자동으로 상속받아, 별도의 비밀번호 관리가 필요 없습니다.
 
@@ -356,12 +342,11 @@ conn = psycopg2.connect(
 
 각 사용자의 Databricks 인증을 그대로 Lakebase에 전달합니다. 사용자별로 다른 권한을 적용할 수 있습니다.
 
-```mermaid
-graph LR
-    USER["👤 사용자"] -->|"Databricks OAuth"| APP["Databricks App"]
-    APP -->|"사용자 토큰 전달"| LB["Lakebase"]
-    LB -->|"Unity Catalog<br/>권한 확인"| UC["Unity Catalog"]
-```
+| 단계 | 구성 요소 | 설명 |
+|------|-----------|------|
+| 1 | 사용자 → Databricks App | Databricks OAuth로 인증합니다 |
+| 2 | Databricks App → Lakebase | 사용자 토큰을 전달합니다 |
+| 3 | Lakebase → Unity Catalog | Unity Catalog 권한을 확인합니다 |
 
 | 인증 패턴 | 장점 | 단점 | 적합한 상황 |
 |-----------|------|------|-------------|
