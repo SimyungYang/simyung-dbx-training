@@ -87,7 +87,15 @@ vsc.create_endpoint(
 
 ### 1. Delta Sync + Managed Embeddings (권장)
 
-소스 Delta 테이블을 지정하면, Databricks가 **임베딩 변환과 인덱스 동기화를 모두 자동으로** 관리합니다.
+가장 간편한 방식입니다. 소스 Delta 테이블의 **텍스트 컬럼**을 지정하면, Databricks가 **임베딩 변환부터 인덱스 동기화까지 모든 과정을 자동으로** 관리합니다. 사용자는 임베딩 모델을 선택하기만 하면 됩니다.
+
+**동작 원리:**
+1. 소스 Delta 테이블에서 `embedding_source_column`(텍스트 컬럼)을 읽습니다
+2. 지정된 임베딩 모델(`embedding_model_endpoint_name`)로 텍스트를 벡터로 변환합니다
+3. 변환된 벡터를 Vector Search 인덱스에 저장합니다
+4. `TRIGGERED` 모드는 수동/스케줄 갱신, `CONTINUOUS` 모드는 소스 변경 시 실시간 반영합니다
+
+**적합한 경우:** 대부분의 RAG 애플리케이션에 권장됩니다. 임베딩 파이프라인을 직접 구축할 필요가 없으므로 빠르게 시작할 수 있습니다.
 
 ```python
 index = vsc.create_delta_sync_index(
@@ -95,52 +103,121 @@ index = vsc.create_delta_sync_index(
     index_name="catalog.schema.docs_index",
     source_table_name="catalog.schema.documents",
     primary_key="doc_id",
-    embedding_source_column="content",
-    embedding_model_endpoint_name="databricks-gte-large-en",
-    pipeline_type="TRIGGERED",  # TRIGGERED 또는 CONTINUOUS
+    embedding_source_column="content",           # 임베딩할 텍스트 컬럼
+    embedding_model_endpoint_name="databricks-gte-large-en",  # 임베딩 모델
+    pipeline_type="TRIGGERED",  # TRIGGERED: 수동/스케줄 | CONTINUOUS: 실시간
     columns_to_sync=["doc_id", "content", "title", "source", "updated_at"]
 )
 ```
 
+| 파라미터 | 설명 |
+|---------|------|
+| `embedding_source_column` | 임베딩으로 변환할 텍스트 컬럼입니다 |
+| `embedding_model_endpoint_name` | 사용할 임베딩 모델의 서빙 엔드포인트입니다 |
+| `pipeline_type` | `TRIGGERED`: 수동 트리거 시 동기화 / `CONTINUOUS`: 변경 즉시 동기화 |
+| `columns_to_sync` | 검색 결과에 포함할 추가 컬럼들입니다 (메타데이터) |
+
+---
+
 ### 2. Delta Sync + Self-Managed Embeddings
 
-임베딩을 직접 사전 계산하여 Delta 테이블에 저장한 경우 사용합니다.
+임베딩을 **직접 사전 계산**하여 Delta 테이블에 벡터 컬럼으로 저장한 경우 사용합니다. 커스텀 임베딩 모델(예: 한국어 전용 모델, 도메인 특화 모델)을 사용하거나, 임베딩 생성 과정을 세밀하게 제어하고 싶을 때 적합합니다.
+
+**동작 원리:**
+1. 사용자가 직접 임베딩을 계산하여 Delta 테이블의 `embedding` 컬럼에 저장합니다
+2. Vector Search는 이미 계산된 벡터를 그대로 인덱싱합니다
+3. Delta 테이블이 업데이트되면 인덱스도 자동 동기화됩니다
+
+**적합한 경우:**
+- 한국어 전용 임베딩 모델(KoSimCSE, multilingual-e5 등)을 사용할 때
+- 이미지 임베딩 등 텍스트가 아닌 벡터를 인덱싱할 때
+- 임베딩 전처리(청킹, 필터링)를 세밀하게 제어할 때
 
 ```python
+# 사전 준비: 임베딩 벡터가 포함된 Delta 테이블
+# | doc_id | content         | embedding (array<float>) |
+# |--------|-----------------|--------------------------|
+# | 1      | "환불 절차..."   | [0.23, -0.15, 0.87, ...] |
+
 index = vsc.create_delta_sync_index(
     endpoint_name="vs-endpoint-prod",
     index_name="catalog.schema.docs_index_self",
     source_table_name="catalog.schema.documents_with_embeddings",
     primary_key="doc_id",
-    embedding_vector_column="embedding",
-    embedding_dimension=1024,
+    embedding_vector_column="embedding",   # 이미 계산된 벡터 컬럼
+    embedding_dimension=1024,              # 벡터 차원 수
     pipeline_type="TRIGGERED"
 )
 ```
 
+> 💡 **Managed vs Self-Managed 선택 기준**: Databricks 내장 임베딩 모델(gte-large-en, bge-large-en)로 충분하면 **Managed**를, 커스텀 모델이 필요하면 **Self-Managed**를 사용하세요. 한국어 RAG의 경우 multilingual-e5-large 같은 다국어 모델을 Self-Managed로 사용하면 검색 품질이 향상됩니다.
+
+---
+
 ### 3. Direct Vector Access Index
 
-API로 직접 벡터를 삽입/삭제합니다. Delta 테이블과 동기화되지 않습니다.
+Delta 테이블과 **동기화하지 않고**, REST API를 통해 벡터를 직접 삽입/수정/삭제하는 방식입니다. 외부 시스템에서 생성된 임베딩을 실시간으로 인덱싱하거나, Delta 테이블 없이 벡터 검색만 필요한 경우에 사용합니다.
+
+**동작 원리:**
+1. 인덱스를 스키마와 함께 생성합니다
+2. `upsert()` API로 벡터를 직접 삽입/업데이트합니다
+3. `delete()` API로 벡터를 삭제합니다
+4. Delta 테이블과는 연동되지 않으므로 데이터 관리를 직접 해야 합니다
+
+**적합한 경우:**
+- 외부 애플리케이션에서 실시간으로 벡터를 추가/삭제해야 할 때
+- Delta 테이블 없이 빠른 프로토타이핑이 필요할 때
+- 스트리밍 데이터를 즉시 인덱싱해야 할 때
 
 ```python
+# Direct Access 인덱스 생성
 index = vsc.create_direct_access_index(
     endpoint_name="vs-endpoint-prod",
     index_name="catalog.schema.docs_direct",
     primary_key="doc_id",
     embedding_dimension=1024,
-    schema={"doc_id": "string", "content": "string", "embedding": "array<float>"}
+    schema={
+        "doc_id": "string",
+        "content": "string",
+        "category": "string",
+        "embedding": "array<float>"
+    }
 )
 
-index.upsert([{"doc_id": "1", "content": "Hello", "embedding": [0.1, 0.2, ...]}])
+# 벡터 삽입 (upsert)
+index.upsert([
+    {
+        "doc_id": "doc-001",
+        "content": "환불은 구매 후 14일 이내에 가능합니다.",
+        "category": "정책",
+        "embedding": [0.23, -0.15, 0.87, ...]  # 직접 계산한 벡터
+    },
+    {
+        "doc_id": "doc-002",
+        "content": "배송은 영업일 기준 2-3일 소요됩니다.",
+        "category": "배송",
+        "embedding": [0.11, 0.42, -0.33, ...]
+    }
+])
+
+# 벡터 삭제
+index.delete(["doc-001"])
 ```
+
+> ⚠️ **Direct Access의 한계**: Delta 테이블과 동기화되지 않으므로, 데이터 일관성 관리를 직접 해야 합니다. 대부분의 경우 **Delta Sync 방식을 권장**하며, Direct Access는 특수한 실시간 요구사항이 있을 때만 사용하세요.
+
+---
 
 ### 인덱스 유형 비교
 
-| 비교 | Delta Sync (Managed) | Delta Sync (Self-Managed) | Direct Access |
-|------|---------------------|--------------------------|---------------|
-| 임베딩 | 자동 | 직접 계산 | 직접 계산 |
-| 동기화 | Delta 테이블과 자동 | Delta 테이블과 자동 | 수동 (API) |
-| 적합한 경우 | 대부분 ✅ | 커스텀 임베딩 모델 사용 시 | 외부 소스, 실시간 삽입 |
+| 비교 항목 | Delta Sync (Managed) | Delta Sync (Self-Managed) | Direct Access |
+|----------|---------------------|--------------------------|---------------|
+| **임베딩 생성** | Databricks 자동 | 사용자 직접 계산 | 사용자 직접 계산 |
+| **Delta 동기화** | ✅ 자동 | ✅ 자동 | ❌ 수동 (API) |
+| **설정 복잡도** | 낮음 (가장 간편) | 중간 | 높음 |
+| **임베딩 모델 선택** | Databricks 내장 모델 | 자유 선택 | 자유 선택 |
+| **적합한 경우** | 대부분의 RAG ✅ | 커스텀/다국어 모델 | 실시간 삽입, 외부 소스 |
+| **권장 여부** | ⭐ 1순위 권장 | 커스텀 모델 필요 시 | 특수 요구 시에만 |
 
 ---
 
