@@ -20,7 +20,9 @@
 
 Databricks에서 데이터 엔지니어링은 **Lakeflow**라는 통합 제품 브랜드 아래에서 제공됩니다. 수집부터 변환, 오케스트레이션까지 데이터 파이프라인의 전체 라이프사이클을 지원합니다.
 
-<!-- 📌 대체 예정: Lakeflow 전체 아키텍처 공식 이미지 확보 후 교체 -->
+![Databricks 플랫폼 아키텍처 개요](https://docs.databricks.com/aws/en/assets/images/architecture-c2c83d23e2f7870f30137e97aaadea0b.png)
+
+*출처: [Databricks 공식 문서](https://docs.databricks.com/aws/en/getting-started/overview.html)*
 | 단계 | 도구 | 설명 |
 |------|------|------|
 | 외부 데이터 소스 | DB (MySQL, PostgreSQL, Oracle), SaaS (Salesforce, HubSpot), 클라우드 파일 (S3, ADLS, GCS), 스트리밍 (Kafka, Kinesis) | 원본 데이터 발생지 |

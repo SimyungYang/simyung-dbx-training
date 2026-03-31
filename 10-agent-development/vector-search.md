@@ -30,7 +30,9 @@
 
 ## Databricks Vector Search 아키텍처
 
-<!-- 📌 대체 예정: Vector Search 아키텍처 공식 이미지 확보 후 교체 -->
+![Vector Search - 임베딩 자동 계산 방식 아키텍처](https://docs.databricks.com/aws/en/assets/images/calculate-embeddings-c6fa28b679c1cf21b1f93434a0ed927d.png)
+
+*출처: [Databricks 공식 문서](https://docs.databricks.com/aws/en/generative-ai/vector-search/index.html)*
 | 단계 | 구성 요소 | 설명 |
 |------|-----------|------|
 | **1. 데이터 준비** | Delta 테이블 | 원본 텍스트가 저장된 소스 테이블입니다 |

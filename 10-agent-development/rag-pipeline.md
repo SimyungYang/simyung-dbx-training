@@ -4,7 +4,9 @@
 
 RAG 파이프라인은 크게 **오프라인(데이터 준비)** 과 **온라인(질의 처리)** 두 단계로 나뉩니다.
 
-<!-- 📌 대체 예정: RAG 파이프라인 아키텍처 공식 이미지 확보 후 교체 -->
+![RAG 파이프라인 구성 요소 다이어그램](https://docs.databricks.com/aws/en/assets/images/rag-components-f2022fe2c47439e692d1ccc6c14a3238.svg)
+
+*출처: [Databricks 공식 문서](https://docs.databricks.com/aws/en/generative-ai/retrieval-augmented-generation.html)*
 **오프라인: 데이터 준비**
 
 | 단계 | 작업 | 설명 |

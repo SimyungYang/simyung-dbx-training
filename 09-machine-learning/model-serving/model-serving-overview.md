@@ -16,7 +16,6 @@ Databricks Model Serving은 세 가지 유형의 엔드포인트를 제공합니
 | **External Model Endpoint** | OpenAI, Anthropic, Google 등 **외부 LLM API를 프록시**하여 통합 관리 | 외부 모델을 거버넌스 하에 관리, 비용 추적, Rate Limiting |
 | **Custom Model Endpoint** | MLflow로 등록한 **사용자 커스텀 모델**(scikit-learn, PyTorch, ChatAgent 등) 배포 | 자체 ML 모델, AI 에이전트 배포 |
 
-<!-- 📌 대체 예정: Model Serving 아키텍처 공식 이미지 확보 후 교체 -->
 | 구성 요소 | 역할 | 설명 |
 |-----------|------|------|
 | **애플리케이션** | 클라이언트 | REST API로 Model Serving에 요청합니다 |

@@ -47,6 +47,16 @@ gold_customer_360.lifetime_revenue
 
 ---
 
+## 리니지 시각화
+
+![Unity Catalog 데이터 리니지 그래프 개요](https://docs.databricks.com/aws/en/assets/images/uc-lineage-overview-d654e26bc9af96d30f971da157eb1497.png)
+
+![컬럼 수준 리니지 예시](https://docs.databricks.com/aws/en/assets/images/uc-lineage-column-lineage-89a091244240d677fe7a6e0503076089.png)
+
+*출처: [Databricks 공식 문서](https://docs.databricks.com/aws/en/data-governance/unity-catalog/data-lineage.html)*
+
+---
+
 ## 리니지 확인 방법
 
 ### Catalog Explorer UI
