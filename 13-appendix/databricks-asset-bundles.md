@@ -1,14 +1,16 @@
-# Databricks Asset Bundles (DABs)
+# Declarative Automation Bundles
 
 ## 개념
 
-> 💡 **Databricks Asset Bundles**는 Databricks 리소스(Jobs, Pipelines, 대시보드 등)를 **코드로 정의하고 배포**하는 IaC(Infrastructure as Code) 도구입니다. YAML 파일로 리소스를 선언하고, `databricks bundle` CLI 명령어로 배포합니다. 최근 **Declarative Automation Bundles**로 명칭이 변경되었습니다.
+> 💡 **Databricks Declarative Automation Bundles** (구 Databricks Declarative Automation Bundles / DABs)는 Databricks 리소스(Jobs, Pipelines, 대시보드 등)를 **코드로 정의하고 배포**하는 IaC(Infrastructure as Code) 도구입니다. YAML 파일로 리소스를 선언하고, `databricks bundle` CLI 명령어로 배포합니다.
+
+> 🆕 **명칭 변경**: 2025년부터 **Databricks Declarative Automation Bundles (DABs)** 가 **Declarative Automation Bundles**로 리브랜딩되었습니다. CLI 명령어(`databricks bundle`)와 설정 파일 구조는 동일합니다. 기존 문서나 블로그에서 "DABs"나 "Declarative Automation Bundles"로 언급되는 것은 같은 기능을 가리킵니다.
 
 > 💡 **IaC(Infrastructure as Code)란?** 인프라(서버, 데이터베이스, 파이프라인 등)를 수동으로 설정하는 대신, **코드(설정 파일)로 정의**하여 자동으로 배포하는 방식입니다. 코드이므로 Git으로 버전 관리할 수 있고, 코드 리뷰를 통해 변경 사항을 검토할 수 있으며, 여러 환경(dev, staging, prod)에 동일한 구성을 일관되게 배포할 수 있습니다.
 
 ---
 
-## 왜 Asset Bundles가 필요한가요?
+## 왜 Declarative Automation Bundles가 필요한가요?
 
 ### UI에서 직접 생성하는 방식의 문제
 
@@ -19,7 +21,7 @@
 | **수동 배포** | 매번 UI에서 클릭하여 수동으로 배포해야 합니다 |
 | **코드 리뷰 불가** | 인프라 변경에 대한 리뷰가 어렵습니다 |
 
-### Asset Bundles의 해결
+### Declarative Automation Bundles의 해결
 
 | 장점 | 설명 |
 |------|------|
@@ -251,9 +253,9 @@ jobs:
 
 ---
 
-## Asset Bundles vs Terraform 비교
+## Declarative Automation Bundles vs Terraform 비교
 
-| 비교 | Asset Bundles | Terraform |
+| 비교 | Declarative Automation Bundles | Terraform |
 |------|--------------|-----------|
 | **대상** | Databricks 리소스 전용 | 모든 클라우드 인프라 |
 | **언어** | YAML | HCL |
@@ -268,7 +270,7 @@ jobs:
 
 | 핵심 개념 | 설명 |
 |-----------|------|
-| **Asset Bundles** | YAML로 Databricks 리소스를 정의하고 CLI로 배포하는 IaC 도구입니다 |
+| **Declarative Automation Bundles** | YAML로 Databricks 리소스를 정의하고 CLI로 배포하는 IaC 도구입니다 |
 | **targets** | dev, staging, prod 등 환경별 설정을 분리합니다 |
 | **variables** | 환경별로 다른 값(카탈로그, 엔드포인트 등)을 변수로 관리합니다 |
 | **databricks bundle deploy** | 정의된 리소스를 대상 환경에 배포합니다 |
@@ -278,6 +280,6 @@ jobs:
 
 ## 참고 링크
 
-- [Databricks: Asset Bundles](https://docs.databricks.com/aws/en/dev-tools/bundles/)
+- [Databricks: Declarative Automation Bundles](https://docs.databricks.com/aws/en/dev-tools/bundles/)
 - [Databricks: Bundle configuration reference](https://docs.databricks.com/aws/en/dev-tools/bundles/settings.html)
-- [Azure Databricks: Asset Bundles](https://learn.microsoft.com/en-us/azure/databricks/dev-tools/bundles/)
+- [Azure Databricks: Declarative Automation Bundles](https://learn.microsoft.com/en-us/azure/databricks/dev-tools/bundles/)

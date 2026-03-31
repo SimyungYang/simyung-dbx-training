@@ -337,6 +337,109 @@ SHOW GRANTS ON SCHEMA dev_ecommerce.orders;
 
 ---
 
+## 심화: 멀티 리전 UC 통합 전략
+
+### 왜 멀티 리전이 필요한가?
+
+엔터프라이즈 환경에서는 **여러 리전에 Workspace가 분산**되어 있는 경우가 많습니다:
+- **데이터 레지던시**: GDPR 등 규제로 EU 데이터는 EU 리전에 저장해야 합니다
+- **지연시간**: 사용자가 여러 국가에 분산되어 있어 각 리전에 Workspace가 필요합니다
+- **DR(재해 복구)**: 리전 장애에 대비하여 보조 리전을 운영합니다
+
+### 현재 UC Metastore 구조
+
+Unity Catalog의 Metastore는 **리전 단위**로 생성됩니다. 각 리전의 Workspace는 해당 리전의 Metastore에 연결됩니다.
+
+```
+Databricks Account
+├── Metastore (us-east-1)
+│   ├── Workspace A (프로덕션)
+│   └── Workspace B (개발)
+├── Metastore (eu-west-1)
+│   └── Workspace C (EU 데이터)
+└── Metastore (ap-northeast-2)
+    └── Workspace D (한국)
+```
+
+### 멀티 리전 통합 전략
+
+#### 전략 1: Delta Sharing으로 크로스 리전 데이터 공유
+
+가장 **권장되는 방식**입니다. 각 리전의 Metastore는 독립적으로 유지하되, **Delta Sharing으로 리전 간 데이터를 공유**합니다.
+
+```sql
+-- us-east-1 Metastore에서 Share 생성
+CREATE SHARE global_customer_data;
+ALTER SHARE global_customer_data ADD TABLE prod.customers.gold_customer_360;
+
+-- eu-west-1 Metastore에서 수신자로 등록하여 데이터 접근
+CREATE CATALOG IF NOT EXISTS shared_us_data;
+-- 관리자가 Account Console에서 Sharing 연결 설정
+```
+
+| 장점 | 단점 |
+|------|------|
+| 데이터 레지던시 유지 (데이터가 이동하지 않음) | 리전 간 쿼리 시 네트워크 지연 |
+| 각 리전의 거버넌스 독립 운영 | Share 관리 오버헤드 |
+| 네트워크 비용 예측 가능 | 실시간 동기화 아님 |
+
+#### 전략 2: 단일 리전 Metastore + 멀티 리전 Storage
+
+**하나의 Metastore**에 여러 리전의 Workspace를 연결하되, **External Location으로 각 리전의 스토리지를 참조**합니다.
+
+```sql
+-- 단일 Metastore (ap-northeast-2)에 여러 리전의 스토리지 연결
+CREATE STORAGE CREDENTIAL us_east_cred
+  WITH (AWS_IAM_ROLE 'arn:aws:iam::role/us-east-access');
+
+CREATE EXTERNAL LOCATION us_east_data
+  URL 's3://us-east-bucket/data/'
+  WITH (STORAGE CREDENTIAL us_east_cred);
+
+-- 한국 Workspace에서 미국 데이터 접근 가능
+SELECT * FROM catalog.us_data.transactions LIMIT 10;
+```
+
+| 장점 | 단점 |
+|------|------|
+| 거버넌스 통합 (권한, 리니지 한 곳에서) | 크로스 리전 쿼리 시 데이터 전송 비용 |
+| 관리 단순화 | 데이터 레지던시 위반 가능성 (메타데이터가 한 리전) |
+| 통합 검색, 통합 리니지 | Metastore 리전 장애 시 전체 영향 |
+
+#### 전략 3: 하이브리드 (권장)
+
+```
+[운영 원칙]
+1. 데이터 레지던시가 필수인 리전 → 별도 Metastore
+2. 같은 규제 권역 내 → 단일 Metastore 공유
+3. 리전 간 데이터 교환 → Delta Sharing
+4. 글로벌 거버넌스 정책 → Account 수준에서 관리
+```
+
+| 구성 요소 | 전략 |
+|----------|------|
+| **한국 + 일본** (아시아) | 하나의 Metastore (ap-northeast-2) 공유 |
+| **EU** (GDPR) | 별도 Metastore (eu-west-1) |
+| **미국** | 별도 Metastore (us-east-1) |
+| **리전 간 공유** | Delta Sharing으로 필요한 테이블만 공유 |
+| **글로벌 사용자** | Account 수준 SCIM으로 통합 관리 |
+
+### Account-level 거버넌스
+
+리전별 Metastore가 분산되어 있어도, **Account 수준**에서 다음을 통합 관리할 수 있습니다:
+
+| 관리 영역 | Account 수준 | Metastore 수준 |
+|----------|-------------|---------------|
+| **사용자/그룹** | ✅ SCIM으로 통합 관리 | Metastore 멤버십으로 접근 제어 |
+| **Service Principal** | ✅ 통합 관리 | Metastore별 권한 부여 |
+| **보안 정책** | ✅ IP Access List, SSO | Metastore별 접근 제어 |
+| **빌링** | ✅ 통합 비용 추적 | 리전별 사용량 분석 |
+| **감사** | ✅ Account 감사 로그 | Metastore별 상세 로그 |
+
+> 💡 **핵심**: 멀티 리전 환경에서는 **"데이터는 분산, 거버넌스는 통합"** 이 원칙입니다. 데이터가 물리적으로 어디에 있든, Account 수준에서 사용자 관리와 보안 정책을 일관되게 적용하고, Delta Sharing으로 필요한 데이터만 크로스 리전 공유합니다.
+
+---
+
 ## 정리
 
 | 핵심 개념 | 설명 |

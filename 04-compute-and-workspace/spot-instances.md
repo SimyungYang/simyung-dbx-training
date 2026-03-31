@@ -203,6 +203,174 @@ resources:
 
 ---
 
+## Spot 인터럽트 확률과 인스턴스 유형별 특성
+
+모든 인스턴스 유형의 Spot 인터럽트 확률이 같지는 않습니다. 인스턴스 유형, 리전, 시간대에 따라 크게 달라집니다.
+
+### AWS Spot 인터럽트 확률 패턴
+
+| 인스턴스 카테고리 | 대표 유형 | 인터럽트 확률 | 이유 |
+|-----------------|---------|-------------|------|
+| **범용 (General)** | m5.xlarge, m6i.xlarge | 중간 (5~15%) | 가장 수요가 많아 경쟁이 치열합니다 |
+| **메모리 최적화** | r5.xlarge, r6i.xlarge | 낮음~중간 (3~10%) | 수요 대비 공급이 비교적 여유롭습니다 |
+| **컴퓨트 최적화** | c5.xlarge, c6i.xlarge | 중간 (5~15%) | 배치 처리 수요가 높은 시간대에 경쟁 |
+| **스토리지 최적화** | i3.xlarge, i4i.xlarge | 낮음 (2~8%) | 전문 용도라 경쟁이 적습니다 |
+| **이전 세대** | m4.xlarge, r4.xlarge | 매우 낮음 (1~5%) | 신규 채택이 줄어 여유 용량이 많습니다 |
+| **대형 인스턴스** | m5.8xlarge+ | 높음 (10~25%) | 대형 인스턴스일수록 회수 우선순위가 높습니다 |
+
+> 💡 **실무 팁**: AWS Spot Instance Advisor(https://aws.amazon.com/ec2/spot/instance-advisor/)에서 인스턴스 유형별 인터럽트 빈도를 확인할 수 있습니다. 인터럽트율이 낮은 인스턴스를 선택하면 안정성이 높아집니다.
+
+### 인스턴스 Fleet 전략 (다중 유형 지정)
+
+단일 인스턴스 유형에 의존하면 Spot 풀 고갈 위험이 높아집니다. **여러 유형을 후보로 지정**하면 가용성이 크게 향상됩니다.
+
+```yaml
+# Databricks는 node_type_id에 단일 유형만 지정하지만,
+# Spot 가용성을 높이려면 동등 사양의 유형을 고려합니다
+# 예: m5.xlarge 대신 m5a.xlarge, m5d.xlarge, m6i.xlarge도 검토
+
+# Spot 가용성이 높은 인스턴스 유형 조합 예시
+# 1순위: r5.xlarge (메모리 최적화, Spot 안정적)
+# 2순위: r5a.xlarge (AMD 프로세서, 가격 더 저렴)
+# 3순위: r5d.xlarge (로컬 NVMe 포함, 셔플 성능 우수)
+```
+
+---
+
+## Zone-aware 배치 전략
+
+### 가용 영역(AZ)별 Spot 가격 차이
+
+같은 리전 내에서도 가용 영역에 따라 Spot 가격과 가용성이 크게 다릅니다.
+
+| 설정 | 동작 | 장점 | 단점 |
+|------|------|------|------|
+| `zone_id: "auto"` | Databricks가 최적 AZ를 자동 선택 | 가용성 최대화 | AZ가 바뀌면 EBS 볼륨 재생성 필요 |
+| `zone_id: "us-east-1a"` | 고정 AZ 사용 | 예측 가능한 네트워크 지연 | 해당 AZ에 Spot이 없으면 실패 |
+| `zone_id: "auto"` + `ebs_volume_type: "GENERAL_PURPOSE_SSD"` | 자동 AZ + SSD | 셔플 성능 유지 | 비용 약간 증가 |
+
+> 💡 **권장**: 배치 Job에는 `zone_id: "auto"`를 사용하고, 스트리밍이나 S3 접근 패턴이 AZ에 민감한 워크로드에서는 고정 AZ를 사용하세요. S3 버킷과 같은 AZ에 클러스터를 배치하면 데이터 전송 비용과 지연을 줄일 수 있습니다.
+
+---
+
+## Spot 실패 시 Job 복구 메커니즘
+
+### Spark 레벨 복구 (자동)
+
+Spot 인스턴스가 회수되면 Spark는 내부적으로 다음 단계를 거칩니다.
+
+```
+1. Spot 종료 알림 수신 (AWS: 2분 전, Azure: 30초 전)
+2. 종료 예정 Worker의 실행 중 Task를 "FAILED" 처리
+3. Blacklist에 해당 노드 추가 (재배치 방지)
+4. 다른 살아있는 Worker에 Task 재스케줄링
+5. 셔플 데이터가 손실된 경우:
+   - 해당 셔플을 생성한 이전 Stage를 재실행
+   - 재실행된 Stage의 결과로 후속 Stage 진행
+6. Auto-scaling이 활성화되어 있으면 대체 노드 요청
+```
+
+### Databricks Job 레벨 복구
+
+Spark 내부 복구가 실패하는 경우(예: 전체 Worker 동시 회수, Driver 연결 끊김 등)에 대비하여 **Job 재시도**를 설정합니다.
+
+```yaml
+tasks:
+  - task_key: "etl_transform"
+    max_retries: 3              # 최대 3번 재시도
+    min_retry_interval_millis: 30000  # 재시도 간 30초 대기
+    retry_on_timeout: true      # 타임아웃 시에도 재시도
+```
+
+### 셔플 데이터 보호 심화
+
+대규모 조인이나 집계에서는 셔플 데이터가 수 GB~수 TB에 달할 수 있습니다. Spot 종료로 셔플 데이터가 유실되면 **전체 Stage를 재계산**해야 하므로 비용과 시간이 급증합니다.
+
+| 보호 전략 | 설명 | 적용 방법 |
+|-----------|------|----------|
+| **Optimize Write** | 셔플 파티션을 최적화하여 셔플 데이터량을 줄입니다 | `spark.databricks.delta.optimizeWrite.enabled = true` |
+| **Adaptive Query Execution** | 런타임에 파티션 크기를 동적 조정합니다 | 기본 활성화 (DBR 14.3+) |
+| **체크포인트** | 중간 결과를 Delta 테이블에 저장합니다 | 긴 파이프라인을 중간 테이블로 분할 |
+| **브로드캐스트 조인** | 작은 테이블을 브로드캐스트하여 셔플을 제거합니다 | `spark.sql.autoBroadcastJoinThreshold = 100m` |
+
+```python
+# 긴 파이프라인을 체크포인트로 분할하여 Spot 내결함성 강화
+# 단계 1: 필터링 및 변환 → 중간 테이블 저장
+df_filtered = spark.table("bronze.events").filter("event_date >= '2025-01-01'")
+df_filtered.write.mode("overwrite").saveAsTable("staging.events_filtered")
+
+# 단계 2: 집계 → 최종 테이블 저장 (Spot 실패 시 단계 2만 재실행)
+df_aggregated = spark.table("staging.events_filtered") \
+    .groupBy("region", "product") \
+    .agg(sum("revenue").alias("total_revenue"))
+df_aggregated.write.mode("overwrite").saveAsTable("gold.revenue_summary")
+```
+
+---
+
+## 비용 절감 ROI 계산 상세
+
+### 상세 비용 비교 시나리오
+
+**시나리오**: 일일 ETL Job, 8 Workers (r5.2xlarge), 실행 시간 4시간
+
+| 비용 항목 | 전체 On-Demand | Driver OD + Worker Spot | 절감 |
+|-----------|-------------|------------------------|------|
+| **인스턴스 비용** | | | |
+| - Driver (r5.2xlarge OD) | $0.504/hr x 4hr = $2.02 | $0.504/hr x 4hr = $2.02 | $0 |
+| - Worker (r5.2xlarge) | OD: $0.504/hr x 8 x 4hr = $16.13 | Spot: $0.15/hr x 8 x 4hr = $4.80 | **$11.33** |
+| **DBU 비용** | (동일) | (동일) | $0 |
+| **일일 합계** | $18.15 + DBU | $6.82 + DBU | **$11.33/일** |
+| **월간 합계 (22일)** | $399 + DBU | $150 + DBU | **$249/월** |
+| **연간 합계** | $4,789 + DBU | $1,800 + DBU | **$2,989/년** |
+
+### Spot 인터럽트에 따른 추가 비용 고려
+
+Spot 인스턴스가 중간에 회수되면 재실행 비용이 발생합니다.
+
+```
+# 실질적 비용 절감 = 이론적 절감 - 재실행 비용
+# 재실행 비용 = 재실행 확률 x 재실행 시 추가 비용
+
+# 예시: 인터럽트율 5%, 인터럽트 시 25% 추가 실행시간
+재실행 비용 = 5% x 25% x 기본 비용 = 1.25% 추가
+실질 절감율 = 63% - 1.25% ≈ 61.75%
+```
+
+---
+
+## 프로덕션 Spot 사용 판단 기준
+
+### Spot 적합성 의사결정 플로우
+
+| 질문 | Yes → | No → |
+|------|-------|------|
+| SLA가 있는 워크로드인가? | 아래 확인 | Spot 사용 |
+| SLA 내에 재시도 시간이 포함되는가? | Spot + 재시도 | On-Demand |
+| 데이터 유실 시 재계산 비용이 큰가? | On-Demand 또는 체크포인트+Spot | Spot 사용 |
+| 스트리밍 워크로드인가? | 혼합 (50% OD + 50% Spot) | Spot 사용 |
+
+### 프로덕션 안정성 등급별 Spot 전략
+
+| 등급 | SLA | Spot 비율 | 추가 설정 |
+|------|-----|----------|----------|
+| **Tier 1 (미션 크리티컬)** | 99.9% 가용성 | Worker 0% Spot | 전체 On-Demand, Auto-scaling |
+| **Tier 2 (비즈니스 중요)** | 99% 가용성, 30분 지연 허용 | Worker 50% Spot | `first_on_demand: 5` (Worker 4개 OD), 재시도 2회 |
+| **Tier 3 (일반 배치)** | 95% 가용성, 2시간 지연 허용 | Worker 100% Spot | `SPOT_WITH_FALLBACK`, 재시도 3회 |
+| **Tier 4 (탐색/개발)** | SLA 없음 | Worker 100% Spot | `SPOT`, 재시도 없음 |
+
+### 클라우드별 Spot 사용 시 주의사항
+
+| 주의사항 | AWS | Azure |
+|---------|-----|-------|
+| **종료 경고 시간** | 2분 | 30초 |
+| **가격 변동** | 수요/공급에 따라 실시간 변동 | 정가의 최대 -100% 할인 설정 |
+| **가용 영역 전략** | `zone_id: "auto"` 강력 권장 | `availability: "SPOT_WITH_FALLBACK_AZURE"` |
+| **Eviction 정책** | Capacity 기반 회수 | 가격 또는 Capacity 기반 회수 |
+| **Spot 블록** | 지원 (1~6시간 예약 가능, 비용 상승) | 미지원 |
+
+---
+
 ## 정리
 
 | 핵심 개념 | 설명 |
@@ -213,6 +381,10 @@ resources:
 | **first_on_demand** | On-Demand로 시작할 노드 수를 지정합니다 (1 권장) |
 | **자동 복구** | Worker Spot이 종료되면 Spark가 자동으로 태스크를 재배치합니다 |
 | **비용 절감** | 적절한 Spot 활용으로 인스턴스 비용을 60~90% 절감할 수 있습니다 |
+| **인스턴스 유형별 인터럽트** | 이전 세대, 스토리지 최적화 유형이 인터럽트 확률이 낮습니다 |
+| **Zone-aware 배치** | `zone_id: "auto"`로 Spot 가용성이 높은 AZ를 자동 선택합니다 |
+| **체크포인트 전략** | 긴 파이프라인을 중간 테이블로 분할하면 Spot 내결함성이 높아집니다 |
+| **SLA 기반 판단** | 워크로드의 SLA 등급에 따라 Spot 비율과 재시도 전략을 결정합니다 |
 
 ---
 

@@ -1,21 +1,5 @@
 # Table of contents
 
-## 시작하기 전에
-
-* [관계형 데이터베이스 기초](00-prerequisites/rdb-fundamentals.md)
-* [데이터 모델링 — Star/Snowflake 스키마](00-prerequisites/schema-design-patterns.md)
-* [빅데이터의 역사](00-prerequisites/bigdata-history.md)
-* [빅데이터 생태계](00-prerequisites/bigdata-ecosystem.md)
-* [실시간 처리 기술](00-prerequisites/realtime-processing.md)
-
-## 데이터 기초
-
-* [데이터 엔지니어링이란?](01-data-fundamentals/what-is-data-engineering.md)
-* [데이터 웨어하우스 vs 데이터 레이크](01-data-fundamentals/data-warehouse-vs-data-lake.md)
-* [ETL과 ELT](01-data-fundamentals/etl-elt-basics.md)
-* [배치 처리 vs 스트리밍 처리](01-data-fundamentals/batch-vs-streaming.md)
-* [정형·반정형·비정형 데이터](01-data-fundamentals/structured-semi-unstructured.md)
-
 ## Databricks 플랫폼
 
 * [Databricks란?](02-databricks-overview/what-is-databricks.md)
@@ -55,7 +39,7 @@
 
 ## 데이터 엔지니어링
 
-* [전체 그림](05-data-engineering/data-engineering-overview.md)
+* [데이터 엔지니어링 개요](05-data-engineering/data-engineering-overview.md)
 * [수집 방법 선택 가이드](05-data-engineering/choosing-ingestion-method.md)
 * [Auto Loader](05-data-engineering/auto-loader/README.md)
   * [Auto Loader란?](05-data-engineering/auto-loader/what-is-auto-loader.md)
@@ -112,13 +96,13 @@
   * [Databricks Marketplace](07-unity-catalog/marketplace.md)
   * [Clean Rooms](07-unity-catalog/clean-rooms.md)
 * [Volumes](07-unity-catalog/volumes.md)
+* [Metric Views (비즈니스 시맨틱)](08-ai-bi/metric-views.md)
 
 ## AI/BI
 
 * [AI/BI 개요](08-ai-bi/aibi-overview.md)
 * [AI/BI 대시보드](08-ai-bi/lakeview-dashboards.md)
 * [Genie](08-ai-bi/genie.md)
-* [Metric Views](08-ai-bi/metric-views.md)
 * [알림과 스케줄링](08-ai-bi/alerts-and-scheduling.md)
 
 ## 머신러닝
@@ -180,10 +164,16 @@
 * [시스템 테이블](12-security-and-governance/system-tables.md)
 * [워크스페이스 관리](12-security-and-governance/workspace-admin.md)
 
+## 모범 사례
+
+* [비용 최적화](14-best-practices/cost-optimization.md)
+* [성능 최적화](14-best-practices/performance-tuning.md)
+* [엔터프라이즈 거버넌스](14-best-practices/enterprise-governance.md)
+
 ## 개발 도구
 
 * [Databricks CLI](13-appendix/databricks-cli.md)
-* [Asset Bundles (DABs)](13-appendix/databricks-asset-bundles.md)
+* [Declarative Automation Bundles](13-appendix/databricks-asset-bundles.md)
 * [Databricks Apps](13-appendix/databricks-apps.md)
 * [Databricks SDK](13-appendix/databricks-sdk.md)
 * [Databricks Connect](13-appendix/databricks-connect.md)
@@ -191,7 +181,23 @@
 * [AI Dev Kit](13-appendix/ai-dev-kit.md)
 * [Genie Code](13-appendix/genie-code.md)
 
-## 부록
+## 부록 — 선행 지식
+
+* [관계형 데이터베이스 기초](00-prerequisites/rdb-fundamentals.md)
+* [데이터 모델링 — Star/Snowflake 스키마](00-prerequisites/schema-design-patterns.md)
+* [빅데이터의 역사](00-prerequisites/bigdata-history.md)
+* [빅데이터 생태계](00-prerequisites/bigdata-ecosystem.md)
+* [실시간 처리 기술](00-prerequisites/realtime-processing.md)
+
+## 부록 — 데이터 기초
+
+* [데이터 엔지니어링이란?](01-data-fundamentals/what-is-data-engineering.md)
+* [데이터 웨어하우스 vs 데이터 레이크](01-data-fundamentals/data-warehouse-vs-data-lake.md)
+* [ETL과 ELT](01-data-fundamentals/etl-elt-basics.md)
+* [배치 처리 vs 스트리밍 처리](01-data-fundamentals/batch-vs-streaming.md)
+* [정형·반정형·비정형 데이터](01-data-fundamentals/structured-semi-unstructured.md)
+
+## 부록 — 참고
 
 * [용어 사전](13-appendix/glossary.md)
 * [학습 로드맵](13-appendix/learning-path.md)

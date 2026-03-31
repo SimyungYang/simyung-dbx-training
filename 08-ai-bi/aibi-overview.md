@@ -119,6 +119,184 @@ AI/BI를 사용하려면 다음이 필요합니다.
 
 ---
 
+## AI/BI 기술 아키텍처 심화
+
+### Compound AI System 아키텍처
+
+Databricks AI/BI는 단일 LLM이 아니라, 여러 AI 컴포넌트가 협력하는 **Compound AI System(복합 AI 시스템)** 으로 구축되어 있습니다.
+
+| 컴포넌트 | 역할 | 상세 설명 |
+|----------|------|-----------|
+| **NLU (Natural Language Understanding)** | 질문 의도 파악 | 사용자의 자연어 질문에서 의도(intent), 엔터티(entity), 필터 조건을 추출합니다 |
+| **Schema Understanding** | 테이블 구조 이해 | Unity Catalog의 메타데이터(테이블명, 컬럼명, COMMENT, 데이터 타입)를 활용하여 적절한 테이블/컬럼을 매칭합니다 |
+| **SQL Generator** | SQL 생성 | 파악된 의도를 실행 가능한 SQL로 변환합니다. Databricks SQL 방언에 최적화되어 있습니다 |
+| **SQL Validator** | SQL 검증 | 생성된 SQL의 문법 오류, 권한 문제, 성능 이슈를 사전 검증합니다 |
+| **Result Formatter** | 결과 포맷팅 | 쿼리 결과를 자연어 답변, 표, 차트로 포맷팅합니다 |
+| **Feedback Loop** | 학습 개선 | 사용자 피드백(좋아요/싫어요), 인증된 답변을 반영하여 응답 품질을 개선합니다 |
+
+### 자연어 → SQL 변환 파이프라인 상세
+
+Genie가 사용자의 질문을 SQL로 변환하는 과정을 단계별로 살펴보겠습니다.
+
+```
+사용자: "지난 달 서울 매출 상위 5개 제품을 알려줘"
+
+1단계: NLU (의도 분석)
+  ├─ 시간 필터: "지난 달" → DATEADD(month, -1, CURRENT_DATE()) ~ CURRENT_DATE()
+  ├─ 공간 필터: "서울" → region = '서울'
+  ├─ 측정값: "매출" → SUM(order_amount) 또는 Metric View의 total_revenue
+  ├─ 차원: "제품" → product_name 또는 product_category
+  └─ 수량 제한: "상위 5개" → ORDER BY ... DESC LIMIT 5
+
+2단계: Schema Matching
+  ├─ 테이블: gold_orders (COMMENT: "주문 집계 테이블")
+  ├─ 컬럼 매핑: 매출 → order_amount, 제품 → product_name
+  └─ Metric View 존재 시: revenue_metrics의 정의를 우선 사용
+
+3단계: SQL Generation
+  SELECT product_name, SUM(order_amount) AS total_revenue
+  FROM catalog.schema.gold_orders
+  WHERE region = '서울'
+    AND order_date >= DATE_TRUNC('month', DATEADD(month, -1, CURRENT_DATE()))
+    AND order_date < DATE_TRUNC('month', CURRENT_DATE())
+  GROUP BY product_name
+  ORDER BY total_revenue DESC
+  LIMIT 5
+
+4단계: Validation
+  ├─ 문법 검증: ✅ 유효한 SQL
+  ├─ 권한 검증: ✅ 사용자가 gold_orders에 SELECT 권한 있음
+  └─ 성능 검증: ✅ 예상 스캔 행 수 적절
+
+5단계: 실행 & 포맷팅
+  └─ SQL Warehouse에서 실행 → 결과를 표 + 자연어로 반환
+```
+
+### Photon 엔진의 역할
+
+AI/BI의 쿼리는 **Serverless SQL Warehouse**에서 실행되며, 내부적으로 **Photon 엔진**이 핵심 역할을 합니다.
+
+> 💡 **Photon**은 Databricks가 C++로 작성한 **네이티브 벡터화 쿼리 엔진**입니다. JVM 기반 Spark SQL 엔진을 대체하여 BI 쿼리에서 2~8배의 성능 향상을 제공합니다.
+
+| Photon 최적화 | 설명 | AI/BI 연관성 |
+|-------------|------|-------------|
+| **벡터화 실행** | SIMD 명령어로 한 번에 여러 행을 처리합니다 | 대시보드의 집계 쿼리가 빠르게 실행됩니다 |
+| **코드 생성 (Codegen)** | 쿼리를 네이티브 코드로 컴파일하여 실행합니다 | 반복 실행되는 대시보드 쿼리에 효과적입니다 |
+| **메모리 관리** | Off-heap 메모리로 GC 오버헤드를 제거합니다 | 동시 다수 쿼리(대시보드 로딩)에 안정적입니다 |
+| **인텔리전트 캐싱** | Disk I/O 결과를 메모리에 캐시합니다 | 대시보드 새로고침 시 빠른 응답을 제공합니다 |
+| **Adaptive Query Execution** | 실행 중 최적 실행 계획을 동적으로 조정합니다 | Genie의 다양한 쿼리 패턴에 유연하게 대응합니다 |
+
+> 🆕 **Predictive I/O**: Photon의 최신 기능으로, 쿼리 패턴을 학습하여 필요한 데이터를 사전에 메모리에 로드합니다. 반복적인 대시보드 쿼리에서 특히 효과적입니다.
+
+---
+
+## 기존 BI 도구(Tableau/Power BI)와의 기술적 차이
+
+### 아키텍처 비교
+
+| 아키텍처 측면 | Tableau/Power BI | Databricks AI/BI |
+|-------------|-----------------|-----------------|
+| **데이터 모델링** | 도구 내부에 데이터 모델(Extract, Import)을 생성 | 레이크하우스에서 직접 쿼리 (데이터 복사 없음) |
+| **시맨틱 레이어** | 도구별 독자적 (Tableau Data Model, Power BI Semantic Model) | Unity Catalog + Metric View (플랫폼 통합) |
+| **캐시/추출** | Tableau Extract (.hyper), Power BI Import 모드 | SQL Warehouse의 인텔리전트 캐싱 |
+| **거버넌스** | 도구별 별도 권한 체계 | Unity Catalog 통합 (단일 권한 체계) |
+| **AI 기능** | 제한적 (Einstein, Copilot) | 네이티브 AI (Genie, AI 기반 차트 추천) |
+| **확장성** | 독자적 확장 (Server/Online) | SQL Warehouse Auto Scaling |
+| **비용 구조** | 사용자당 라이선스 ($15~$75/user/month) | Databricks 플랫폼에 포함 (쿼리 실행 비용만) |
+
+### Genie vs Tableau Ask Data / Power BI Q&A
+
+| 기능 | Genie | Tableau Ask Data | Power BI Q&A |
+|------|-------|-----------------|--------------|
+| **LLM 기반** | ✅ (최신 LLM) | ❌ (규칙 기반 NLP) | ✅ (Copilot) |
+| **복잡한 질문 처리** | 상, 중 | 중, 하 | 상, 중 |
+| **데이터 소스 제약** | SQL Warehouse 연결 테이블 | Tableau 데이터 소스 | Power BI Semantic Model |
+| **인증된 답변** | ✅ (사전 검증 SQL 등록) | ❌ | ❌ |
+| **Metric View 연동** | ✅ (네이티브) | ❌ | ❌ |
+| **거버넌스** | Unity Catalog 통합 | Tableau 자체 | Power BI 자체 |
+
+---
+
+## 하이브리드 BI 전략 (Databricks + 기존 BI)
+
+대부분의 엔터프라이즈에서는 기존 BI 도구 투자가 있으므로, **점진적 하이브리드 전략**이 현실적입니다.
+
+### 역할 분담 패턴
+
+| 용도 | 권장 도구 | 이유 |
+|------|----------|------|
+| **복잡한 정적 보고서** | Tableau/Power BI | 기존 인프라 활용, 풍부한 시각화 옵션 |
+| **Ad-hoc 분석** | Genie | 자연어로 빠르게 탐색, SQL 작성 불필요 |
+| **실시간 모니터링** | AI/BI Dashboard | 레이크하우스 직접 연결, 지연 없음 |
+| **데이터 알림** | Alerts | Slack/이메일 통합, 자동 모니터링 |
+| **데이터 민주화** | Genie | 비기술 사용자가 직접 데이터 탐색 |
+| **임원 보고** | AI/BI Dashboard + Genie | 핵심 KPI 대시보드 + 즉석 질의 |
+| **고급 임베디드 분석** | Tableau Embedded / Power BI Embedded | 고객 대면 앱에 내장하는 경우 |
+
+### 연동 아키텍처
+
+```
+                    ┌──────────────────────────┐
+                    │      Unity Catalog        │
+                    │   (Single Source of Truth) │
+                    └──────────┬───────────────┘
+                               │
+              ┌────────────────┼────────────────┐
+              │                │                │
+    ┌─────────▼──────┐ ┌──────▼───────┐ ┌──────▼───────┐
+    │ SQL Warehouse  │ │ SQL Warehouse│ │ SQL Warehouse│
+    │ (AI/BI 전용)    │ │ (BI 도구 전용) │ │ (ML/ETL 전용) │
+    └─────┬──────────┘ └──────┬───────┘ └──────────────┘
+          │                   │
+    ┌─────▼──────┐     ┌─────▼──────┐
+    │ AI/BI      │     │ Tableau    │
+    │ Dashboard  │     │ Power BI   │
+    │ Genie      │     │ Looker     │
+    │ Alerts     │     │ (JDBC/ODBC)│
+    └────────────┘     └────────────┘
+```
+
+> 💡 **SQL Warehouse 분리**: AI/BI 도구용과 외부 BI 도구용 SQL Warehouse를 분리하면, 워크로드 간 간섭을 방지할 수 있습니다. 특히 Tableau Extract 새로고침 같은 무거운 작업이 Genie의 실시간 쿼리에 영향을 주지 않도록 합니다.
+
+### Partner Connect를 활용한 BI 도구 연동
+
+Databricks는 **Partner Connect**를 통해 주요 BI 도구와 원클릭 연동을 지원합니다.
+
+| BI 도구 | 연결 방식 | 특이사항 |
+|---------|----------|---------|
+| **Tableau** | Databricks JDBC/ODBC 드라이버 | Tableau Connector 기본 제공, Unity Catalog 메타데이터 자동 인식 |
+| **Power BI** | Databricks ODBC 드라이버 | DirectQuery + Import 모드 지원, Azure에서는 AAD 통합 인증 |
+| **Looker** | Databricks 네이티브 커넥터 | LookML ↔ Delta Lake 직접 연결 |
+| **Qlik** | Databricks ODBC 드라이버 | Associative Engine과 Delta Lake 연동 |
+| **ThoughtSpot** | Databricks Connector | 자연어 검색 + Databricks 쿼리 엔진 |
+
+---
+
+## 비용 최적화
+
+| 전략 | 설명 | 예상 효과 |
+|------|------|----------|
+| **Serverless SQL Warehouse 사용** | Auto Scale + Auto Stop으로 비용 최적화 | 유휴 시간 비용 제거 |
+| **결과 캐싱 활용** | 동일 쿼리 반복 시 캐시 결과 반환 (TTL 설정) | 쿼리 비용 30~50% 절감 |
+| **Gold 테이블 최적화** | 대시보드에 맞게 사전 집계된 테이블 사용 | 스캔 데이터 80%+ 감소 |
+| **Metric View 활용** | 일관된 집계로 불필요한 전체 스캔 방지 | 쿼리 효율성 향상 |
+| **Query Profile 분석** | 느린 쿼리를 식별하고 최적화 | 사용자 경험 + 비용 개선 |
+| **Warehouse 사이즈 적정화** | 워크로드에 맞는 사이즈 선택 (과도한 사이즈 방지) | 20~40% 비용 절감 가능 |
+
+---
+
+## Edge Case와 주의사항
+
+| 주의사항 | 설명 |
+|---------|------|
+| **Genie 정확도** | 테이블/컬럼의 COMMENT가 부실하면 Genie의 SQL 생성 정확도가 크게 떨어집니다. 메타데이터 품질이 핵심입니다 |
+| **인증된 답변 유지보수** | 테이블 스키마가 변경되면 인증된 답변의 SQL도 함께 업데이트해야 합니다 |
+| **권한 기반 필터링** | Unity Catalog 행 수준 보안(Row Filter)이 적용된 테이블은 Genie에서도 동일하게 적용됩니다. 사용자별로 다른 결과가 나올 수 있습니다 |
+| **대시보드 공유 시 권한** | 대시보드를 공유받은 사용자가 해당 테이블에 SELECT 권한이 없으면 데이터가 표시되지 않습니다 |
+| **Genie Space 테이블 수 제한** | 하나의 Genie Space에 너무 많은 테이블(20개+)을 추가하면 정확도가 떨어질 수 있습니다. 주제별로 분리하는 것이 좋습니다 |
+
+---
+
 ## 정리
 
 | 핵심 개념 | 설명 |
@@ -127,6 +305,9 @@ AI/BI를 사용하려면 다음이 필요합니다.
 | **Genie** | 자연어로 데이터에 질문. 비기술 사용자도 데이터를 탐색할 수 있습니다 |
 | **Alerts** | 조건 기반 자동 알림. 이상 감지와 모니터링에 사용합니다 |
 | **Lakeview** | AI/BI Dashboard의 기술적 이름입니다 |
+| **Compound AI System** | 여러 AI 컴포넌트(NLU, SQL Generator 등)가 협력하는 아키텍처입니다 |
+| **Photon** | C++ 네이티브 벡터화 쿼리 엔진으로 BI 쿼리 성능을 극대화합니다 |
+| **하이브리드 BI** | Databricks AI/BI + 기존 BI 도구를 역할별로 병행하는 전략입니다 |
 | **Unity Catalog 통합** | 대시보드에도 동일한 데이터 권한이 적용됩니다 |
 
 ---

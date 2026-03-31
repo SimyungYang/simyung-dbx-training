@@ -195,6 +195,233 @@ databricks account groups get <group-id>
 
 ---
 
+## SCIM 프로토콜 내부 동작 상세
+
+SCIM은 **REST API 기반의 CRUD(Create, Read, Update, Delete)** 프로토콜입니다. IdP가 Databricks의 SCIM 엔드포인트에 HTTP 요청을 보내는 방식으로 동기화가 이루어집니다.
+
+### SCIM REST API 구조
+
+| HTTP 메서드 | 엔드포인트 | 동작 | 예시 |
+|------------|-----------|------|------|
+| **POST** | `/scim/v2/Users` | 사용자 생성 | 신규 입사자 계정 생성 |
+| **GET** | `/scim/v2/Users?filter=userName eq "user@company.com"` | 사용자 조회 | 동기화 전 존재 여부 확인 |
+| **PUT** | `/scim/v2/Users/{id}` | 사용자 전체 업데이트 | 프로필 정보 전체 교체 |
+| **PATCH** | `/scim/v2/Users/{id}` | 사용자 부분 업데이트 | 특정 속성만 변경 (활성/비활성) |
+| **DELETE** | `/scim/v2/Users/{id}` | 사용자 삭제 | 완전 삭제 (대부분 IdP는 PATCH로 비활성화) |
+| **POST** | `/scim/v2/Groups` | 그룹 생성 | 새 팀/역할 그룹 생성 |
+| **PATCH** | `/scim/v2/Groups/{id}` | 그룹 멤버 변경 | 멤버 추가/제거 |
+
+### SCIM 동기화 사이클 상세
+
+IdP는 다음과 같은 사이클로 Databricks와 동기화합니다.
+
+```
+[초기 동기화 (Full Sync)]
+1. IdP가 할당된 모든 사용자/그룹 목록을 생성
+2. 각 사용자에 대해 GET → 존재하지 않으면 POST (생성)
+3. 각 그룹에 대해 GET → 존재하지 않으면 POST (생성)
+4. 그룹 멤버십을 PATCH로 설정
+→ 수천 명 규모에서 20~40분 소요
+
+[증분 동기화 (Incremental Sync)]
+1. IdP가 마지막 동기화 이후 변경된 항목만 감지
+2. 변경된 사용자: PATCH로 속성 업데이트
+3. 비활성화된 사용자: PATCH로 active=false 설정
+4. 그룹 변경: PATCH로 멤버 추가/제거
+→ 변경 건수에 비례하여 수초~수분 소요
+```
+
+### SCIM 요청/응답 예시
+
+```json
+// POST /scim/v2/Users - 사용자 생성 요청
+{
+  "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
+  "userName": "kim.minjun@company.com",
+  "name": {
+    "givenName": "민준",
+    "familyName": "김"
+  },
+  "emails": [
+    {
+      "value": "kim.minjun@company.com",
+      "type": "work",
+      "primary": true
+    }
+  ],
+  "active": true
+}
+
+// 응답: 201 Created
+{
+  "id": "1234567890",
+  "userName": "kim.minjun@company.com",
+  "active": true,
+  ...
+}
+```
+
+```json
+// PATCH /scim/v2/Users/{id} - 사용자 비활성화 요청
+{
+  "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+  "Operations": [
+    {
+      "op": "replace",
+      "path": "active",
+      "value": false
+    }
+  ]
+}
+```
+
+---
+
+## 대규모 조직(만 명 이상) SCIM 운영 시 고려사항
+
+### 스케일링 문제와 해결
+
+| 문제 | 원인 | 해결 방법 |
+|------|------|----------|
+| **초기 동기화 타임아웃** | 수만 명의 사용자를 한 번에 동기화하면 API 호출 한도 초과 | 그룹 단위로 분할하여 순차 동기화. 먼저 핵심 그룹부터 동기화 |
+| **API Rate Limiting** | Databricks SCIM 엔드포인트의 초당 호출 제한에 도달 | IdP의 프로비저닝 속도 조절(Okta: provisioning rate limit 설정) |
+| **동기화 지연 누적** | 변경 건수가 많으면 증분 동기화 시간이 길어짐 | IdP의 동기화 간격을 변경 빈도에 맞게 조정 |
+| **토큰 만료** | 대규모 동기화 중 SCIM 토큰이 만료됨 | 토큰 수명을 충분히 길게 설정(최소 1년), 자동 갱신 프로세스 구축 |
+
+### 동기화 범위 최적화
+
+만 명 이상의 조직에서 모든 사용자를 Databricks에 동기화하는 것은 비효율적입니다.
+
+| 전략 | 설명 | 적용 방법 |
+|------|------|----------|
+| **그룹 기반 필터링** | Databricks를 사용하는 그룹만 동기화합니다 | IdP에서 `dbx-users` 그룹에 속한 사용자만 Databricks 앱에 할당 |
+| **역할 기반 필터링** | 데이터 관련 역할만 동기화합니다 | Data Engineer, Data Scientist, Analyst 역할만 포함 |
+| **부서 기반 필터링** | 특정 부서만 동기화합니다 | 데이터팀, AI팀, 분석팀 등 |
+
+> 💡 **실무 권장**: 전체 직원 5만 명 중 Databricks 실사용자가 500명이라면, 해당 500명이 속한 그룹만 동기화하세요. 불필요한 사용자 동기화는 API 호출 낭비이며, Databricks Account의 사용자 관리 화면도 복잡해집니다.
+
+---
+
+## 동기화 지연과 캐시
+
+### 동기화 지연 구조
+
+SCIM 동기화에서 발생하는 지연은 여러 단계에서 누적됩니다.
+
+```
+[IdP에서 변경 감지] → [SCIM API 호출] → [Databricks 반영] → [워크스페이스 반영]
+   0~5분              0~40분           즉시              0~5분
+
+총 지연: 최대 50분 (Entra ID 기준)
+```
+
+| IdP | 증분 동기화 간격 | 최대 지연 |
+|-----|---------------|----------|
+| **Okta** | 즉시~5분 (Push 방식) | 5~10분 |
+| **Entra ID (Azure AD)** | 40분 고정 사이클 | 40~50분 |
+| **OneLogin** | 즉시~10분 | 10~15분 |
+| **Ping Identity** | 설정 가능 (5~60분) | 설정값 + 5분 |
+
+### 긴급 상황에서의 수동 동기화
+
+IdP의 자동 동기화를 기다릴 수 없는 긴급 상황(즉시 접근 차단이 필요한 보안 사고 등)에서는 Databricks API를 직접 호출합니다.
+
+```bash
+# 긴급 사용자 비활성화 (SCIM 동기화를 기다리지 않고 즉시 실행)
+curl -X PATCH \
+  "https://accounts.cloud.databricks.com/api/2.0/accounts/<account-id>/scim/v2/Users/<user-id>" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+    "Operations": [{"op": "replace", "path": "active", "value": false}]
+  }'
+```
+
+> ⚠️ **주의**: Databricks에서 직접 변경한 내용은 다음 IdP 동기화 시 IdP의 상태로 덮어써질 수 있습니다. 반드시 **IdP에서도 동일하게 비활성화**해야 합니다.
+
+---
+
+## 그룹 중첩(Nested Groups) 한계
+
+### SCIM에서의 그룹 중첩 지원
+
+| IdP | 중첩 그룹 지원 | Databricks 반영 |
+|-----|-------------|----------------|
+| **Entra ID** | IdP에서 중첩 가능 | SCIM은 **평면화(flatten)하여 전달**. 중첩 구조 유실 |
+| **Okta** | Push Groups에서 중첩 불가 | 각 그룹을 개별적으로 Push해야 합니다 |
+| **Databricks Account** | Account 그룹 내 그룹 중첩 가능 | 단, SCIM으로 자동 생성된 중첩은 지원 불안정 |
+
+### 그룹 설계 모범 사례
+
+```
+# 권장하지 않는 패턴 (중첩 의존)
+Engineering (IdP)
+├── Data Engineering (IdP)
+│   ├── DE - Bronze Team
+│   └── DE - Gold Team
+└── ML Engineering (IdP)
+    ├── MLE - Training Team
+    └── MLE - Serving Team
+
+# 권장 패턴 (평면 구조)
+dbx-data-engineers        → Databricks Account 그룹
+dbx-ml-engineers          → Databricks Account 그룹
+dbx-data-analysts         → Databricks Account 그룹
+dbx-workspace-admins      → Databricks Account 그룹
+```
+
+> 💡 **실무 권장**: IdP의 조직 구조(부서별 중첩 그룹)와 Databricks의 접근 제어 그룹을 **분리하여 설계**하세요. IdP에서 `dbx-` 접두사가 붙은 평면 그룹을 별도로 생성하고, 이 그룹만 SCIM으로 동기화하면 중첩 문제를 회피할 수 있습니다.
+
+---
+
+## IdP 장애 시 영향과 대응
+
+### IdP 장애 시나리오별 영향
+
+| 장애 시나리오 | SSO 영향 | SCIM 영향 | 기존 세션 |
+|-------------|---------|----------|----------|
+| **IdP 완전 다운** | 신규 로그인 불가 | 동기화 중단 | 기존 로그인 세션은 유지 |
+| **IdP 부분 장애 (SCIM만)** | SSO 정상 | 동기화 중단 | 영향 없음 |
+| **SCIM 토큰 만료** | SSO 정상 | 동기화 중단 | 영향 없음 |
+| **IdP 인증서 만료** | SSO 실패 | SCIM은 토큰 기반이므로 정상 | 기존 세션 유지 |
+
+### IdP 장애 대응 방안
+
+| 대응 | 설명 | 사전 준비 |
+|------|------|----------|
+| **Emergency Access 계정** | 비밀번호 로그인이 가능한 Account Admin 계정 유지 | SSO 강제 활성화 시에도 예외 계정 설정 |
+| **SCIM 동기화 모니터링** | 동기화 실패 시 알림 설정 | 감사 로그에서 SCIM 오류를 모니터링하는 알림 구축 |
+| **토큰 갱신 자동화** | SCIM 토큰 만료 전 자동 갱신 | 토큰 만료일 모니터링 + 자동 갱신 스크립트 |
+| **수동 사용자 관리 절차서** | IdP 장애 시 수동 관리 프로세스 | Databricks API를 사용한 긴급 사용자 관리 매뉴얼 |
+
+```sql
+-- SCIM 동기화 상태 모니터링 쿼리
+-- 최근 24시간 내 SCIM 오류 확인
+SELECT
+  event_time,
+  action_name,
+  request_params.endpoint AS scim_endpoint,
+  response.status_code,
+  response.error_message
+FROM system.access.audit
+WHERE service_name = 'accounts'
+  AND action_name LIKE '%scim%'
+  AND response.status_code >= 400
+  AND event_time > CURRENT_TIMESTAMP() - INTERVAL 24 HOURS
+ORDER BY event_time DESC;
+
+-- SCIM 동기화 정상 동작 여부 확인 (마지막 성공 시점)
+SELECT
+  MAX(event_time) AS last_successful_sync
+FROM system.access.audit
+WHERE service_name = 'accounts'
+  AND action_name LIKE '%scim%'
+  AND response.status_code BETWEEN 200 AND 299;
+```
+
+---
+
 ## 정리
 
 | 핵심 개념 | 설명 |
@@ -204,6 +431,10 @@ databricks account groups get <group-id>
 | **단방향** | IdP → Databricks 방향으로만 동기화됩니다 |
 | **비활성화** | 퇴사자를 IdP에서 비활성화하면 Databricks에서도 자동 비활성화됩니다 |
 | **그룹 동기화** | IdP의 그룹 멤버십이 Databricks Account 그룹에 반영됩니다 |
+| **REST API 기반** | SCIM은 HTTP POST/GET/PUT/PATCH/DELETE로 동작하는 REST 프로토콜입니다 |
+| **동기화 지연** | IdP에 따라 5~50분의 지연이 발생합니다. 긴급 시 API 직접 호출로 해결합니다 |
+| **그룹 중첩 한계** | SCIM은 중첩 그룹을 평면화하므로, 평면 그룹 구조를 권장합니다 |
+| **IdP 장애 대응** | Emergency Access 계정과 모니터링 알림을 사전에 구축해야 합니다 |
 
 ---
 

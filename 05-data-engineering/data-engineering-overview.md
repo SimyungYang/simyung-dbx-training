@@ -209,6 +209,464 @@ AS SELECT * FROM silver_sales_agg;
 
 ---
 
+## Lakeflow 브랜드 통합 전략 — 왜 이름이 바뀌었는가
+
+Databricks는 2024년 Data+AI Summit에서 데이터 엔지니어링 제품들을 **Lakeflow**라는 단일 브랜드로 통합한다고 발표했습니다. 이 전략적 결정의 배경을 이해하면 Databricks의 제품 방향성을 파악할 수 있습니다.
+
+### 리브랜딩 이전의 문제
+
+| 이전 상태 | 문제점 |
+|-----------|--------|
+| DLT, Workflows, Auto Loader가 **별도 제품**으로 인식 | 고객이 전체 데이터 파이프라인을 하나로 이해하기 어려움 |
+| 각 도구별 별도의 문서, 가격, 지원 | 도입 검토 시 비교 평가가 복잡 |
+| 경쟁사(Fivetran+dbt+Airflow 스택)와 **개별 도구 단위**로 비교 | 통합 플랫폼의 장점이 부각되지 않음 |
+
+### Lakeflow 통합의 전략적 의미
+
+```
+경쟁사 스택:              Databricks Lakeflow:
+┌─────────────┐          ┌─────────────────────────────┐
+│  Fivetran   │  수집     │  Lakeflow Connect            │
+├─────────────┤          ├─────────────────────────────┤
+│  dbt        │  변환     │  Lakeflow Declarative (SDP)  │
+├─────────────┤          ├─────────────────────────────┤
+│  Airflow    │  오케스트  │  Lakeflow Jobs               │
+├─────────────┤          ├─────────────────────────────┤
+│  Great Exp. │  품질     │  SDP Expectations (내장)      │
+├─────────────┤          ├─────────────────────────────┤
+│  (별도)     │  모니터링  │  시스템 테이블 + 이벤트 로그  │
+└─────────────┘          └─────────────────────────────┘
+```
+
+**핵심 메시지**: 5개 이상의 벤더를 조합하는 대신, 하나의 통합 플랫폼에서 수집-변환-오케스트레이션-품질-모니터링을 모두 처리할 수 있다는 것입니다. 이는 운영 복잡도 감소, 통합 거버넌스(Unity Catalog), 비용 투명성이라는 이점으로 이어집니다.
+
+> 💡 **SA 관점**: 고객 미팅에서 "왜 dbt 대신 SDP를 써야 하나요?" 라는 질문을 자주 받습니다. 핵심 차별점은 **런타임 통합**입니다. dbt는 변환 로직만 정의하고 실행은 별도 컴퓨트에 의존하지만, SDP는 Spark 런타임과 긴밀히 통합되어 자동 증분 처리, Enhanced Autoscaling, 서버리스 실행이 가능합니다.
+
+---
+
+## 파이프라인 아키텍처 패턴 심층 비교
+
+데이터 파이프라인을 설계할 때 선택할 수 있는 대표적인 아키텍처 패턴을 비교합니다.
+
+### Lambda 아키텍처
+
+```
+                    ┌── 배치 레이어 (전체 재처리, 정확성) ──┐
+원천 데이터 ──┤                                           ├── 서빙 레이어 (통합)
+                    └── 스피드 레이어 (실시간, 근사치)  ──┘
+```
+
+| 특성 | 설명 |
+|------|------|
+| **원리** | 동일 데이터를 배치(정확)와 실시간(빠름) 두 경로로 처리합니다 |
+| **장점** | 실시간 + 정확성을 모두 제공합니다 |
+| **단점** | 두 경로의 로직을 **이중 구현/유지**해야 합니다. 복잡도가 매우 높습니다 |
+| **Databricks 적용** | SDP Continuous(스피드) + SDP Triggered(배치)로 구현 가능하지만, **권장하지 않습니다** |
+
+### Kappa 아키텍처
+
+```
+원천 데이터 ── 스트리밍 레이어 (단일 경로) ── 서빙 레이어
+```
+
+| 특성 | 설명 |
+|------|------|
+| **원리** | 모든 데이터를 **스트리밍 파이프라인 하나**로 처리합니다 |
+| **장점** | 단일 코드베이스, 낮은 복잡도 |
+| **단점** | 대규모 재처리(backfill)가 어렵고, 복잡한 집계에 한계가 있습니다 |
+| **Databricks 적용** | SDP Streaming Table + Continuous 모드로 자연스럽게 구현 |
+
+### Medallion 아키텍처 (Databricks 권장)
+
+```
+원천 데이터 ── Bronze (원시) ── Silver (정제) ── Gold (비즈니스)
+```
+
+| 특성 | 설명 |
+|------|------|
+| **원리** | 데이터를 **품질/정제 수준에 따라 3계층**으로 분리합니다 |
+| **장점** | 직관적, 디버깅 용이, 배치/스트리밍 통합 가능 |
+| **단점** | 계층이 많아지면 지연 시간 증가, 스토리지 비용 |
+| **Databricks 적용** | SDP의 기본 패턴. Streaming Table(Bronze/Silver) + Materialized View(Gold)로 자연스럽게 구현 |
+
+### 아키텍처 선택 가이드
+
+```
+Lambda 아키텍처: 레거시 환경에서 마이그레이션 중인 경우에만 고려
+Kappa 아키텍처:  모든 데이터가 이벤트 스트림 기반일 때 적합
+Medallion:      대부분의 Databricks 프로젝트에서 권장 (배치+스트리밍 통합)
+```
+
+> 💡 **실무 팁**: Medallion 아키텍처에서 Bronze → Silver 간 지연이 문제가 되는 경우, Bronze를 건너뛰고 Silver에 직접 수집하는 **"Silver-first" 패턴**도 고려할 수 있습니다. 단, 원본 데이터 보존(감사 목적)이 필요하다면 Bronze는 유지하되 Streaming Table로 구현하여 지연을 최소화합니다.
+
+---
+
+## 비용 최적화 전략 심층 분석
+
+### Serverless vs Classic 컴퓨트 비용 비교
+
+| 비교 항목 | Serverless | Classic (On-Demand) | Classic (Spot/Preemptible) |
+|-----------|-----------|-------------------|---------------------------|
+| **DBU 단가** | 높음 (~1.5~2x) | 기본 | 기본 |
+| **인프라 비용** | 없음 | EC2/VM 비용 추가 | EC2/VM 비용 (60~90% 할인) |
+| **시작 시간** | ~10초 | 5~10분 | 5~10분 |
+| **유휴 비용** | 없음 | 클러스터 대기 비용 | 클러스터 대기 비용 |
+| **관리 부담** | 없음 | 클러스터 구성, 패치, 모니터링 | + Spot 중단 처리 |
+
+### 비용 시뮬레이션: 일일 4회 배치 ETL (회당 30분)
+
+```
+Serverless:
+  4회 × 0.5시간 × 20 Serverless DBU/시간 = 40 DBU/일
+  클라우드 인프라 비용: 0 (Databricks 포함)
+  총 비용: ~40 DBU × $0.70 = $28/일
+
+Classic On-Demand (i3.xlarge × 4 Workers):
+  클러스터 대기 10분 + 실행 30분 = 40분/회
+  4회 × 40분 × 10 DBU/시간 = ~27 DBU/일
+  EC2 비용: 4회 × 40분 × $1.25/시간(4노드) ≈ $3.33/일
+  총 비용: ~27 DBU × $0.55 + $3.33 = $18.18/일
+
+Classic + Spot (70% 할인):
+  DBU 비용: ~$14.85/일
+  EC2 비용: ~$1.00/일
+  총 비용: ~$15.85/일 (단, Spot 중단 리스크)
+```
+
+> 💡 **SA 권장**: 실행 시간이 짧고(< 1시간) 간헐적인 워크로드는 **Serverless**가 유리합니다. 장시간(> 4시간) 지속 실행되는 워크로드나 비용에 매우 민감한 경우는 **Classic + Spot**을 고려합니다. Spot 중단 시 SDP의 자동 체크포인트 복구 기능이 재처리 비용을 최소화합니다.
+
+### Spot 인스턴스 활용 전략
+
+| 전략 | 설명 |
+|------|------|
+| **Driver는 On-Demand** | Driver 노드가 중단되면 전체 파이프라인이 실패하므로, Driver는 항상 On-Demand로 설정합니다 |
+| **Worker는 Spot 70~90%** | Worker가 중단되어도 나머지 Worker가 태스크를 이어받습니다 |
+| **Fallback to On-Demand** | Spot 용량이 부족하면 자동으로 On-Demand로 전환합니다 |
+| **인스턴스 다양화** | 단일 인스턴스 타입 대신 여러 타입을 지정하여 Spot 가용성을 높입니다 |
+
+---
+
+## 데이터 품질 프레임워크 비교
+
+### SDP Expectations vs Great Expectations vs dbt Tests
+
+| 비교 항목 | SDP Expectations | Great Expectations | dbt Tests |
+|-----------|-----------------|-------------------|-----------|
+| **통합 수준** | 파이프라인에 **내장** | 별도 프레임워크 | dbt 프로젝트에 내장 |
+| **실행 시점** | 데이터 처리와 **동시** | 별도 검증 단계 | 모델 실행 후 |
+| **실시간 지원** | 스트리밍 데이터에 적용 가능 | 배치 전용 | 배치 전용 |
+| **위반 시 동작** | DROP ROW / FAIL UPDATE / 로깅 | 리포트 생성 | 경고 / 에러 |
+| **거버넌스** | Unity Catalog + 이벤트 로그 통합 | 별도 메타데이터 저장소 | dbt Cloud 대시보드 |
+| **학습 곡선** | 낮음 (SQL 제약조건과 유사) | 높음 (자체 DSL) | 중간 (YAML/SQL) |
+| **커스텀 규칙** | SQL 표현식 | Python 커스텀 Expectation | SQL/Jinja |
+
+### 데이터 품질 관리 성숙도 모델
+
+```
+Level 1 — 기본: NOT NULL, 타입 체크 (SDP Expectations)
+Level 2 — 규칙 기반: 비즈니스 규칙 검증 (Expectations + CHECK Constraints)
+Level 3 — 통계 기반: 드리프트 감지, 이상 탐지 (Lakehouse Monitoring)
+Level 4 — 자동화: 이상 시 자동 알림 + 파이프라인 중단 (모니터링 + 알림 통합)
+Level 5 — 예측: 품질 저하 예측 및 선제적 대응 (ML 기반 이상 탐지)
+```
+
+> 💡 **엔터프라이즈 패턴**: 대부분의 고객은 Level 2(SDP Expectations)에서 시작하여 Level 3(Lakehouse Monitoring)으로 확장합니다. Great Expectations는 이미 도입된 경우에 병행 사용하되, 신규 프로젝트에서는 SDP Expectations + Lakehouse Monitoring 조합을 권장합니다.
+
+---
+
+## 엔터프라이즈 데이터 엔지니어링 패턴
+
+### 환경 분리 (Dev/Staging/Prod)
+
+```
+Dev 환경:
+  ├── dev_catalog.schema → 개발자별 스키마
+  ├── SDP Development Mode (실패 시 클러스터 유지)
+  └── 소규모 샘플 데이터
+
+Staging 환경:
+  ├── staging_catalog.schema → 통합 테스트
+  ├── SDP Triggered Mode (프로덕션 동일 설정)
+  └── 프로덕션 유사 데이터 볼륨
+
+Production 환경:
+  ├── prod_catalog.schema → 프로덕션 데이터
+  ├── SDP Triggered/Continuous (비즈니스 요구에 따라)
+  └── 모니터링 + 알림 활성화
+```
+
+### CI/CD 파이프라인 통합
+
+```yaml
+# Asset Bundles를 활용한 SDP 배포 (databricks.yml)
+environments:
+  dev:
+    workspace:
+      host: https://dev-workspace.cloud.databricks.com
+    resources:
+      pipelines:
+        my_pipeline:
+          development: true
+          catalog: dev_catalog
+
+  prod:
+    workspace:
+      host: https://prod-workspace.cloud.databricks.com
+    resources:
+      pipelines:
+        my_pipeline:
+          development: false
+          catalog: prod_catalog
+          serverless: true
+```
+
+---
+
+## 실전 파이프라인 오케스트레이션 패턴
+
+### 패턴 1: Lakeflow Jobs로 End-to-End 파이프라인 오케스트레이션
+
+Lakeflow Jobs는 **여러 종류의 태스크를 DAG(방향성 비순환 그래프)로 조합** 하여 전체 파이프라인을 하나의 워크플로로 관리합니다. 수집 → 변환 → 품질 검증 → 서빙까지 하나의 Job으로 구성할 수 있습니다.
+
+```
+[Job: daily-data-pipeline]
+│
+├─ Task 1: 수집 (SDP Pipeline — Lakeflow Connect CDC)
+│   └─ Bronze 테이블에 원본 데이터 적재
+│
+├─ Task 2: 변환 (SDP Pipeline — Bronze → Silver → Gold)
+│   ├─ Silver: 정제, 중복 제거, SCD Type 1/2
+│   └─ Gold: 비즈니스 집계
+│
+├─ Task 3: 품질 검증 (SQL Task)
+│   └─ Gold 테이블의 행 수, NULL 비율, 전일 대비 변화량 체크
+│
+├─ Task 4-A: 성공 시 → ML 피처 갱신 (Notebook Task)
+│   └─ Feature Table 업데이트 → Online Table 동기화
+│
+├─ Task 4-B: 성공 시 → 대시보드 새로고침 (SQL Task)
+│   └─ REFRESH MATERIALIZED VIEW gold_daily_kpi
+│
+└─ Task 5: 실패 시 → Slack 알림 (Webhook)
+```
+
+```python
+# Lakeflow Jobs SDK로 위 파이프라인 생성
+from databricks.sdk import WorkspaceClient
+from databricks.sdk.service.jobs import *
+
+w = WorkspaceClient()
+
+w.jobs.create(
+    name="daily-data-pipeline",
+    tasks=[
+        Task(
+            task_key="ingest",
+            pipeline_task=PipelineTask(pipeline_id="<ingest-pipeline-id>"),
+        ),
+        Task(
+            task_key="transform",
+            depends_on=[TaskDependency(task_key="ingest")],
+            pipeline_task=PipelineTask(pipeline_id="<sdp-pipeline-id>"),
+        ),
+        Task(
+            task_key="quality_check",
+            depends_on=[TaskDependency(task_key="transform")],
+            sql_task=SqlTask(
+                query=SqlTaskQuery(query_id="<quality-check-query-id>"),
+                warehouse_id="<warehouse-id>"
+            ),
+        ),
+        Task(
+            task_key="update_features",
+            depends_on=[TaskDependency(task_key="quality_check")],
+            notebook_task=NotebookTask(
+                notebook_path="/Workspace/pipelines/update_features"
+            ),
+        ),
+        Task(
+            task_key="refresh_dashboard",
+            depends_on=[TaskDependency(task_key="quality_check")],
+            sql_task=SqlTask(
+                query=SqlTaskQuery(query_id="<refresh-mv-query-id>"),
+                warehouse_id="<warehouse-id>"
+            ),
+        ),
+    ],
+    schedule=CronSchedule(
+        quartz_cron_expression="0 0 6 * * ?",  # 매일 06:00
+        timezone_id="Asia/Seoul"
+    ),
+    email_notifications=JobEmailNotifications(
+        on_failure=["data-team@company.com"]
+    )
+)
+```
+
+### 패턴 2: CDC 파이프라인 — SCD Type 1 vs Type 2
+
+CDC(Change Data Capture) 데이터를 처리할 때 가장 중요한 결정은 **SCD(Slowly Changing Dimension) 전략**입니다.
+
+#### SCD Type 1: 최신 값으로 덮어쓰기
+
+변경 이력을 보존하지 않고, **항상 최신 값만 유지**합니다.
+
+```sql
+-- SDP에서 SCD Type 1 구현
+CREATE OR REFRESH STREAMING TABLE silver_customers;
+
+APPLY CHANGES INTO silver_customers
+FROM STREAM(bronze_customers)
+KEYS (customer_id)
+SEQUENCE BY _commit_timestamp
+STORED AS SCD TYPE 1;
+```
+
+| 항목 | 설명 |
+|------|------|
+| **결과 테이블** | customer_id당 항상 1개 행 (최신) |
+| **이전 값** | 삭제됨 (복구 불가, Delta Time Travel로만 가능) |
+| **적합한 경우** | 최신 상태만 필요 (주소, 이메일, 전화번호 등) |
+| **스토리지** | 효율적 (행 수 = 고유 키 수) |
+
+#### SCD Type 2: 변경 이력 보존
+
+모든 변경 이력을 **별도 행으로 보존**합니다. `__START_AT`, `__END_AT` 컬럼으로 유효 기간을 관리합니다.
+
+```sql
+-- SDP에서 SCD Type 2 구현
+CREATE OR REFRESH STREAMING TABLE silver_customers_history;
+
+APPLY CHANGES INTO silver_customers_history
+FROM STREAM(bronze_customers)
+KEYS (customer_id)
+SEQUENCE BY _commit_timestamp
+STORED AS SCD TYPE 2;
+
+-- 결과 테이블 구조:
+-- | customer_id | name   | city  | __START_AT     | __END_AT       |
+-- |-------------|--------|-------|----------------|----------------|
+-- | 1001        | 김철수 | 서울  | 2025-01-01     | 2025-03-15     |
+-- | 1001        | 김철수 | 부산  | 2025-03-15     | NULL           | ← 현재 값
+```
+
+| 항목 | 설명 |
+|------|------|
+| **결과 테이블** | customer_id당 여러 행 (변경 이력) |
+| **현재 값 조회** | `WHERE __END_AT IS NULL` |
+| **특정 시점 조회** | `WHERE __START_AT <= '2025-02-01' AND (__END_AT > '2025-02-01' OR __END_AT IS NULL)` |
+| **적합한 경우** | 이력 추적 필수 (고객 등급 변화, 가격 변동, 규제 감사) |
+| **스토리지** | 변경 빈도에 비례하여 증가 |
+
+#### SCD Type 1 vs Type 2 선택 기준
+
+| 기준 | Type 1 | Type 2 |
+|------|--------|--------|
+| **"이전 값이 필요한가?"** | 아니오 → Type 1 | 예 → Type 2 |
+| **규제 감사 요건** | 없음 → Type 1 | 있음 (변경 이력 보존) → Type 2 |
+| **분석 요구** | 현재 상태 분석 → Type 1 | 시간에 따른 변화 분석 → Type 2 |
+| **스토리지 비용** | 낮음 | 높음 (이력 누적) |
+| **쿼리 복잡도** | 단순 (항상 최신) | 복잡 (`__START_AT`/`__END_AT` 필터) |
+| **대표 사용** | 고객 연락처, 제품 정보 | 고객 등급, 가격 이력, 재고 변동 |
+
+#### 실전: 하이브리드 전략 (Type 1 + Type 2 동시 운영)
+
+대부분의 프로덕션 환경에서는 **같은 소스에서 Type 1과 Type 2를 동시에 생성**합니다.
+
+```sql
+-- 같은 Bronze 소스에서 두 가지 Silver 테이블 생성
+
+-- Silver 1: 현재 상태 (조인용, 대시보드용) — SCD Type 1
+CREATE OR REFRESH STREAMING TABLE silver_customers_current;
+APPLY CHANGES INTO silver_customers_current
+FROM STREAM(bronze_customers)
+KEYS (customer_id) SEQUENCE BY _commit_timestamp
+STORED AS SCD TYPE 1;
+
+-- Silver 2: 전체 이력 (감사, 시계열 분석용) — SCD Type 2
+CREATE OR REFRESH STREAMING TABLE silver_customers_history;
+APPLY CHANGES INTO silver_customers_history
+FROM STREAM(bronze_customers)
+KEYS (customer_id) SEQUENCE BY _commit_timestamp
+STORED AS SCD TYPE 2;
+
+-- Gold: 현재 상태 기반 집계 (Type 1에서 읽음 → 빠른 조인)
+CREATE OR REFRESH MATERIALIZED VIEW gold_customer_revenue AS
+SELECT c.customer_id, c.name, c.city,
+       COUNT(o.order_id) AS total_orders,
+       SUM(o.amount) AS total_revenue
+FROM silver_customers_current c
+JOIN silver_orders o ON c.customer_id = o.customer_id
+GROUP BY c.customer_id, c.name, c.city;
+
+-- 감사 리포트: 이력 기반 조회 (Type 2에서 읽음)
+-- "2025년 1분기에 서울에 거주했던 고객 목록"
+SELECT * FROM silver_customers_history
+WHERE city = '서울'
+  AND __START_AT <= '2025-03-31'
+  AND (__END_AT > '2025-01-01' OR __END_AT IS NULL);
+```
+
+> 💡 **왜 하이브리드인가?** Type 2만 사용하면 Gold 계층의 JOIN이 복잡해집니다 (`__END_AT IS NULL` 조건이 매번 필요). Type 1의 "현재 상태" 테이블을 별도로 유지하면 **Gold 집계가 단순하고 빠릅니다.**
+
+### 패턴 3: CDC → CDF → 다운스트림 전파
+
+외부 DB의 CDC를 수집하고, Delta CDF(Change Data Feed)로 다운스트림에 전파하는 전체 흐름입니다.
+
+```
+[외부 MySQL]
+    │ Lakeflow Connect (CDC — binlog)
+    ▼
+[Bronze: bronze_customers]  ← 원본 CDC 이벤트 보존
+    │ SDP: APPLY CHANGES INTO
+    ▼
+[Silver: silver_customers]  ← SCD Type 1 (CDF 활성화)
+    │ Delta CDF (readChangeFeed)
+    ├──▶ [Online Table] ← 실시간 Feature Serving
+    ├──▶ [Gold: gold_customer_360] ← MV 증분 갱신
+    └──▶ [외부 시스템] ← Reverse ETL (foreachBatch)
+```
+
+```sql
+-- Silver 테이블에 CDF 활성화 (다운스트림 전파용)
+ALTER TABLE silver_customers
+SET TBLPROPERTIES ('delta.enableChangeDataFeed' = 'true');
+```
+
+```python
+# Silver의 변경사항을 외부 시스템에 Reverse ETL
+def push_to_crm(batch_df, batch_id):
+    updates = batch_df.filter("_change_type IN ('insert', 'update_postimage')")
+    # CRM API 호출로 고객 정보 동기화
+    for row in updates.collect():
+        crm_api.update_customer(row.customer_id, row.name, row.email)
+
+(spark.readStream
+    .format("delta")
+    .option("readChangeFeed", "true")
+    .table("silver_customers")
+    .writeStream
+    .foreachBatch(push_to_crm)
+    .option("checkpointLocation", "/checkpoints/reverse-etl")
+    .trigger(availableNow=True)
+    .start()
+)
+```
+
+### 파이프라인 오케스트레이션 모범 사례
+
+| # | 원칙 | 설명 |
+|---|------|------|
+| 1 | **수집과 변환을 분리** | Lakeflow Connect(수집)과 SDP(변환)를 **별도 파이프라인**으로 구성합니다. 수집이 실패해도 변환은 마지막 성공 데이터로 동작합니다 |
+| 2 | **Job으로 전체 오케스트레이션** | 수집 파이프라인 → SDP 파이프라인 → 품질 검증 → 후처리를 하나의 Lakeflow Job DAG로 묶습니다 |
+| 3 | **품질 게이트** | Silver → Gold 사이에 품질 검증 태스크를 삽입합니다. 실패 시 Gold 갱신을 차단합니다 |
+| 4 | **멱등성 보장** | 모든 태스크는 재실행해도 같은 결과를 보장해야 합니다. MERGE, APPLY CHANGES는 기본적으로 멱등적입니다 |
+| 5 | **환경별 분리** | Dev/Staging/Prod에 동일한 파이프라인을 Declarative Automation Bundles로 배포합니다 |
+| 6 | **SCD 전략은 비즈니스 요구로 결정** | 이력이 필요하면 Type 2, 최신값만 필요하면 Type 1. 대부분 하이브리드 |
+| 7 | **CDF로 다운스트림 연결** | Silver 테이블에 CDF를 활성화하면 Online Table, MV, Reverse ETL이 증분으로 동작합니다 |
+
+---
+
 ## 정리
 
 Databricks의 데이터 엔지니어링 도구들은 **Lakeflow** 브랜드 아래 체계적으로 구성되어 있습니다:

@@ -206,6 +206,225 @@ ORDER BY timestamp DESC;
 
 ---
 
+## DLT에서 SDP로 — 리브랜딩 배경
+
+Delta Live Tables(DLT)는 2021년에 출시된 Databricks의 선언적 파이프라인 프레임워크였습니다. 2024년부터 **Spark Declarative Pipelines(SDP)** 로 이름이 변경되었는데, 이 변화에는 전략적 의미가 있습니다.
+
+| 시점 | 명칭 | 변화 배경 |
+|------|------|----------|
+| 2021 | **Delta Live Tables (DLT)** | Delta Lake 위의 ETL 프레임워크로 출시 |
+| 2024 | **Lakeflow Declarative Pipelines** | Lakeflow 브랜드 통합 (Connect + Jobs + DLT) |
+| 2025 | **Spark Declarative Pipelines (SDP)** | Apache Spark 프로젝트에 기여, 오픈소스화 방향 |
+
+**리브랜딩의 핵심 이유:**
+
+1. **오픈소스 전략**: Databricks는 SDP의 핵심 기술을 Apache Spark 프로젝트에 기여하여, 벤더 종속(lock-in) 우려를 해소하려 합니다. "Delta Live Tables"라는 이름은 Databricks 독점 느낌이 강했지만, "Spark Declarative Pipelines"는 Spark 생태계의 일부라는 인식을 줍니다.
+2. **Lakeflow 브랜드 통합**: 수집(Connect), 변환(SDP), 오케스트레이션(Jobs)을 하나의 Lakeflow 제품군으로 묶어 데이터 엔지니어링 전체 라이프사이클을 어필합니다.
+3. **Delta Lake 의존성 완화**: 향후 Iceberg 등 다른 테이블 포맷도 지원할 수 있는 확장성을 확보합니다.
+
+> ⚠️ **실무 참고**: 기존 DLT 파이프라인 코드는 SDP에서 **100% 호환**됩니다. `dlt` 패키지가 `pyspark.pipelines`로 변경되었으나, 기존 `import dlt`도 계속 동작합니다. API 변경 사항은 마이그레이션 가이드를 참고하세요.
+
+---
+
+## SDP vs Apache Airflow 비교
+
+데이터 파이프라인을 구축할 때 Apache Airflow와 SDP 중 어떤 것을 선택할지 고민하는 경우가 많습니다. 두 도구는 **해결하는 문제 자체가 다릅니다**.
+
+| 비교 항목 | SDP | Apache Airflow |
+|-----------|-----|---------------|
+| **역할** | 데이터 **변환(Transformation)** 프레임워크 | 워크플로 **오케스트레이션(Orchestration)** 도구 |
+| **추상화 수준** | "무엇을(What)" 만들지 선언 | "어떻게(How)" 실행할지 명령 |
+| **데이터 품질** | Expectations 내장 | 별도 프레임워크 필요 (Great Expectations 등) |
+| **증분 처리** | 자동 (체크포인트, 스키마 진화) | 수동 구현 (변경 감지 로직 직접 작성) |
+| **의존성 관리** | SQL/Python 참조에서 자동 추론 | DAG에서 명시적으로 정의 |
+| **스케일링** | 자동 (Enhanced Autoscaling) | Executor 설정 수동 관리 |
+| **비용 모델** | Serverless DBU (사용한 만큼) | Airflow 인프라 상시 운영 비용 |
+| **모니터링** | 이벤트 로그, 시스템 테이블 내장 | Airflow UI + 외부 모니터링 도구 |
+| **외부 시스템 연동** | 제한적 (Databricks 생태계 중심) | 풍부한 Operator/Hook 생태계 |
+
+**실무에서의 올바른 조합:**
+
+```
+SDP (변환) + Lakeflow Jobs (오케스트레이션) = Databricks 네이티브 스택
+SDP (변환) + Airflow (오케스트레이션) = 하이브리드 스택 (기존 Airflow 투자 보존)
+```
+
+> 💡 **SA 관점**: 고객이 이미 Airflow를 사용 중이라면, Airflow에서 SDP 파이프라인을 트리거하는 하이브리드 패턴을 권장합니다. `DatabricksSubmitRunOperator`로 SDP 파이프라인 업데이트를 시작할 수 있습니다. 장기적으로는 Lakeflow Jobs로 마이그레이션하면 관리 포인트가 줄어듭니다.
+
+---
+
+## Enhanced Autoscaling 동작 원리
+
+SDP는 일반 Spark 클러스터의 오토스케일링과 다른 **Enhanced Autoscaling** 알고리즘을 사용합니다. 이 차이를 이해하면 비용 최적화에 큰 도움이 됩니다.
+
+### 일반 Spark 오토스케일링 vs Enhanced Autoscaling
+
+| 비교 항목 | 일반 Spark Autoscaling | SDP Enhanced Autoscaling |
+|-----------|----------------------|-------------------------|
+| **스케일 업 기준** | 대기 중인 태스크 수 | 파이프라인 DAG 분석 + 데이터 볼륨 예측 |
+| **스케일 다운** | 유휴 Worker 감지 (보수적) | Flow 완료 시 즉시 축소 (공격적) |
+| **파이프라인 인식** | 없음 (태스크 단위) | 있음 (Flow/테이블 단위) |
+| **비용 효율** | 보통 | 높음 (유휴 시간 최소화) |
+
+### Enhanced Autoscaling의 핵심 동작
+
+```
+파이프라인 시작
+  ├── Phase 1: Bronze 테이블 처리 (데이터 양 분석 → Worker 10대 할당)
+  ├── Phase 2: Silver 테이블 처리 (의존성 충족 대기 → Worker 5대로 축소)
+  ├── Phase 3: Gold 테이블 처리 (집계 중심 → Worker 3대로 축소)
+  └── 완료: 모든 Worker 해제
+```
+
+Enhanced Autoscaling은 각 Flow의 **데이터 볼륨과 처리 복잡도를 사전 분석**하여 필요한 만큼만 Worker를 할당합니다. 일반 오토스케일링처럼 "느린 반응 → 과다 할당 → 느린 축소" 패턴이 발생하지 않습니다.
+
+> 💡 **비용 영향**: Enhanced Autoscaling은 동일 워크로드 대비 일반 Spark 클러스터보다 **20~40% 낮은 DBU 소비**를 보이는 것이 일반적입니다. 특히 다수의 Flow가 순차적으로 실행되는 파이프라인에서 차이가 두드러집니다.
+
+---
+
+## Triggered vs Continuous 모드 — 성능/비용 심층 분석
+
+### Triggered 모드 상세
+
+| 속성 | 설명 |
+|------|------|
+| **동작** | 업데이트 요청 시 모든 Flow를 한 번 실행하고 종료합니다 |
+| **리소스** | 실행 중에만 컴퓨트 할당, 완료 후 해제됩니다 |
+| **지연 시간** | 스케줄 간격 + 컴퓨트 시작 시간 (서버리스: ~10초, Classic: 5~10분) |
+| **비용 패턴** | 실행 시에만 과금. 간헐적 워크로드에 경제적입니다 |
+| **적합한 경우** | 시간/일 단위 배치 ETL, 비용 민감한 환경, 데이터 신선도 요구가 낮은 경우 |
+
+### Continuous 모드 상세
+
+| 속성 | 설명 |
+|------|------|
+| **동작** | 클러스터가 상시 실행되며, 새 데이터가 도착하면 즉시 처리합니다 |
+| **리소스** | 최소 Worker가 항상 할당되어 있습니다 |
+| **지연 시간** | 초~분 단위 (데이터 도착 후 거의 즉시 처리) |
+| **비용 패턴** | 24/7 과금. 유휴 시간에도 최소 비용이 발생합니다 |
+| **적합한 경우** | 실시간 대시보드, IoT 이벤트 처리, 저지연 요구사항 |
+
+### 비용 시뮬레이션 예시
+
+```
+시나리오: 일 4회 실행, 회당 15분 소요, 10 DBU/시간
+
+Triggered 모드:
+  4회 × 15분 × 10 DBU/시간 = 10 DBU/일 = 300 DBU/월
+
+Continuous 모드:
+  24시간 × 10 DBU/시간 = 240 DBU/일 = 7,200 DBU/월
+  (→ Triggered 대비 24배 비용!)
+
+손익 분기점: 하루 약 16회 이상 실행 시 Continuous가 유리
+  (단, 실시간 처리의 비즈니스 가치를 별도 평가해야 합니다)
+```
+
+### `pipelines.trigger.interval` 설정
+
+Triggered 모드에서 이 설정은 **파이프라인 내부 마이크로배치 간격**을 제어합니다. Continuous 모드에서는 새 데이터 폴링 간격을 의미합니다.
+
+```yaml
+configuration:
+  "pipelines.trigger.interval": "5 minutes"   # 5분마다 새 데이터 확인
+```
+
+> ⚠️ **Gotcha**: `pipelines.trigger.interval`은 Lakeflow Jobs의 스케줄과 다릅니다. Jobs 스케줄은 "파이프라인 업데이트를 언제 시작할지"를 제어하고, `trigger.interval`은 "실행 중인 파이프라인 내에서 얼마나 자주 새 데이터를 확인할지"를 제어합니다.
+
+---
+
+## 서버리스 SDP — 장점과 한계
+
+### 서버리스 SDP의 장점
+
+| 장점 | 설명 |
+|------|------|
+| **즉시 시작** | 클러스터 프로비저닝 대기 없이 ~10초 이내 시작합니다 |
+| **자동 스케일링** | Enhanced Autoscaling이 기본 적용됩니다 |
+| **제로 관리** | DBR 버전, 라이브러리, 패치 관리가 불필요합니다 |
+| **비용 효율** | 실행 시간에 대해서만 정확히 과금됩니다 |
+
+### 서버리스 SDP의 한계와 주의사항
+
+| 한계 | 상세 설명 | 대안 |
+|------|----------|------|
+| **커스텀 라이브러리 제한** | PyPI 패키지만 설치 가능, C 확장이 있는 라이브러리는 제한적 | Classic 클러스터 + init script |
+| **Init Script 미지원** | 클러스터 초기화 스크립트를 사용할 수 없습니다 | Classic 클러스터 사용 |
+| **네트워크 제한** | 외부 네트워크 접근이 제한될 수 있습니다 (VPC/VNet Peering 불가) | Classic + VPC Peering |
+| **GPU 미지원** | GPU 인스턴스를 지정할 수 없습니다 | Classic 클러스터 + GPU |
+| **리전 제한** | 일부 리전에서는 서버리스가 미지원입니다 | Classic 클러스터 사용 |
+| **DBU 단가** | 서버리스 DBU 단가가 Classic보다 높습니다 (~1.5~2배) | 장시간 실행 시 Classic이 저렴할 수 있음 |
+| **실행 시간 제한** | 단일 업데이트의 최대 실행 시간이 48시간입니다 | 워크로드 분할 |
+
+### Classic vs Serverless SDP 선택 가이드
+
+```
+서버리스 SDP를 선택하세요:
+  ✅ 파이프라인 실행 시간이 짧은 경우 (< 2시간)
+  ✅ 간헐적으로 실행되는 배치 ETL
+  ✅ 특별한 라이브러리/네트워크 요구사항이 없는 경우
+  ✅ 빠른 개발 반복이 필요한 경우
+
+Classic SDP를 선택하세요:
+  ✅ 외부 네트워크 접근이 필요한 경우 (DB 직접 연결 등)
+  ✅ GPU가 필요한 ML 파이프라인
+  ✅ 커스텀 C 라이브러리가 필요한 경우
+  ✅ 매우 긴 실행 시간 (> 8시간, Spot 인스턴스 활용 시 비용 유리)
+```
+
+---
+
+## 엔터프라이즈 패턴과 실무 가이드
+
+### 파이프라인 분리 전략
+
+대규모 환경에서는 파이프라인을 어떻게 분리할지가 중요한 아키텍처 결정입니다.
+
+| 패턴 | 설명 | 장점 | 단점 |
+|------|------|------|------|
+| **단일 파이프라인** | 모든 테이블을 하나의 파이프라인에서 관리 | 의존성 관리 용이 | 장애 시 전체 영향, 대규모에서 느림 |
+| **레이어별 분리** | Bronze/Silver/Gold를 별도 파이프라인으로 분리 | 독립적 스케줄, 장애 격리 | 파이프라인 간 의존성 관리 필요 |
+| **도메인별 분리** | 비즈니스 도메인(주문, 고객, 재고)별 파이프라인 | 팀별 독립 운영, 확장 용이 | 도메인 간 조인이 필요한 Gold 처리 복잡 |
+| **하이브리드** | 수집(Bronze)은 통합, 변환(Silver/Gold)은 도메인별 | 균형 잡힌 접근 | 설계 복잡도 증가 |
+
+> 💡 **SA 권장 패턴**: 대부분의 엔터프라이즈 고객에게는 **하이브리드 패턴**을 권장합니다. Bronze 레이어는 중앙 데이터 엔지니어링 팀이 관리하고, Silver/Gold는 각 도메인 팀이 독립적으로 운영하는 구조가 가장 효과적입니다.
+
+### Expectations 고급 활용
+
+```sql
+-- 단일 규칙: NULL 체크
+CONSTRAINT valid_id EXPECT (order_id IS NOT NULL) ON VIOLATION DROP ROW
+
+-- 비율 기반 규칙: 95% 이상 통과해야 함
+CONSTRAINT valid_amount EXPECT (amount > 0) ON VIOLATION DROP ROW
+
+-- 치명적 규칙: 위반 시 파이프라인 실패
+CONSTRAINT critical_date EXPECT (order_date IS NOT NULL) ON VIOLATION FAIL UPDATE
+
+-- 복합 규칙
+CONSTRAINT valid_status EXPECT (status IN ('pending', 'completed', 'cancelled'))
+    ON VIOLATION DROP ROW
+```
+
+**Expectations 전략:**
+
+| 전략 | 적용 위치 | ON VIOLATION |
+|------|----------|-------------|
+| **데이터 존재성** | Bronze → Silver | DROP ROW (불량 데이터 제거) |
+| **비즈니스 규칙** | Silver → Gold | DROP ROW (비즈니스 로직 위반 제거) |
+| **치명적 이상** | 전체 레이어 | FAIL UPDATE (파이프라인 중단) |
+| **통계적 이상** | Gold | 별도 모니터링 (Lakehouse Monitor) |
+
+### 성능 최적화 팁
+
+1. **소스 파일 수 최적화**: 파이프라인당 소스 파일을 50개 이하로 유지합니다. 파일이 많으면 DAG 분석 시간이 증가합니다.
+2. **Streaming Table 우선 사용**: 가능하면 Materialized View 대신 Streaming Table을 사용합니다. 증분 처리가 훨씬 효율적입니다.
+3. **Photon 활성화**: SDP는 Photon 엔진과 결합 시 SQL 변환 성능이 2~5배 향상됩니다.
+4. **APPLY CHANGES 최적화**: CDC 처리 시 `KEYS`를 적절히 지정하고, `SEQUENCE BY`를 사용하여 순서를 보장합니다.
+5. **Partition Pruning**: 날짜 기반 파티셔닝을 적용하면 증분 처리 효율이 높아집니다.
+
+---
+
 ## 정리
 
 | 핵심 개념 | 설명 |
@@ -216,6 +435,8 @@ ORDER BY timestamp DESC;
 | **Flow** | 소스→타겟 데이터 이동 단위입니다 (Append, CDC) |
 | **Expectations** | 데이터 품질 규칙을 선언적으로 정의합니다 |
 | **Triggered/Continuous** | 배치 또는 실시간 실행 모드를 선택합니다 |
+| **Enhanced Autoscaling** | DAG 인식 기반 자동 스케일링으로 비용을 최적화합니다 |
+| **서버리스 SDP** | 즉시 시작, 제로 관리이지만 네트워크/라이브러리 제약이 있습니다 |
 
 ---
 
