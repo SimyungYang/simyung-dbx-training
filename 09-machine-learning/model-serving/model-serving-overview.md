@@ -244,6 +244,230 @@ ORDER BY day DESC;
 
 ---
 
+## 심화: 프로덕션 Model Serving 운영
+
+이 섹션에서는 프로덕션 환경에서 Model Serving을 운영할 때 알아야 할 지연시간 특성, 비용 최적화, 배포 전략, 캐싱, 멀티 리전 패턴을 다룹니다.
+
+### 지연시간 특성 (Latency Profile)
+
+#### Foundation Model API
+
+| 메트릭 | Pay-per-token | Provisioned Throughput |
+|--------|---------------|----------------------|
+| **p50 지연시간** | 200~500ms (짧은 응답) | 100~300ms |
+| **p99 지연시간** | 1~5초 | 500ms~2초 |
+| **TTFT (Time to First Token)** | 100~300ms | 50~150ms |
+| **처리량** | 공유 풀, 변동 가능 | 예약 처리량 보장 |
+| **콜드스타트** | 없음 (항상 가동) | 없음 (항상 가동) |
+
+> 💡 **TTFT(Time to First Token)** 란 요청 후 첫 번째 토큰이 생성되기까지의 시간입니다. Streaming 응답에서 사용자 체감 속도에 직접 영향을 줍니다.
+
+#### Custom Model Endpoint
+
+| 상태 | 지연시간 | 설명 |
+|------|---------|------|
+| **Warm (Scale > 0)** | p50: 10~100ms, p99: 200~500ms | 인스턴스가 가동 중 |
+| **Cold Start (Scale-to-Zero)** | **30초~3분** | 컨테이너 시작 + 모델 로딩 + 헬스체크 |
+| **GPU Cold Start** | **1~5분** | GPU 할당 + CUDA 초기화 + 대형 모델 로딩 |
+
+> ⚠️ **Gotcha — Scale-to-Zero 콜드스타트**: Scale-to-Zero를 활성화하면 유휴 시 비용을 절약할 수 있지만, 첫 요청 시 30초~수 분의 콜드스타트가 발생합니다. **프로덕션 실시간 서빙에서는 Scale-to-Zero를 비활성화**하는 것이 일반적입니다. 개발/스테이징 환경에서만 활성화하세요.
+
+> ⚠️ **Gotcha — 모델 크기와 콜드스타트**: 모델 아티팩트가 클수록(예: PyTorch 모델 5GB+) 콜드스타트 시간이 길어집니다. MLflow 로깅 시 모델을 최적화(ONNX 변환, 양자화)하면 로딩 시간을 단축할 수 있습니다.
+
+---
+
+### 비용 최적화 전략
+
+#### Pay-per-token vs Provisioned Throughput 손익분기점
+
+```
+월간 비용 비교 (Llama 3.3 70B 기준, 예시):
+
+Pay-per-token:
+  - 입력: $0.24 / 1M tokens
+  - 출력: $0.24 / 1M tokens
+  - 월 1억 토큰 사용 시: ~$24/월
+
+Provisioned Throughput:
+  - 1 단위: ~$6~8/시간 (모델, 리전에 따라 다름)
+  - 24/7 운영: ~$4,300~5,800/월
+  - 손익분기점: 대략 월 1.5~2억 토큰 이상 사용 시 Provisioned가 유리
+```
+
+| 사용 패턴 | 권장 과금 모델 | 이유 |
+|-----------|--------------|------|
+| 프로토타이핑, 불규칙 사용 | Pay-per-token | 사용한 만큼만 과금 |
+| 일 1,000건 이하 요청 | Pay-per-token | 고정 비용 대비 사용량 적음 |
+| 일 10,000건+ 안정적 트래픽 | Provisioned Throughput | 예측 가능한 비용, 안정적 지연시간 |
+| 배치 추론 (대량 처리) | Pay-per-token + Batch Inference | 서빙 엔드포인트 대신 배치 추론 사용 |
+
+#### Custom Model 비용 최적화
+
+```python
+# 비용 최적화된 엔드포인트 설정
+w.serving_endpoints.create(
+    name="fraud-detection-prod",
+    config=EndpointCoreConfigInput(
+        served_entities=[ServedEntityInput(
+            entity_name="catalog.schema.fraud_model",
+            entity_version="3",
+            workload_size="Small",          # 필요한 최소 사이즈 선택
+            scale_to_zero_enabled=False,    # 프로덕션: 콜드스타트 방지
+            workload_type="CPU",            # GPU가 불필요하면 CPU 사용
+            min_provisioned_throughput=0,
+            max_provisioned_throughput=1000  # 최대 처리량 제한으로 비용 상한 설정
+        )]
+    )
+)
+```
+
+| 최적화 전략 | 절감 효과 | 트레이드오프 |
+|------------|----------|------------|
+| **Scale-to-Zero** (dev/staging) | 유휴 시 100% 절감 | 콜드스타트 30초~3분 |
+| **CPU 사용** (전통 ML) | GPU 대비 70~90% 절감 | 딥러닝 모델은 추론 속도 저하 |
+| **Small 사이즈** | Large 대비 ~75% 절감 | 동시 요청 처리량 감소 |
+| **배치 추론 활용** | 서빙 대비 50~80% 절감 | 실시간 응답 불가 |
+
+> ⚠️ **Gotcha — GPU 선택**: Custom Model에 GPU를 선택하면 비용이 10배 이상 증가합니다. scikit-learn, XGBoost, LightGBM 등 전통 ML 모델은 CPU로 충분합니다. GPU는 PyTorch/TensorFlow 딥러닝 모델이나 Fine-tuned LLM에만 사용하세요.
+
+---
+
+### 프로덕션 배포 패턴
+
+#### Canary 배포 단계별 가이드
+
+Canary 배포는 새 모델 버전을 **소량의 트래픽으로 먼저 검증**한 후, 점진적으로 트래픽을 늘리는 전략입니다.
+
+```python
+# Step 1: Canary 시작 — 새 버전에 5% 트래픽 할당
+w.serving_endpoints.update_config(
+    name="fraud-detection-prod",
+    served_entities=[
+        ServedEntityInput(name="v3-champion", entity_name="catalog.schema.fraud_model",
+                          entity_version="3", workload_size="Small"),
+        ServedEntityInput(name="v4-canary", entity_name="catalog.schema.fraud_model",
+                          entity_version="4", workload_size="Small"),
+    ],
+    traffic_config={"routes": [
+        {"served_model_name": "v3-champion", "traffic_percentage": 95},
+        {"served_model_name": "v4-canary", "traffic_percentage": 5},
+    ]}
+)
+
+# Step 2: 24시간 모니터링 후 문제 없으면 → 25%로 증가
+# Step 3: 48시간 모니터링 후 문제 없으면 → 50%로 증가
+# Step 4: 안정 확인 후 → 100%로 전환 (이전 버전 제거)
+```
+
+#### 모니터링 기준 (Canary 판단)
+
+| 메트릭 | 정상 범위 | 롤백 기준 |
+|--------|----------|----------|
+| **p99 지연시간** | 기존 버전 대비 ±20% | 50% 이상 증가 |
+| **에러율** | < 0.1% | 0.5% 초과 |
+| **모델 정확도** | 기존 버전 대비 ±2% | 5% 이상 하락 |
+| **메모리 사용량** | 안정적 (증가 추세 없음) | 지속적 증가 (메모리 누수) |
+
+#### 롤백 전략
+
+```python
+# 즉시 롤백: 이전 버전으로 100% 트래픽 전환
+w.serving_endpoints.update_config(
+    name="fraud-detection-prod",
+    served_entities=[
+        ServedEntityInput(name="v3-champion", entity_name="catalog.schema.fraud_model",
+                          entity_version="3", workload_size="Small"),
+    ],
+    traffic_config={"routes": [
+        {"served_model_name": "v3-champion", "traffic_percentage": 100},
+    ]}
+)
+# 롤백 소요시간: 트래픽 설정 변경은 ~30초 이내 반영
+```
+
+> ⚠️ **Gotcha — 블루/그린 배포**: 블루/그린 방식으로 완전히 새로운 엔드포인트를 생성하여 전환하는 것도 가능하지만, **엔드포인트 URL이 변경**되므로 클라이언트 측 수정이 필요합니다. Traffic Split 방식의 Canary 배포가 더 실용적입니다.
+
+---
+
+### 추론 캐싱과 Prompt Caching
+
+#### AI Gateway Prompt Caching
+
+Foundation Model API와 External Model Endpoint에서 **동일한 프롬프트에 대한 응답을 캐싱**하여 비용과 지연시간을 줄일 수 있습니다.
+
+| 캐싱 유형 | 설명 | 효과 |
+|-----------|------|------|
+| **Exact Match Cache** | 완전히 동일한 요청에 대해 캐시된 응답 반환 | 지연시간 ~10ms, 토큰 비용 0 |
+| **KV Cache (Provisioned)** | 긴 시스템 프롬프트의 KV Cache를 재사용 | TTFT 50~80% 감소 |
+
+```python
+# 캐싱 활성화 (AI Gateway 설정)
+# temperature=0으로 설정하면 캐시 적중률이 높아집니다
+response = client.predict(
+    endpoint="databricks-meta-llama-3-3-70b-instruct",
+    inputs={
+        "messages": [
+            {"role": "system", "content": "...긴 시스템 프롬프트..."},
+            {"role": "user", "content": "매출 요약해줘"}
+        ],
+        "temperature": 0  # 결정적 응답 → 캐시 적중률 ↑
+    }
+)
+```
+
+> ⚠️ **Gotcha**: `temperature > 0`이면 동일 입력에도 다른 출력이 나오므로 Exact Match Cache의 효과가 제한적입니다. 캐싱을 적극 활용하려면 `temperature=0`을 사용하세요.
+
+---
+
+### 멀티 리전 서빙
+
+대규모 글로벌 서비스에서는 지연시간 최적화와 장애 대응을 위해 멀티 리전 아키텍처를 고려해야 합니다.
+
+#### 패턴 1: DNS 기반 지역 라우팅
+
+```
+사용자 (한국) → Azure Korea Central Workspace → 해당 리전 엔드포인트
+사용자 (미국) → AWS us-east-1 Workspace → 해당 리전 엔드포인트
+```
+
+- 각 리전에 동일한 모델을 배포한 엔드포인트를 운영합니다
+- DNS 또는 API Gateway(예: AWS API Gateway, Azure Front Door)로 가까운 리전으로 라우팅합니다
+- MLflow Model Registry에서 동일 모델 버전을 관리하여 일관성을 보장합니다
+
+#### 패턴 2: Failover 구성
+
+```python
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+ENDPOINTS = [
+    "https://primary-workspace.cloud.databricks.com/serving-endpoints/model/invocations",
+    "https://secondary-workspace.cloud.databricks.com/serving-endpoints/model/invocations",
+]
+
+def predict_with_failover(payload, headers):
+    for endpoint in ENDPOINTS:
+        try:
+            response = requests.post(endpoint, json=payload, headers=headers, timeout=5)
+            if response.status_code == 200:
+                return response.json()
+        except (requests.Timeout, requests.ConnectionError):
+            continue  # 다음 엔드포인트로 Failover
+    raise Exception("All endpoints failed")
+```
+
+| 고려 사항 | 설명 |
+|-----------|------|
+| **모델 동기화** | 양쪽 리전에 동일 버전의 모델이 배포되어야 합니다 |
+| **데이터 일관성** | Feature Store 데이터가 리전 간 동기화되어야 합니다 |
+| **비용** | 두 리전 모두 엔드포인트를 유지하므로 비용이 2배 |
+| **Inference Table** | 각 리전별로 별도 Inference Table이 생성됩니다 |
+
+> ⚠️ **Gotcha**: Databricks의 Model Serving은 **단일 워크스페이스 내에서만** 서빙됩니다. 멀티 리전 구성을 위해서는 각 리전에 별도 워크스페이스와 엔드포인트를 구성해야 하며, 모델 배포 파이프라인도 멀티 리전을 지원하도록 설계해야 합니다.
+
+---
+
 ## 정리
 
 | 엔드포인트 유형 | 용도 | 과금 |

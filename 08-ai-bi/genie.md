@@ -142,6 +142,205 @@ Genie는 Unity Catalog의 권한 체계를 그대로 따릅니다.
 
 ---
 
+## 심화: Genie 엔터프라이즈 운영
+
+이 섹션에서는 Genie를 전사적으로 도입할 때 필요한 품질 관리, 성능 특성, 보안 패턴, 지속적 개선 프로세스를 다룹니다.
+
+### 품질 관리 — 할루시네이션과 정확도
+
+Genie는 LLM 기반이므로, 잘못된 SQL을 생성하는 **할루시네이션(Hallucination)** 이 발생할 수 있습니다. 프로덕션 환경에서는 체계적인 품질 관리가 필수입니다.
+
+#### 할루시네이션 유형
+
+| 유형 | 예시 | 영향 |
+|------|------|------|
+| **존재하지 않는 컬럼/테이블 참조** | `SELECT revenue FROM sales` (실제 컬럼명: `total_amount`) | SQL 오류 → 사용자에게 오류 메시지 |
+| **잘못된 비즈니스 로직** | "순매출"을 `SUM(amount)`으로 계산 (정확: 매출-반품-할인) | **위험!** 잘못된 숫자가 표시됨 |
+| **잘못된 조인** | 관련 없는 테이블을 조인하여 카디널리티 폭발 | 부정확한 결과 + 높은 비용 |
+| **집계 함수 오용** | COUNT 대신 SUM, AVG 대신 MEDIAN | 미묘하게 다른 결과 |
+
+#### Trusted Assets로 품질 보장
+
+인증된 답변(Trusted Assets)은 Genie의 품질 문제에 대한 가장 강력한 방어 수단입니다.
+
+```
+권장 운영 전략:
+
+1. 핵심 KPI (매출, DAU, 이탈률 등)
+   → 반드시 Trusted Assets 등록 (정확도 100% 보장)
+
+2. 자주 묻는 질문 Top 20
+   → Trusted Assets 등록 (80/20 법칙 적용)
+
+3. 탐색적 질문
+   → Genie AI가 생성 (지시사항으로 가이드)
+   → 사용자가 SQL 검증 후 사용
+```
+
+#### 테스트 패턴
+
+```python
+# Genie Space 품질 테스트 자동화 예시
+test_cases = [
+    {
+        "question": "이번 달 총 매출은?",
+        "expected_columns": ["total_revenue"],
+        "expected_range": (1_000_000, 1_000_000_000),  # 합리적 범위
+        "must_contain_table": "gold.daily_revenue"
+    },
+    {
+        "question": "VIP 고객 수는?",
+        "expected_columns": ["customer_count"],
+        "expected_sql_contains": "tier IN ('Gold', 'Platinum')",  # 비즈니스 로직 확인
+    },
+]
+
+# Genie API로 자동 테스트 (SDK 활용)
+from databricks.sdk import WorkspaceClient
+w = WorkspaceClient()
+
+for tc in test_cases:
+    # Genie Space에 질문 전송
+    response = w.genie.start_conversation(
+        space_id="<genie-space-id>",
+        content=tc["question"]
+    )
+    # 생성된 SQL 검증
+    generated_sql = response.attachments[0].query.query
+    assert tc["must_contain_table"] in generated_sql, f"잘못된 테이블 참조: {generated_sql}"
+```
+
+> ⚠️ **Gotcha — Genie의 SQL은 매번 달라질 수 있습니다**: 동일한 질문에도 LLM의 특성상 미묘하게 다른 SQL이 생성될 수 있습니다. 테스트 시 정확한 SQL 문자열 매칭보다는 **결과 값의 범위 검증**, **필수 테이블/컬럼 포함 여부** 등으로 검증하세요.
+
+---
+
+### 성능 특성
+
+| 메트릭 | 일반적인 범위 | 설명 |
+|--------|-------------|------|
+| **응답 지연시간 (p50)** | 3~8초 | 질문 해석 + SQL 생성 + 쿼리 실행 |
+| **응답 지연시간 (p99)** | 15~30초 | 복잡한 질문, 대규모 테이블 |
+| **SQL 생성 시간** | 2~5초 | LLM이 SQL을 생성하는 시간 |
+| **쿼리 실행 시간** | 1~25초 | SQL Warehouse에서 실행 (데이터 규모에 따라 다름) |
+| **동시 사용자** | Space당 권장 20~30명 | 초과 시 SQL Warehouse 큐잉 발생 |
+
+#### 성능 최적화 팁
+
+| 방법 | 효과 | 설명 |
+|------|------|------|
+| **Gold 테이블 사용** | 쿼리 시간 50~90% 감소 | 사전 집계된 테이블은 조인/집계가 불필요 |
+| **테이블 수 제한** | SQL 생성 정확도 향상 | Space당 5~10개 테이블 권장. 너무 많으면 LLM 혼란 |
+| **컬럼 설명 추가** | SQL 정확도 향상 | LLM이 컬럼 의미를 정확히 파악 |
+| **Serverless Warehouse** | 콜드스타트 감소 | 첫 쿼리 실행까지 대기 시간 최소화 |
+
+> ⚠️ **Gotcha — 테이블 수와 정확도의 반비례**: Genie Space에 20개 이상의 테이블을 등록하면, LLM이 적절한 테이블을 선택하는 정확도가 떨어집니다. **도메인별로 별도 Genie Space**를 만들고, 각 Space에는 관련 테이블만 등록하세요.
+
+---
+
+### 엔터프라이즈 패턴
+
+#### 부서별 Genie Space 분리
+
+```
+전사 Genie 아키텍처:
+
+[경영진 Genie Space]
+  - 테이블: gold.executive_summary, gold.kpi_monthly
+  - 지시사항: 경영 지표 중심, 한국어 답변
+  - 사용자: C-Level, VP
+
+[영업팀 Genie Space]
+  - 테이블: gold.sales_pipeline, gold.customer_360
+  - 지시사항: 영업 용어 정의, 파이프라인 단계 설명
+  - 사용자: 영업 담당자
+
+[마케팅팀 Genie Space]
+  - 테이블: gold.campaign_performance, gold.customer_segments
+  - 지시사항: 캠페인 관련 용어, 전환율 계산 방법
+  - 사용자: 마케터
+
+[재무팀 Genie Space]
+  - 테이블: gold.financial_ledger, gold.budget_vs_actual
+  - 지시사항: 회계 용어, 기간 구분 규칙
+  - 사용자: 재무팀
+```
+
+#### 데이터 보안 — UC Row Filter/Column Mask 연동
+
+Genie는 Unity Catalog의 보안 정책을 그대로 상속합니다. Row Filter와 Column Mask를 설정하면 Genie에서도 동일하게 적용됩니다.
+
+```sql
+-- 행 필터: 사용자가 담당하는 지역의 데이터만 조회 가능
+CREATE FUNCTION gold.region_filter(region_col STRING)
+RETURN IF(
+    IS_ACCOUNT_GROUP_MEMBER('all-regions-access'),
+    TRUE,
+    region_col = CURRENT_USER_ATTRIBUTE('region')
+);
+
+ALTER TABLE gold.sales_data
+SET ROW FILTER gold.region_filter ON (region);
+
+-- 컬럼 마스크: 급여 컬럼을 HR 팀만 볼 수 있음
+CREATE FUNCTION gold.salary_mask(salary_col DECIMAL)
+RETURN IF(
+    IS_ACCOUNT_GROUP_MEMBER('hr-team'),
+    salary_col,
+    NULL
+);
+
+ALTER TABLE gold.employee_data
+SET COLUMN MASK gold.salary_mask ON salary;
+```
+
+> ⚠️ **Gotcha — Genie에서 보안 정책 우회 가능성**: Genie가 생성한 SQL에서 필터 조건을 교묘하게 구성하면, Row Filter를 논리적으로 우회하려는 시도가 가능합니다(예: "급여가 1억 이상인 직원이 있어?"라는 질문). UC의 Row Filter/Column Mask는 **SQL 레벨에서 강제 적용**되므로 기술적으로 우회는 불가능하지만, **SQL이 노출**되어 테이블/컬럼 이름 같은 메타데이터가 보일 수 있습니다. 민감한 테이블 이름을 사용하지 않도록 주의하세요.
+
+---
+
+### 피드백 루프 — 지속적 품질 개선
+
+Genie를 도입한 후에는 **사용자 피드백을 수집하고 지속적으로 개선**하는 프로세스가 필요합니다.
+
+#### 개선 사이클
+
+```
+[1] 사용자가 Genie에 질문
+    ↓
+[2] Genie가 SQL 생성 + 결과 반환
+    ↓
+[3] 사용자가 결과에 👍/👎 피드백
+    ↓
+[4] 관리자가 👎 피드백 분석
+    ↓
+[5-a] 반복적인 오류 → Trusted Asset 등록
+[5-b] 용어 문제 → 지시사항 보완
+[5-c] 데이터 문제 → 테이블/컬럼 설명 보완
+    ↓
+[6] 다음 주기에 동일 질문으로 검증
+```
+
+#### 피드백 분석 체크리스트
+
+| 피드백 유형 | 분석 방법 | 대응 |
+|------------|----------|------|
+| SQL 오류 | 생성된 SQL에 존재하지 않는 컬럼/테이블 | 지시사항에 정확한 컬럼명 명시 |
+| 잘못된 숫자 | 결과를 수동 쿼리와 비교 | Trusted Asset으로 검증된 SQL 등록 |
+| "모르겠습니다" 응답 | 질문과 등록된 테이블 매핑 확인 | 테이블 추가 또는 지시사항에 매핑 규칙 추가 |
+| 느린 응답 | 생성된 SQL의 실행 계획 분석 | Gold 테이블 추가, 인덱싱 개선 |
+
+#### 운영 지표 모니터링
+
+| 지표 | 목표 | 측정 방법 |
+|------|------|----------|
+| **질문 성공률** | > 85% | (응답 반환 횟수 / 전체 질문 수) |
+| **사용자 만족도** | > 70% 👍 | (👍 수 / 전체 피드백 수) |
+| **Trusted Asset 적중률** | > 40% | (Trusted Asset 사용 횟수 / 전체 질문 수) |
+| **평균 응답 시간** | < 10초 | SQL 생성 시간 + 쿼리 실행 시간 |
+
+> ⚠️ **Gotcha — 초기 도입 시 기대 관리**: Genie 도입 초기에는 지시사항과 Trusted Asset이 부족하여 정확도가 낮을 수 있습니다(50~60%). **최소 2~4주의 튜닝 기간**을 계획하고, 초기에는 **파워 유저 그룹**(분석가, 데이터 엔지니어)과 함께 피드백을 수집하여 품질을 높인 후 전사 배포하세요.
+
+---
+
 ## 정리
 
 | 핵심 개념 | 설명 |
@@ -151,6 +350,8 @@ Genie는 Unity Catalog의 권한 체계를 그대로 따릅니다.
 | **인증된 답변** | 핵심 질문에 검증된 SQL을 매핑하여 정확도를 보장합니다 |
 | **지시사항** | 비즈니스 용어와 맥락을 Genie에게 제공합니다 |
 | **Unity Catalog 보안** | 데이터 권한이 Genie에도 동일하게 적용됩니다 |
+| **피드백 루프** | 사용자 피드백을 수집하여 지속적으로 품질을 개선합니다 |
+| **부서별 분리** | 도메인별 Genie Space로 정확도와 보안을 동시에 확보합니다 |
 
 ---
 

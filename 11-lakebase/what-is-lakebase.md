@@ -130,6 +130,153 @@ Lakebase의 가장 차별화된 기능은 **Data Sync**입니다.
 
 ---
 
+## 심화: Principal SA 레벨 아키텍처 및 운영 가이드
+
+### CAP 정리와 일관성 모델
+
+분산 시스템에서 **CAP 정리**(Consistency, Availability, Partition Tolerance)는 세 가지를 동시에 만족할 수 없다는 원칙입니다. Lakebase의 일관성 모델을 정확히 이해해야 합니다.
+
+> 💡 **CAP 정리**: 네트워크 파티션(장애)이 발생했을 때, 분산 시스템은 **일관성(Consistency)**과 **가용성(Availability)** 중 하나를 선택해야 합니다. 은행 시스템은 일관성을, SNS 피드는 가용성을 우선하는 것이 일반적입니다.
+
+| 구성 요소 | 일관성 모델 | 상세 |
+|----------|-----------|------|
+| **Lakebase (OLTP)** | **Strong Consistency** | PostgreSQL의 MVCC 기반. 쓰기 직후 읽기에서 최신 값을 보장합니다. SERIALIZABLE 격리 수준까지 지원합니다 |
+| **Data Sync (OLTP→OLAP)** | **Eventual Consistency** | CDC 기반 비동기 복제. 수 초~수십 초의 지연(lag)이 발생할 수 있습니다. 정확한 지연시간은 트랜잭션 볼륨에 비례합니다 |
+| **Delta Lake (OLAP)** | **Snapshot Isolation** | Data Sync로 반영된 시점의 일관된 스냅샷을 제공합니다. 동일 쿼리 내에서는 일관성이 보장됩니다 |
+
+```
+[Lakebase OLTP]  ──CDC 스트림──▶  [Data Sync]  ──Delta commit──▶  [Delta Lake OLAP]
+  Strong Consistency              수 초 지연 (Eventual)            Snapshot Isolation
+  (즉시 읽기 일관성)               (비동기 복제)                    (쿼리 내 일관성)
+```
+
+> ⚠️ **실무 주의**: OLTP에서 방금 INSERT한 데이터가 OLAP 대시보드에 즉시 나타나지 않을 수 있습니다. 고객에게 "거의 실시간(near real-time)"이라는 표현을 사용하고, **SLA로 정확한 지연시간을 약속하지 마세요**. 일반적으로 정상 부하에서 5~30초, 고부하 시 수 분의 지연이 발생할 수 있습니다.
+
+---
+
+### 성능 특성
+
+| 성능 지표 | 수치 | 비고 |
+|----------|------|------|
+| **읽기 지연시간** | 1~5ms (단순 PK 조회) | PostgreSQL과 동등한 수준. 인덱스 적용 시 |
+| **쓰기 지연시간** | 2~10ms (단건 INSERT) | 네트워크 지연 포함. 배치 INSERT는 throughput 우선 |
+| **동시 연결 수** | 최대 수백~수천 (인스턴스 크기에 따라) | PostgreSQL의 `max_connections`와 유사한 제한 |
+| **TPS (Transactions/sec)** | 수천~수만 TPS | 단순 쿼리 기준. 복잡한 조인은 성능 저하 |
+| **스토리지** | 최대 8TB 자동 확장 | 8TB 초과 시 수평 분할(sharding) 또는 아키텍처 재검토 필요 |
+
+#### 커넥션 풀링 전략
+
+PostgreSQL은 프로세스 기반이므로 동시 연결이 증가하면 메모리와 CPU 사용량이 급증합니다. 프로덕션 환경에서는 반드시 커넥션 풀링을 사용해야 합니다.
+
+```python
+# PgBouncer 또는 애플리케이션 레벨 풀링 권장
+from sqlalchemy import create_engine
+
+engine = create_engine(
+    "postgresql://user:token@lakebase-host:5432/mydb",
+    pool_size=20,          # 풀의 기본 연결 수
+    max_overflow=10,       # 초과 허용 연결 수
+    pool_timeout=30,       # 연결 대기 타임아웃 (초)
+    pool_recycle=1800,     # 연결 재활용 주기 (30분)
+    pool_pre_ping=True     # 사용 전 연결 유효성 검사
+)
+```
+
+| 풀링 전략 | 권장 설정 | 이유 |
+|----------|----------|------|
+| **pool_size** | 앱 인스턴스당 10~30 | Lakebase 인스턴스의 `max_connections` / 앱 인스턴스 수 |
+| **max_overflow** | pool_size의 50% | 트래픽 스파이크 대응 |
+| **pool_recycle** | 1800초 (30분) | 장시간 유휴 연결의 TCP 타임아웃 방지 |
+| **idle 연결 정리** | pool_pre_ping=True | 끊어진 연결을 자동 감지하여 재연결 |
+
+---
+
+### 비용 모델: 기존 서비스 대비 TCO 비교
+
+Lakebase의 비용은 **Lakebase 자체 비용 + Data Sync 비용**으로 구성됩니다.
+
+| 비용 항목 | Lakebase | AWS RDS PostgreSQL | Azure DB for PostgreSQL |
+|----------|---------|-------------------|----------------------|
+| **컴퓨트 (월, 중형 기준)** | DBU 기반 (Serverless 과금) | db.r6g.xlarge: ~$350/월 | GP_Gen5_4: ~$400/월 |
+| **스토리지 (1TB/월)** | 포함 (자동 확장) | gp3: ~$80/TB/월 | ~$115/TB/월 |
+| **Data Sync 추가 비용** | Delta Lake 동기화 DBU 소비 | ❌ (기능 없음) | ❌ (기능 없음) |
+| **ETL 파이프라인 비용** | ❌ (불필요) | 별도 구축 필요 ($500~2000/월) | 별도 구축 필요 |
+| **거버넌스 도구 비용** | ❌ (Unity Catalog 포함) | 별도 도구 필요 | 별도 도구 필요 |
+| **운영 인력** | 최소 (완전 관리형) | DBA 0.5~1명 필요 | DBA 0.5~1명 필요 |
+
+> 💡 **TCO 관점**: Lakebase 자체 비용만 보면 RDS와 유사하거나 약간 높을 수 있습니다. 그러나 **ETL 파이프라인 제거, 거버넌스 통합, 운영 부담 감소**를 포함하면 전체 TCO는 30~50% 절감됩니다. 특히 DBA 인건비(연 1억 원+)를 고려하면 경제성이 큽니다.
+
+---
+
+### 스키마 진화(Schema Evolution) 복잡성
+
+Lakebase에서 OLTP 스키마를 변경하면 Data Sync를 통해 Delta Lake에도 반영되어야 합니다. 이 과정에서 주의해야 할 사항이 있습니다.
+
+| 스키마 변경 유형 | OLTP 영향 | OLAP(Delta Lake) 반영 | 주의사항 |
+|---------------|----------|---------------------|---------|
+| **ADD COLUMN** | 즉시 반영 | Data Sync가 자동 반영 (Schema Evolution 지원) | 하위 호환. 안전합니다 |
+| **DROP COLUMN** | 즉시 반영 | Delta Lake에서 해당 컬럼이 NULL로 유지될 수 있음 | 하위 소비자 쿼리 확인 필요 |
+| **ALTER COLUMN TYPE** | 즉시 반영 | 타입 호환성에 따라 Data Sync 실패 가능 | INT→BIGINT는 안전, VARCHAR→INT는 위험 |
+| **RENAME COLUMN** | 즉시 반영 | Delta Lake에서 새 컬럼으로 인식될 수 있음 | 이름 변경 대신 새 컬럼 추가 + 기존 컬럼 deprecated 권장 |
+| **RENAME TABLE** | 즉시 반영 | Data Sync 재설정 필요할 수 있음 | 사전에 Data Sync 비활성화 → 변경 → 재활성화 |
+
+> ⚠️ **스키마 변경 프로토콜**: 프로덕션에서 스키마를 변경할 때는 (1) Data Sync 상태를 확인하고, (2) 하위 호환되는 변경만 수행하며, (3) OLAP 소비자(대시보드, ML 파이프라인)에 미리 공지하는 절차를 따르세요.
+
+---
+
+### 프로덕션 운영 패턴
+
+#### 패턴 1: 멀티 테넌트 격리
+
+SaaS 애플리케이션에서 테넌트별 데이터를 격리하는 전략입니다.
+
+| 격리 전략 | 구현 | 장점 | 단점 |
+|----------|------|------|------|
+| **DB 레벨 격리** | 테넌트별 Lakebase 인스턴스 | 완전 격리, 독립 스케일링 | 비용 높음, 관리 복잡 |
+| **스키마 레벨 격리** | 하나의 Lakebase 내 테넌트별 스키마 | 중간 격리, 비용 효율 | 스키마 수 증가 시 관리 부담 |
+| **Row 레벨 격리** | `tenant_id` 컬럼 + RLS(Row Level Security) | 비용 최소, 단순 | 쿼리에 항상 tenant_id 필터 필요, 실수 위험 |
+
+> 💡 **권장**: 테넌트 수가 100개 미만이고 규제 요건이 높으면 **스키마 레벨 격리**, 테넌트 수가 많고 데이터 규모가 작으면 **Row 레벨 격리**를 선택합니다.
+
+#### 패턴 2: 읽기 복제본 활용
+
+Lakebase의 Data Sync를 읽기 복제본처럼 활용할 수 있습니다.
+
+```
+[Lakebase OLTP]
+  ├─ 앱 읽기/쓰기 (PostgreSQL 프로토콜)
+  ├─ Data Sync → [Delta Lake] → DBSQL 분석 쿼리 (OLAP 읽기)
+  └─ Data Sync → [Delta Lake] → ML 학습 (대량 읽기)
+```
+
+| 읽기 패턴 | 경로 | 적합한 용도 |
+|----------|------|-----------|
+| **실시간 단건 조회** | Lakebase 직접 읽기 | 앱 API, 사용자 프로필 조회 |
+| **대량 분석 쿼리** | Delta Lake (via DBSQL) | 대시보드, 집계 리포트 |
+| **ML 학습 데이터** | Delta Lake (via Spark) | 배치 학습, Feature 생성 |
+
+> 💡 **핵심 이점**: 기존에는 OLTP DB에 분석 쿼리를 날리면 운영 DB가 느려지는 문제가 있었습니다. Lakebase + Data Sync 구조에서는 **분석 쿼리가 OLTP에 전혀 영향을 주지 않습니다**.
+
+#### 패턴 3: 장애 복구 (RTO/RPO)
+
+| 장애 시나리오 | RPO (데이터 손실) | RTO (복구 시간) | 복구 방법 |
+|-------------|-----------------|----------------|----------|
+| **단일 노드 장애** | 0 (손실 없음) | 수 초~수 분 | HA 자동 Failover |
+| **AZ 장애** | 0 (동기 복제 시) | 수 분 | Multi-AZ Failover |
+| **리전 장애** | 마지막 백업 시점까지 | 수 시간 | Point-in-Time Recovery (최대 35일) |
+| **논리적 오류 (잘못된 DELETE)** | 복구 시점까지 | 수 분~수 시간 | PITR로 특정 시점 복원 |
+| **전체 재해** | 마지막 백업 | 수 시간 | 백업에서 새 인스턴스 복원 |
+
+```sql
+-- Instant Branching을 활용한 빠른 복구 검증
+-- 프로덕션 데이터의 브랜치를 생성하여 복구 절차를 사전 검증합니다
+-- 브랜치 생성 → 복구 테스트 → 검증 → 브랜치 삭제
+```
+
+> ⚠️ **운영 권장사항**: (1) 정기적으로 PITR 복구를 테스트하세요 (분기 1회 권장). (2) Data Sync lag을 모니터링하여 비정상적 지연을 조기에 감지하세요. (3) Instant Branching을 활용하여 스키마 변경을 사전 검증하세요.
+
+---
+
 ## 정리
 
 | 핵심 기능 | 설명 |

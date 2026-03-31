@@ -216,6 +216,218 @@ DESCRIBE DETAIL catalog.schema.products;
 
 ---
 
+## 심화: Delta Lake 내부 구조와 동시성 제어
+
+이 섹션에서는 Principal SA 수준에서 알아야 할 Delta Lake의 내부 동작 원리, 동시성 제어 메커니즘, 대규모 테이블에서의 성능 이슈와 대응 방안을 다룹니다.
+
+### 트랜잭션 로그 내부 구조 — 액션(Action) 상세
+
+Delta Log의 각 JSON 커밋 파일은 하나 이상의 **액션(Action)** 으로 구성됩니다. 이 액션들이 Delta Lake의 모든 기능을 가능하게 하는 핵심 메커니즘입니다.
+
+| 액션 유형 | 설명 | 예시 |
+|-----------|------|------|
+| **Add** | 새로운 Parquet 파일이 테이블에 추가되었음을 기록합니다 | INSERT, UPDATE의 신규 파일 |
+| **Remove** | 기존 Parquet 파일이 논리적으로 제거되었음을 기록합니다 | DELETE, UPDATE의 기존 파일 제거 |
+| **CommitInfo** | 커밋 메타데이터(작업 유형, 사용자, 타임스탬프, 노트북 경로 등)를 기록합니다 | `{"operation": "MERGE", "operationMetrics": {...}}` |
+| **Metadata** | 테이블 스키마, 파티션 컬럼, 설정 변경을 기록합니다 | `ALTER TABLE SET TBLPROPERTIES` |
+| **Protocol** | 리더/라이터 프로토콜 버전을 기록합니다 | Reader v1, Writer v7 (Liquid Clustering 등) |
+| **SetTransaction** | 멱등 쓰기를 위한 트랜잭션 ID를 기록합니다 | Structured Streaming의 exactly-once 보장 |
+
+```json
+// _delta_log/00005.json 예시 (단순화)
+{
+  "add": {
+    "path": "part-00003-abc123.parquet",
+    "size": 52428800,
+    "modificationTime": 1711900800000,
+    "dataChange": true,
+    "stats": "{\"numRecords\":125000,\"minValues\":{\"order_date\":\"2025-01-01\"},\"maxValues\":{\"order_date\":\"2025-03-31\"},\"nullCount\":{\"order_date\":0}}"
+  }
+}
+{
+  "remove": {
+    "path": "part-00001-def456.parquet",
+    "deletionTimestamp": 1711900800000,
+    "dataChange": true
+  }
+}
+{
+  "commitInfo": {
+    "operation": "MERGE",
+    "operationParameters": {"predicate": "t.id = s.id"},
+    "readVersion": 4,
+    "operationMetrics": {"numTargetRowsUpdated": "3200", "numOutputRows": "128000"}
+  }
+}
+```
+
+#### 파일 통계(Stats)와 Data Skipping
+
+Add 액션에 포함된 `stats` 필드는 각 Parquet 파일의 **min/max 값**, **null 개수**, **레코드 수**를 담고 있습니다. 이 통계를 활용하여 쿼리 시 불필요한 파일을 건너뛰는 것이 **Data Skipping**입니다.
+
+```sql
+-- 이 쿼리는 order_date 범위에 해당하는 파일만 읽습니다
+SELECT * FROM catalog.schema.orders
+WHERE order_date BETWEEN '2025-03-01' AND '2025-03-31';
+-- Stats에서 max(order_date) < '2025-03-01'인 파일은 자동으로 건너뜀
+```
+
+> ⚠️ **Gotcha**: 기본적으로 통계는 **처음 32개 컬럼**에 대해서만 수집됩니다. 와이드 테이블(수백 개 컬럼)에서 33번째 이후 컬럼으로 필터링하면 Data Skipping이 동작하지 않습니다. `delta.dataSkippingNumIndexedCols` 속성으로 조정할 수 있지만, 너무 크게 설정하면 커밋 시 오버헤드가 증가합니다.
+
+> ⚠️ **Gotcha**: Stats는 **STRING 컬럼의 처음 32자**만 인덱싱합니다. 긴 문자열(URL, JSON 등)에 대한 Data Skipping은 효과가 제한적입니다. 이런 경우 Z-ORDER나 Liquid Clustering을 활용하세요.
+
+---
+
+### 쓰기 충돌 해결 (Write Conflict Resolution)
+
+Delta Lake는 **낙관적 동시성 제어(Optimistic Concurrency Control, OCC)** 를 사용합니다. 이는 "충돌이 드물 것"이라고 낙관적으로 가정하고, 충돌이 실제로 발생했을 때만 처리하는 방식입니다.
+
+#### 동작 원리
+
+```
+Writer A: 버전 5 읽기 → 변환 처리 (수 분) → 버전 6으로 커밋 시도 → ✅ 성공
+Writer B: 버전 5 읽기 → 변환 처리 (수 분) → 버전 6으로 커밋 시도 → ❌ 충돌!
+         → 버전 6 로그를 읽고 충돌 여부 판단 → 재시도 or ConflictException
+```
+
+1. 트랜잭션 시작 시 현재 테이블 버전(예: v5)을 읽습니다
+2. 데이터 변환 처리를 수행합니다
+3. 커밋 시, `_delta_log/00000000000000000006.json` 파일을 **원자적으로(atomically)** 생성합니다
+4. 다른 Writer가 이미 v6을 커밋했다면, 충돌이 발생합니다
+5. 충돌 발생 시, 새로 커밋된 로그를 읽어 **논리적 충돌**이 있는지 확인합니다
+
+#### ConflictException 발생 조건
+
+모든 동시 쓰기가 충돌하는 것은 아닙니다. Delta Lake는 **실제로 같은 파일/파티션에 영향을 주는 경우**에만 충돌로 판단합니다.
+
+| 작업 조합 | 충돌 여부 | 설명 |
+|-----------|-----------|------|
+| INSERT + INSERT (append-only) | ✅ 충돌 없음 | 서로 다른 파일을 추가하므로 안전합니다 |
+| INSERT + DELETE (다른 파티션) | ✅ 충돌 없음 | 서로 다른 파티션에 영향을 주므로 안전합니다 |
+| DELETE + DELETE (같은 파일) | ❌ **충돌** | 같은 파일을 제거하려고 합니다 |
+| UPDATE + UPDATE (같은 파일) | ❌ **충돌** | 같은 파일을 수정하려고 합니다 |
+| MERGE + MERGE (겹치는 조건) | ❌ **충돌 가능** | 조건에 따라 같은 파일에 영향을 줄 수 있습니다 |
+| OPTIMIZE + 모든 쓰기 | ❌ **충돌** | OPTIMIZE는 파일을 재배열하므로 대부분 충돌합니다 |
+
+#### 재시도 패턴
+
+```python
+from delta.exceptions import ConcurrentAppendException, ConcurrentDeleteReadException
+import time
+
+MAX_RETRIES = 3
+for attempt in range(MAX_RETRIES):
+    try:
+        # MERGE 작업 실행
+        deltaTable.alias("t").merge(
+            source.alias("s"),
+            "t.id = s.id"
+        ).whenMatchedUpdateAll().whenNotMatchedInsertAll().execute()
+        break  # 성공 시 루프 종료
+    except ConcurrentAppendException:
+        if attempt < MAX_RETRIES - 1:
+            time.sleep(2 ** attempt)  # 지수 백오프
+            continue
+        raise  # 최대 재시도 초과 시 예외 전파
+```
+
+> ⚠️ **Gotcha — OPTIMIZE와 동시 쓰기**: OPTIMIZE(또는 Auto Compaction)가 실행 중일 때 다른 Writer가 커밋하면 `ConcurrentAppendException`이 발생할 수 있습니다. 프로덕션에서는 OPTIMIZE를 **쓰기 워크로드가 적은 시간대**에 스케줄링하거나, 파티션 단위로 나누어 실행하세요.
+
+> ⚠️ **Gotcha — Structured Streaming + Batch 쓰기**: 같은 테이블에 Streaming과 Batch 작업이 동시에 실행되면 충돌이 빈번합니다. Streaming은 `foreachBatch` + `merge` 패턴을 사용하고, Batch 작업은 다른 파티션에 쓰도록 분리하는 것이 좋습니다.
+
+---
+
+### 격리 수준 (Isolation Levels)
+
+Delta Lake는 두 가지 격리 수준을 제공합니다. 기본값은 `WriteSerializable`이며, 대부분의 워크로드에 적합합니다.
+
+| 격리 수준 | 기본값 | 동시성 | 정합성 | 적합한 워크로드 |
+|-----------|--------|--------|--------|---------------|
+| **WriteSerializable** | ✅ | 높음 | 쓰기 순서만 보장 | 대부분의 ETL, Streaming, 분석 |
+| **Serializable** | | 낮음 | 완전한 직렬화 보장 | 금융 트랜잭션, 재고 관리 등 강한 일관성 필요 |
+
+#### WriteSerializable (기본값)
+
+- 동시 쓰기 작업들이 **어떤 직렬 순서로 실행한 것과 동일한 결과**를 보장합니다
+- 단, 읽기(read set)와 쓰기(write set) 사이의 직렬화는 보장하지 않습니다
+- 즉, Writer A가 "조건 X에 해당하는 행이 없음"을 확인하고 INSERT를 수행하는 동안, Writer B가 조건 X에 해당하는 행을 INSERT할 수 있습니다 (Phantom Read 가능)
+
+#### Serializable
+
+- 모든 작업이 **완전히 직렬적으로** 실행된 것처럼 보장합니다
+- Phantom Read를 방지합니다
+- 동시성이 크게 감소하므로, **정말 필요한 경우에만** 사용하세요
+
+```sql
+-- 테이블의 격리 수준을 Serializable로 변경
+ALTER TABLE catalog.schema.financial_ledger
+SET TBLPROPERTIES ('delta.isolationLevel' = 'Serializable');
+```
+
+> ⚠️ **실무 가이드**: 99%의 데이터 엔지니어링 워크로드에서는 기본값인 `WriteSerializable`이 적합합니다. `Serializable`은 금융 원장, 재고 관리 등 **비즈니스 로직이 read-then-write 패턴에 의존하는 경우**에만 사용하세요. 불필요하게 Serializable로 설정하면 동시 처리량이 크게 떨어집니다.
+
+---
+
+### 트랜잭션 로그 스케일링 — 대규모 테이블에서의 성능
+
+수십만 건 이상의 커밋이 쌓인 대규모 테이블에서는 트랜잭션 로그 자체가 성능 병목이 될 수 있습니다.
+
+#### 체크포인트(Checkpoint)
+
+Delta Lake는 기본적으로 **10번의 커밋마다** 체크포인트 파일(Parquet 형식)을 생성합니다. 체크포인트는 해당 시점까지의 모든 액션을 하나의 Parquet 파일로 압축한 것으로, 테이블의 현재 상태를 빠르게 복원할 수 있게 합니다.
+
+```
+_delta_log/
+  00000000000000000000.json     ← 버전 0
+  00000000000000000001.json     ← 버전 1
+  ...
+  00000000000000000010.checkpoint.parquet  ← 체크포인트 (v0~v10 요약)
+  00000000000000000011.json     ← 버전 11 (체크포인트 이후 증분)
+  ...
+  00000000000000000020.checkpoint.parquet  ← 체크포인트 (v0~v20 요약)
+```
+
+- 테이블을 읽을 때: **가장 최근 체크포인트 + 이후 JSON 파일들**만 읽으면 됩니다
+- 체크포인트 주기는 `delta.checkpointInterval` 속성으로 조정할 수 있습니다 (기본값: 10)
+
+#### 대규모 테이블의 성능 이슈와 대응
+
+| 증상 | 원인 | 대응 방법 |
+|------|------|----------|
+| 테이블 첫 읽기가 느림 (수 초~수십 초) | 체크포인트 파일이 너무 큼 (수십만 개 파일의 메타데이터) | 파일 수를 줄이세요 — OPTIMIZE를 정기적으로 실행합니다 |
+| 커밋 시간이 점점 길어짐 | 로그 디렉토리에 JSON 파일이 수십만 개 | 로그 정리: `VACUUM` 실행 후 `delta.logRetentionDuration` 조정 (기본 30일) |
+| `DESCRIBE HISTORY`가 느림 | 커밋 기록이 너무 많음 | `LIMIT` 절을 사용하세요. 전체 히스토리 조회는 피합니다 |
+| 스키마 변경이 느림 | 체크포인트 재작성 시 모든 파일 메타데이터 포함 | Liquid Clustering 적용으로 파일 수 자체를 줄입니다 |
+
+```sql
+-- 로그 보관 기간 조정 (기본 30일 → 7일)
+ALTER TABLE catalog.schema.huge_table
+SET TBLPROPERTIES (
+  'delta.logRetentionDuration' = 'interval 7 days',
+  'delta.checkpointInterval' = '10'  -- 기본값 유지 권장
+);
+
+-- 오래된 파일 정리 (7일 이전)
+VACUUM catalog.schema.huge_table RETAIN 168 HOURS;
+```
+
+> ⚠️ **Gotcha — VACUUM과 타임 트래블**: `VACUUM`은 오래된 Parquet 파일을 물리적으로 삭제합니다. VACUUM 실행 후에는 보관 기간 이전 버전으로의 타임 트래블이 **불가능**합니다. 규정 준수 요건(데이터 감사, 7년 보관 등)이 있다면 VACUUM 보관 기간을 신중하게 설정하세요.
+
+> ⚠️ **Gotcha — 체크포인트 주기 변경**: 체크포인트 주기를 너무 크게 늘리면(예: 100) 테이블 첫 읽기 시 100개의 JSON 파일을 파싱해야 하므로 성능이 저하됩니다. 반대로 너무 작게 줄이면(예: 1) 매 커밋마다 체크포인트를 생성하여 쓰기 오버헤드가 증가합니다. 기본값 10이 대부분의 경우 최적입니다.
+
+#### 프로덕션 규모별 가이드
+
+| 테이블 규모 | 파일 수 | 일 커밋 수 | 권장 설정 |
+|------------|---------|-----------|----------|
+| 소규모 (< 100GB) | ~1,000개 | < 100 | 기본 설정으로 충분합니다 |
+| 중규모 (100GB ~ 1TB) | ~10,000개 | 100~1,000 | OPTIMIZE 주 1회, VACUUM 주 1회 |
+| 대규모 (1TB ~ 10TB) | ~100,000개 | 1,000~10,000 | OPTIMIZE 일 1회 + Liquid Clustering, VACUUM 일 1회 |
+| 초대규모 (> 10TB) | 100,000개+ | 10,000+ | Liquid Clustering 필수, Predictive Optimization 활성화 |
+
+> 🆕 **Predictive Optimization (GA)**: Databricks가 테이블 사용 패턴을 분석하여 OPTIMIZE, VACUUM, ANALYZE를 자동으로 실행하는 기능입니다. 대규모 테이블 운영의 부담을 크게 줄여줍니다. Unity Catalog Managed Table에서 사용 가능합니다.
+
+---
+
 ## 정리
 
 | 핵심 기능 | 설명 |
@@ -225,6 +437,8 @@ DESCRIBE DETAIL catalog.schema.products;
 | **스키마 강제** | 잘못된 형식의 데이터가 테이블에 들어오는 것을 방지합니다 |
 | **스키마 진화** | 테이블 구조를 안전하게 변경할 수 있습니다 |
 | **트랜잭션 로그** | 모든 변경 사항을 기록하여 위 기능들을 가능하게 하는 핵심 메커니즘입니다 |
+| **낙관적 동시성 제어** | 충돌이 발생한 경우에만 처리하여 높은 동시성을 제공합니다 |
+| **Data Skipping** | 파일 통계(min/max)를 활용하여 불필요한 파일 읽기를 건너뜁니다 |
 
 다음 문서에서는 Delta Lake 테이블을 체계적으로 구성하는 설계 패턴인 **Medallion 아키텍처**를 살펴보겠습니다.
 

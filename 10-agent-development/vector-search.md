@@ -281,6 +281,221 @@ results = index.similarity_search(
 
 ---
 
+## 심화: Principal SA 레벨 성능 튜닝 및 운영 가이드
+
+### 인덱스 성능 튜닝
+
+Databricks Vector Search는 내부적으로 **HNSW (Hierarchical Navigable Small World)** 알고리즘을 사용합니다. ANN(Approximate Nearest Neighbor) 검색의 성능은 인덱스 파라미터에 크게 의존합니다.
+
+> 💡 **HNSW란?** 그래프 기반의 근사 최근접 이웃(ANN) 검색 알고리즘입니다. 데이터를 계층적 그래프로 구성하여, 정확한 전수 검색(brute-force) 대비 수백 배 빠르면서도 95%+ 재현율(recall)을 달성합니다.
+
+#### 임베딩 차원 수와 성능 트레이드오프
+
+| 임베딩 차원 | 검색 속도 | 메모리 사용 | 정확도 | 대표 모델 |
+|-----------|----------|-----------|--------|----------|
+| **384** | 매우 빠름 | 낮음 | 보통 | all-MiniLM-L6-v2, gte-small |
+| **768** | 빠름 | 중간 | 좋음 | gte-base, bge-base |
+| **1024** | 보통 | 높음 | 매우 좋음 | gte-large, bge-large, multilingual-e5-large |
+| **1536** | 느림 | 매우 높음 | 최고 | OpenAI text-embedding-3-large |
+| **3072** | 매우 느림 | 매우 높음 | 최고+ | OpenAI text-embedding-3-large (full) |
+
+> 💡 **실무 가이드**: 대부분의 한국어 RAG 사용 사례에서 **1024차원**이 최적의 균형점입니다. 384차원은 프로토타이핑에, 1536+ 차원은 법률/의료 등 고정밀 도메인에 적합합니다. 차원을 2배로 늘리면 메모리 사용량도 2배, 검색 지연시간은 1.3~1.5배 증가합니다.
+
+#### ANN 검색 정확도 vs 속도
+
+| 파라미터 | 역할 | 높이면 | 낮추면 |
+|---------|------|--------|--------|
+| **ef_search** (검색 시) | 탐색할 후보 수 | 정확도 향상, 속도 저하 | 속도 향상, 정확도 저하 |
+| **ef_construction** (인덱스 구축 시) | 그래프 구축 품질 | 인덱스 품질 향상, 구축 시간 증가 | 구축 빠름, 품질 저하 |
+| **M** (그래프 연결 수) | 노드당 이웃 수 | 정확도 향상, 메모리 증가 | 메모리 절약, 정확도 저하 |
+
+> ⚠️ **Databricks Vector Search에서는 HNSW 파라미터를 직접 제어할 수 없습니다.** 시스템이 데이터 규모에 따라 자동 최적화합니다. 다만, `num_results` 파라미터를 늘려 후보군을 확대하고 Reranker로 정밀도를 높이는 전략이 가능합니다.
+
+---
+
+### 대규모 인덱스 운영 (수천만~수억 건)
+
+| 고려사항 | 상세 | 권장 대응 |
+|---------|------|----------|
+| **인덱스 빌드 시간** | 1억 건 x 1024차원 기준 수 시간~하루 소요 가능 | `TRIGGERED` 모드로 업무 시간 외 동기화 스케줄링 |
+| **동기화 지연** | `CONTINUOUS` 모드에서 대규모 배치 업데이트 시 수 분~수십 분 지연 | 대량 업데이트는 배치로 묶어 한 번에 수행 |
+| **메모리 요구량** | 1억 건 x 1024차원 x 4바이트 = 약 400GB (인덱스 메타 포함 시 2~3배) | `STORAGE_OPTIMIZED` 엔드포인트 사용 |
+| **엔드포인트 확장** | 단일 엔드포인트에 복수 인덱스 호스팅 가능, 그러나 리소스 경합 발생 | 대규모 인덱스는 전용 엔드포인트에 격리 |
+| **인덱스 재구축** | 임베딩 모델 변경 시 전체 재인덱싱 필요 | 모델 변경 전에 소규모 A/B 테스트로 품질 검증 |
+
+```python
+# 대규모 인덱스 상태 모니터링
+index = vsc.get_index(
+    endpoint_name="vs-endpoint-prod",
+    index_name="catalog.schema.docs_index"
+)
+
+# 인덱스 상태 확인
+status = index.describe()
+print(f"상태: {status.get('status')}")
+print(f"인덱싱된 문서 수: {status.get('num_docs')}")
+print(f"마지막 동기화: {status.get('last_sync_time')}")
+```
+
+> 💡 **운영 팁**: 인덱스가 5,000만 건을 넘으면 `STORAGE_OPTIMIZED` 엔드포인트로 전환하세요. 검색 지연시간이 약간 증가(+10~30ms)하지만 비용이 40~60% 절감됩니다.
+
+---
+
+### 하이브리드 검색 구현
+
+벡터 검색만으로는 정확한 키워드(제품 코드, 법률 조항 번호 등)를 놓칠 수 있습니다. 키워드 검색(BM25)과 벡터 검색을 결합한 하이브리드 검색이 프로덕션 RAG의 표준입니다.
+
+#### 하이브리드 검색 파이프라인
+
+```
+[사용자 질문]
+   ├─ [벡터 검색] → 의미적으로 유사한 Top-20
+   ├─ [키워드 검색 (BM25)] → 키워드 매칭 Top-20
+   └─ [결과 병합 (RRF)] → 중복 제거, 점수 융합 → Top-20
+         └─ [Reranker] → LLM 기반 재순위화 → Top-5
+               └─ [LLM 답변 생성]
+```
+
+```python
+# Reciprocal Rank Fusion (RRF) 구현 예시
+def reciprocal_rank_fusion(vector_results, keyword_results, k=60):
+    """두 검색 결과를 RRF 알고리즘으로 융합합니다."""
+    scores = {}
+
+    for rank, doc in enumerate(vector_results):
+        doc_id = doc['doc_id']
+        scores[doc_id] = scores.get(doc_id, 0) + 1.0 / (k + rank + 1)
+
+    for rank, doc in enumerate(keyword_results):
+        doc_id = doc['doc_id']
+        scores[doc_id] = scores.get(doc_id, 0) + 1.0 / (k + rank + 1)
+
+    # 점수 내림차순 정렬
+    return sorted(scores.items(), key=lambda x: x[1], reverse=True)
+
+# 1단계: 벡터 검색
+vector_results = index.similarity_search(
+    query_text="산업안전보건법 제44조 위반 시 벌칙",
+    columns=["doc_id", "content"],
+    num_results=20
+)
+
+# 2단계: 키워드 검색 (Delta 테이블에서 SQL로)
+keyword_results = spark.sql("""
+    SELECT doc_id, content
+    FROM catalog.schema.documents
+    WHERE content LIKE '%제44조%' AND content LIKE '%벌칙%'
+    LIMIT 20
+""").collect()
+
+# 3단계: RRF 융합
+fused = reciprocal_rank_fusion(vector_results, keyword_results)
+
+# 4단계: Reranker로 최종 정렬 (상위 5개 선별)
+final_results = index.similarity_search(
+    query_text="산업안전보건법 제44조 위반 시 벌칙",
+    columns=["doc_id", "content"],
+    num_results=20,
+    query_options={
+        "reranker": {
+            "model_name": "databricks-reranker",
+            "columns": ["content"],
+            "top_k": 5
+        }
+    }
+)
+```
+
+> 💡 **RRF(Reciprocal Rank Fusion)**: 서로 다른 검색 시스템의 결과를 공정하게 합치는 알고리즘입니다. 각 결과의 순위 역수를 합산하여 최종 점수를 계산합니다. k=60이 학술 연구에서 가장 성능이 좋다고 알려져 있습니다.
+
+---
+
+### 한국어 임베딩 전략
+
+한국어는 교착어 특성(조사, 어미 변화)으로 인해 영어 대비 임베딩 품질이 크게 달라질 수 있습니다.
+
+#### 모델별 한국어 성능 비교
+
+| 모델 | 차원 | 한국어 성능 (MTEB 기준) | 다국어 지원 | 배포 용이성 | 권장 상황 |
+|------|------|----------------------|-----------|-----------|----------|
+| **multilingual-e5-large** | 1024 | ⭐⭐⭐⭐ (우수) | 100+ 언어 | Model Serving 배포 | 한국어 RAG 1순위 권장 |
+| **BGE-M3** | 1024 | ⭐⭐⭐⭐⭐ (최우수) | 100+ 언어 | 모델 크기 큼 (2.3GB) | 최고 품질 필요 시 |
+| **KoSimCSE-roberta** | 768 | ⭐⭐⭐ (양호) | 한국어 전용 | 가벼움 | 한국어 단일 언어 환경 |
+| **databricks-gte-large-en** | 1024 | ⭐⭐ (보통) | 영어 중심 | 내장 (즉시 사용) | 영어 문서 위주 |
+| **OpenAI text-embedding-3-large** | 3072 | ⭐⭐⭐⭐ (우수) | 다국어 | 외부 API 호출 | OpenAI 생태계 활용 시 |
+
+#### 한국어 청킹(Chunking) 전략
+
+한국어 문서를 청킹할 때 형태소 경계를 무시하면 검색 품질이 크게 떨어집니다.
+
+| 청킹 방법 | 설명 | 한국어 적합도 |
+|----------|------|-------------|
+| **고정 길이 (Fixed-size)** | 500자/1000자 단위로 자름 | ❌ 문장 중간에서 잘릴 수 있음 |
+| **문장 기반 (Sentence)** | 문장 부호(. ! ?)로 분리 | ⚠️ 한국어 문장 끝 감지가 부정확할 수 있음 |
+| **문단 기반 (Paragraph)** | 빈 줄(\n\n)로 분리 | ✅ 자연스러운 의미 단위 |
+| **의미 기반 (Semantic)** | 임베딩 유사도가 급변하는 지점에서 분리 | ✅ 최고 품질, 구현 복잡 |
+| **재귀적 (Recursive)** | 문단 → 문장 → 단어 순으로 재귀적 분리 | ✅ LangChain 기본값, 범용 |
+
+```python
+# 한국어 최적화 청킹 예시 (재귀적 분리 + 형태소 인식)
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+# 한국어에 최적화된 구분자 순서
+korean_splitter = RecursiveCharacterTextSplitter(
+    separators=["\n\n", "\n", ".", "!", "?", "。", " ", ""],
+    chunk_size=500,        # 한국어는 영어 대비 정보 밀도가 높으므로 500자 권장
+    chunk_overlap=50,      # 문맥 유지를 위한 오버랩
+    length_function=len,
+    is_separator_regex=False
+)
+
+# 청크 생성
+chunks = korean_splitter.split_text(document_text)
+```
+
+> 💡 **청킹 최적화 팁**: (1) 한국어는 영어 대비 글자당 정보 밀도가 높으므로, 영어 1000자 기준이면 한국어는 500자가 적절합니다. (2) `chunk_overlap`을 50~100자로 설정하여 청크 경계에서의 문맥 손실을 방지하세요. (3) 표, 코드 블록은 별도 청크로 분리하여 구조를 보존하세요.
+
+---
+
+### 비용 최적화
+
+| 엔드포인트 유형 | CU 소비 | 검색 지연시간 | 적합한 규모 | 월 비용 (예상) |
+|--------------|--------|------------|-----------|-------------|
+| **STANDARD** | 높음 | 10~50ms | 100만 건 이하 | $200~800/월 |
+| **STORAGE_OPTIMIZED** | 낮음 | 30~100ms | 1,000만 건 이상 | $100~400/월 |
+
+#### 비용 절감 전략
+
+| 전략 | 절감 효과 | 상세 |
+|------|----------|------|
+| **STORAGE_OPTIMIZED 전환** | 40~60% | 5,000만 건 이상이면 반드시 전환 |
+| **임베딩 차원 축소** | 20~30% | 1024 → 768로 줄이면 메모리/비용 절감 (품질 소폭 저하) |
+| **TRIGGERED 동기화** | 30~50% | CONTINUOUS 대비 비용 절감, 실시간성이 불필요한 경우 |
+| **불필요 컬럼 제거** | 10~20% | `columns_to_sync`에서 검색에 불필요한 대용량 컬럼 제외 |
+| **인덱스 통합** | 20~30% | 유사한 용도의 소규모 인덱스를 하나로 통합하고 필터로 분리 |
+| **엔드포인트 공유** | 30~40% | 개발/스테이징 환경은 하나의 엔드포인트에 복수 인덱스 배치 |
+
+```python
+# 비용 효율적인 인덱스 설정 예시
+index = vsc.create_delta_sync_index(
+    endpoint_name="vs-endpoint-prod",
+    index_name="catalog.schema.docs_index",
+    source_table_name="catalog.schema.documents",
+    primary_key="doc_id",
+    embedding_source_column="content",
+    embedding_model_endpoint_name="databricks-gte-large-en",
+    pipeline_type="TRIGGERED",    # 비용 절감: 수동 트리거
+    columns_to_sync=[             # 최소한의 컬럼만 동기화
+        "doc_id", "content", "title", "category"
+        # ❌ "full_html", "raw_pdf" 등 대용량 컬럼 제외
+    ]
+)
+```
+
+> 💡 **CU 사이징 공식**: `필요 CU ≈ (인덱스 문서 수 / 100만) x (임베딩 차원 / 1024) x (동시 QPS / 10)`. 예를 들어 500만 건, 1024차원, 50 QPS이면 약 25 CU가 필요합니다. 실제 운영에서는 20% 여유분을 추가하세요.
+
+---
+
 ## 정리
 
 | 핵심 개념 | 설명 |
