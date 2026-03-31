@@ -22,6 +22,7 @@
 * [Databricks 아키텍처](02-databricks-overview/databricks-architecture.md)
 * [Workspace UI 둘러보기](02-databricks-overview/workspace-ui-tour.md)
 * [Notebook 사용법](02-databricks-overview/notebooks-basics.md)
+  * [Notebook 고급 기능](02-databricks-overview/notebooks-advanced.md)
 * [무료 체험 시작하기](02-databricks-overview/getting-started-trial.md)
 
 ## 레이크하우스 아키텍처
@@ -46,6 +47,7 @@
 * [클러스터 종류](04-compute-and-workspace/cluster-types.md)
 * [클러스터 설정](04-compute-and-workspace/cluster-configuration.md)
   * [클러스터 정책](04-compute-and-workspace/cluster-policies.md)
+  * [Instance Pools](04-compute-and-workspace/instance-pools.md)
   * [Photon 엔진](04-compute-and-workspace/photon-engine.md)
   * [Spot 인스턴스](04-compute-and-workspace/spot-instances.md)
 * [SQL Warehouse](04-compute-and-workspace/sql-warehouse.md)
@@ -61,6 +63,7 @@
   * [스키마 추론과 진화](05-data-engineering/auto-loader/schema-inference.md)
   * [주요 옵션](05-data-engineering/auto-loader/auto-loader-options.md)
   * [Auto Loader 실습](05-data-engineering/auto-loader/auto-loader-hands-on.md)
+* [Structured Streaming](05-data-engineering/structured-streaming.md)
 * [Spark Declarative Pipelines (SDP)](05-data-engineering/spark-declarative-pipelines/README.md)
   * [SDP란?](05-data-engineering/spark-declarative-pipelines/what-is-sdp.md)
   * [Streaming Tables & Materialized Views](05-data-engineering/spark-declarative-pipelines/streaming-tables-and-mvs.md)
@@ -106,6 +109,8 @@
   * [태그와 ABAC](07-unity-catalog/tags.md)
 * [데이터 리니지](07-unity-catalog/data-lineage.md)
 * [Delta Sharing](07-unity-catalog/delta-sharing.md)
+  * [Databricks Marketplace](07-unity-catalog/marketplace.md)
+  * [Clean Rooms](07-unity-catalog/clean-rooms.md)
 * [Volumes](07-unity-catalog/volumes.md)
 
 ## AI/BI
@@ -113,6 +118,7 @@
 * [AI/BI 개요](08-ai-bi/aibi-overview.md)
 * [AI/BI 대시보드](08-ai-bi/lakeview-dashboards.md)
 * [Genie](08-ai-bi/genie.md)
+* [Metric Views](08-ai-bi/metric-views.md)
 * [알림과 스케줄링](08-ai-bi/alerts-and-scheduling.md)
 
 ## 머신러닝
@@ -138,6 +144,7 @@
   * [Feature Engineering 개요](09-machine-learning/feature-engineering/feature-engineering-overview.md)
   * [피처 테이블 관리](09-machine-learning/feature-engineering/feature-table-management.md)
   * [실시간 피처 서빙](09-machine-learning/feature-engineering/online-serving.md)
+* [Lakehouse Monitoring](09-machine-learning/lakehouse-monitoring.md)
 
 ## AI 에이전트
 
@@ -171,15 +178,18 @@
   * [서비스 프린시펄](12-security-and-governance/service-principals.md)
 * [네트워크 보안](12-security-and-governance/network-security.md)
 * [시스템 테이블](12-security-and-governance/system-tables.md)
+* [워크스페이스 관리](12-security-and-governance/workspace-admin.md)
 
 ## 개발 도구
 
 * [Databricks CLI](13-appendix/databricks-cli.md)
 * [Asset Bundles (DABs)](13-appendix/databricks-asset-bundles.md)
 * [Databricks Apps](13-appendix/databricks-apps.md)
+* [Databricks SDK](13-appendix/databricks-sdk.md)
+* [Databricks Connect](13-appendix/databricks-connect.md)
+* [REST API 활용](13-appendix/rest-api.md)
 * [AI Dev Kit](13-appendix/ai-dev-kit.md)
 * [Genie Code](13-appendix/genie-code.md)
-* [Databricks SDK](13-appendix/databricks-sdk.md)
 
 ## 부록
 
