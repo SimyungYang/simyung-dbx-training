@@ -192,6 +192,192 @@ dbutils.fs.rm("s3://bucket/schema/_notification_resources", True)
 
 ---
 
+## 현업 사례: 10만 개 파일이 쌓인 디렉토리에서 Directory Listing이 30분 걸린 경험
+
+> 🔥 **이것은 실제로 매우 흔한 문제입니다.**
+
+많은 팀이 Auto Loader를 처음 도입할 때 기본값인 Directory Listing으로 시작합니다. 처음에는 잘 되다가, 6개월~1년이 지나면 갑자기 파이프라인이 느려지기 시작합니다. 그 원인은 **디렉토리에 파일이 누적되었기 때문**입니다.
+
+### 실제 성능 저하 타임라인
+
+```
+프로젝트 초기 (파일 1,000개):
+  - Directory Listing 스캔 시간: 5초
+  - 트리거 간격: 1분
+  - 문제 없음 ✅
+
+3개월 후 (파일 50,000개):
+  - Directory Listing 스캔 시간: 3분
+  - 트리거 간격: 1분인데 스캔이 3분이라 밀리기 시작
+  - "왜 데이터가 늦게 들어오지?" 🤔
+
+6개월 후 (파일 200,000개):
+  - Directory Listing 스캔 시간: 15분
+  - S3 LIST API 비용: 월 $200+
+  - 팀 리더: "이 파이프라인 왜 이렇게 느려?" 😡
+
+1년 후 (파일 500,000개):
+  - Directory Listing 스캔 시간: 30분+
+  - S3 LIST API 비용: 월 $800+
+  - 파이프라인 타임아웃으로 실패 시작 🔥
+```
+
+### 왜 이런 일이 벌어지나요?
+
+S3/ADLS의 LIST API는 한 번에 최대 **1,000개의 오브젝트**만 반환합니다. 파일이 50만 개이면 최소 **500번의 API 호출**이 필요합니다. 각 호출에 100~200ms가 걸리면, LIST만으로 50~100초가 소요됩니다. 여기에 Auto Loader가 이전 체크포인트와 비교하는 시간까지 더해지면 분 단위로 늘어납니다.
+
+```python
+# 이것을 안 하면 6개월 후에 파이프라인이 느려집니다
+# 해결 방법 1: Incremental Listing 활성화
+df = (spark.readStream
+    .format("cloudFiles")
+    .option("cloudFiles.format", "json")
+    .option("cloudFiles.useIncrementalListing", "true")  # 핵심!
+    .option("cloudFiles.schemaLocation", "s3://bucket/schema/")
+    .load("s3://bucket/data/year=*/month=*/day=*/")
+)
+
+# 해결 방법 2: File Notification으로 전환
+df = (spark.readStream
+    .format("cloudFiles")
+    .option("cloudFiles.format", "json")
+    .option("cloudFiles.useNotifications", "true")
+    .option("cloudFiles.region", "ap-northeast-2")
+    .option("cloudFiles.schemaLocation", "s3://bucket/schema/")
+    .load("s3://bucket/data/")
+)
+```
+
+> 💡 **현업 팁**: 파일이 하루에 1,000개 이상 쌓이는 경로라면, **처음부터 File Notification**으로 시작하세요. Directory Listing에서 나중에 전환하는 것은 체크포인트 호환 문제로 생각보다 까다롭습니다.
+
+---
+
+## File Notification 설정 시 IAM 권한 함정
+
+현업에서 File Notification으로 전환하려다 **IAM 권한 때문에 며칠을 허비하는** 경우가 매우 흔합니다. 특히 보안이 엄격한 기업에서 자주 발생합니다.
+
+### 함정 1: "Resource": "*" 를 보안팀이 절대 허용 안 함
+
+위에서 소개한 자동 프로비저닝 IAM 정책에는 `"Resource": "*"`가 포함되어 있습니다. 대부분의 기업 보안 정책은 이를 허용하지 않습니다.
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetBucketNotification",
+                "s3:PutBucketNotification"
+            ],
+            "Resource": "arn:aws:s3:::my-data-bucket"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "sns:CreateTopic",
+                "sns:DeleteTopic",
+                "sns:GetTopicAttributes",
+                "sns:Subscribe"
+            ],
+            "Resource": "arn:aws:sns:ap-northeast-2:123456789012:databricks-auto-loader-*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "sqs:CreateQueue",
+                "sqs:DeleteQueue",
+                "sqs:GetQueueAttributes",
+                "sqs:GetQueueUrl",
+                "sqs:ReceiveMessage",
+                "sqs:DeleteMessage",
+                "sqs:SetQueueAttributes"
+            ],
+            "Resource": "arn:aws:sqs:ap-northeast-2:123456789012:databricks-auto-loader-*"
+        }
+    ]
+}
+```
+
+> 💡 **현업 팁**: 보안팀과 협의할 때 "Auto Loader 자동 프로비저닝이 만드는 리소스 이름은 `databricks-auto-loader-`로 시작합니다"라고 미리 알려주면, 리소스 범위를 좁혀서 허용받을 수 있습니다.
+
+### 함정 2: S3 버킷당 이벤트 알림 제한
+
+> ⚠️ **많은 팀이 이 실수를 합니다.** 하나의 S3 버킷에는 기본적으로 **하나의 이벤트 알림 구성(Event Notification Configuration)** 만 설정할 수 있습니다. 이미 다른 서비스(Lambda, 다른 Auto Loader 스트림 등)가 이벤트 알림을 사용 중이면 충돌이 발생합니다.
+
+```python
+# 해결 방법: S3 Event Bridge를 사용하면 여러 대상에 이벤트를 라우팅할 수 있습니다
+# 또는 기존 SQS 큐를 수동으로 지정하여 충돌을 회피합니다
+df = (spark.readStream
+    .format("cloudFiles")
+    .option("cloudFiles.format", "json")
+    .option("cloudFiles.useNotifications", "true")
+    .option("cloudFiles.queueUrl",
+            "https://sqs.ap-northeast-2.amazonaws.com/123456789/shared-queue")
+    .option("cloudFiles.schemaLocation", "s3://bucket/schema/")
+    .load("s3://bucket/data/")
+)
+```
+
+### 함정 3: SQS 메시지 보존 기간과 파이프라인 중단
+
+SQS 큐의 기본 메시지 보존 기간은 **4일**입니다. 파이프라인이 4일 이상 중단되면, 그 사이에 도착한 파일의 이벤트가 SQS에서 사라져 **파일을 놓칠 수 있습니다**.
+
+```
+실제 장애 시나리오:
+- 금요일 밤: 파이프라인이 OOM으로 실패
+- 토요일~일요일: 아무도 모름 (모니터링 알림이 꺼져 있었음)
+- 월요일 출근: 파이프라인 재시작
+- 화요일: "금요일 밤~일요일 데이터가 없어요!"
+- 원인: SQS 보존 기간(4일)은 넘기지 않았지만, DLQ로 빠진 메시지가 있었음
+```
+
+> 💡 **현업 팁**: File Notification 모드를 사용할 때는 반드시 **SQS 보존 기간을 14일(최대)**로 늘리고, **Dead Letter Queue(DLQ)** 를 설정하세요. 그리고 파이프라인 실패 시 즉시 알림이 오도록 모니터링을 구성해야 합니다.
+
+---
+
+## 실전 선택 기준: 의사결정 플로우
+
+실무에서 모드를 선택할 때는 다음 순서로 판단하시면 됩니다.
+
+```
+1. 파일이 하루에 몇 개 들어오나요?
+   ├─ 100개 미만 → Directory Listing (기본값으로 충분)
+   ├─ 100~10,000개 → Directory Listing + Incremental Listing
+   └─ 10,000개 이상 → File Notification 강력 권장
+
+2. 데이터 신선도(freshness) 요구사항은?
+   ├─ 1시간 이내면 OK → Directory Listing
+   └─ 수 분 이내 필요 → File Notification
+
+3. IAM 권한을 자유롭게 설정할 수 있나요?
+   ├─ 예 → File Notification (자동 프로비저닝)
+   └─ 아니요 → Directory Listing + Incremental
+       └─ 또는 보안팀과 협의하여 수동 SQS 설정
+
+4. 파티션 구조가 날짜 기반으로 잘 정리되어 있나요?
+   ├─ year=*/month=*/day=*/ 구조 → Incremental Listing 매우 효과적
+   └─ 플랫한 구조 (파일이 한 폴더에 전부) → File Notification이 유일한 해답
+```
+
+### Directory Listing에서 File Notification으로 전환 시 주의사항
+
+```python
+# 전환 전: 기존 체크포인트를 백업해두세요
+# 전환 후: 첫 실행 시 File Notification이 구독 시점 이후의 파일만 감지합니다
+# → 전환 시점에 이미 존재하는 미처리 파일은 놓칠 수 있습니다!
+
+# 안전한 전환 방법:
+# 1. 기존 Directory Listing 스트림을 정상 종료
+# 2. File Notification 모드로 새 스트림 시작 (새 체크포인트 경로 사용)
+# 3. 전환 시점 전후 데이터 정합성 검증
+# 4. 누락된 파일이 있으면 수동으로 backfill
+```
+
+> 💡 **현업에서 가장 중요한 포인트**: 모드 선택보다 중요한 것은 **모니터링**입니다. 어떤 모드를 쓰든 "새 파일이 들어왔는데 처리가 안 된다"를 감지하는 알림이 있어야 합니다. 처리 지연(lag) 메트릭을 Lakeview 대시보드에 구성하세요.
+
+---
+
 ## 정리
 
 | 핵심 포인트 | 설명 |

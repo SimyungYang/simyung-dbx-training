@@ -213,6 +213,149 @@ AWS에서 Storage Credential을 사용하려면, IAM Role의 **신뢰 정책(Tru
 
 ---
 
+## 실전 인사이트: IAM Role을 하나만 만들어서 모든 버킷에 접근하게 한 실수
+
+초기 Databricks 도입 시 가장 흔한 실수가 **"편의를 위해 하나의 IAM Role에 모든 S3 버킷 접근 권한을 몰아주는 것"**입니다.
+
+### 사고 사례
+
+```json
+{
+  "Effect": "Allow",
+  "Action": "s3:*",
+  "Resource": "*"
+}
+```
+
+한 고객이 위와 같은 IAM 정책으로 Storage Credential을 생성했습니다. 처음에는 "어차피 Unity Catalog가 External Location 단위로 접근을 제어하니까 IAM은 넓게 열어도 괜찮다"고 생각했습니다. 그런데 문제가 발생한 상황은 다음과 같습니다:
+
+| 문제 | 설명 |
+|------|------|
+| **보안 감사 실패** | AWS Well-Architected Review에서 "최소 권한 원칙 위반" 지적 |
+| **사고 시 피해 범위 확대** | Credential이 노출되면 모든 버킷의 데이터가 위험 |
+| **규제 위반** | PCI-DSS 환경에서 결제 데이터 버킷과 일반 버킷의 접근 경로가 분리되지 않음 |
+
+### 올바른 설계: 용도별 Credential 분리
+
+```
+[권장 구조]
+
+Storage Credential 1: prod-analytics-cred
+  → IAM Role: s3://company-analytics-prod/* (읽기 전용)
+  → External Location: /analytics/reports/, /analytics/dashboards/
+
+Storage Credential 2: prod-ml-cred
+  → IAM Role: s3://company-ml-prod/* (읽기/쓰기)
+  → External Location: /ml/features/, /ml/models/
+
+Storage Credential 3: prod-raw-cred
+  → IAM Role: s3://company-raw-data/* (쓰기 전용, 읽기는 별도)
+  → External Location: /raw/ingestion/
+```
+
+> 💡 **원칙**: Credential은 **용도(analytics, ML, raw data)와 환경(dev, staging, prod)** 별로 분리하세요. 하나의 Credential이 접근할 수 있는 범위가 좁을수록, 사고 시 피해 범위도 좁아집니다.
+
+---
+
+## 실전 인사이트: 크로스 계정 접근의 실전 구성
+
+대규모 조직에서는 AWS 계정이 여러 개로 분리되어 있는 경우가 대부분입니다. Databricks가 있는 계정(Account A)에서 데이터가 있는 계정(Account B)의 S3에 접근해야 하는 시나리오입니다.
+
+### 크로스 계정 구성 단계
+
+```
+[Account A: Databricks 워크스페이스]
+  └── Unity Catalog Master Role
+       └── AssumeRole → Storage Credential IAM Role (Account A)
+            └── AssumeRole → Data Access Role (Account B)
+                 └── S3 버킷 접근
+
+역할 체인: UC Master Role → Credential Role → Data Role
+```
+
+```json
+// Account B의 Data Access Role 신뢰 정책
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::111111111111:role/databricks-storage-credential"
+      },
+      "Action": "sts:AssumeRole",
+      "Condition": {
+        "StringEquals": {
+          "sts:ExternalId": "databricks-external-id-xxx"
+        }
+      }
+    }
+  ]
+}
+```
+
+```json
+// Account A의 Storage Credential IAM Role 정책
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "sts:AssumeRole",
+      "Resource": "arn:aws:iam::222222222222:role/data-access-role"
+    }
+  ]
+}
+```
+
+> ⚠️ **크로스 계정 접근 시 주의사항**:
+> - **STS 토큰 만료**: AssumeRole 체인이 길어지면 토큰 갱신이 빈번해집니다. 장시간 배치 잡에서 토큰 만료 에러가 날 수 있으므로, 세션 기간(Duration)을 충분히 설정하세요 (최대 12시간)
+> - **리전 일치**: S3 버킷과 IAM Role이 같은 리전에 있어야 지연이 최소화됩니다
+> - **CloudTrail 양쪽 활성화**: Account A와 B 모두에서 AssumeRole 이벤트를 추적할 수 있도록 CloudTrail을 활성화하세요
+
+---
+
+## 실전 인사이트: Credential 라이프사이클 관리
+
+Storage Credential은 생성 후 "방치"되기 쉬운 객체입니다. 시간이 지나면 IAM Role이 삭제되거나, 정책이 변경되어 접근이 실패하는 경우가 발생합니다.
+
+### 월간 점검 체크리스트
+
+```sql
+-- 1. 모든 Credential의 유효성 검증
+-- (자동화 스크립트로 월 1회 실행)
+VALIDATE EXTERNAL LOCATION prod_data;
+VALIDATE EXTERNAL LOCATION staging_data;
+VALIDATE EXTERNAL LOCATION raw_ingestion;
+
+-- 2. 사용되지 않는 Credential 식별
+-- (External Location이 연결되지 않은 Credential)
+SELECT *
+FROM system.information_schema.storage_credentials sc
+WHERE NOT EXISTS (
+    SELECT 1 FROM system.information_schema.external_locations el
+    WHERE el.credential_name = sc.credential_name
+);
+```
+
+### Credential 변경 시 영향 분석
+
+IAM Role 정책을 변경하기 전에, 해당 Credential을 사용하는 모든 External Location과 테이블을 파악해야 합니다.
+
+```sql
+-- 특정 Credential을 사용하는 External Location 조회
+SELECT location_name, url
+FROM system.information_schema.external_locations
+WHERE credential_name = 'aws_s3_credential';
+
+-- 해당 External Location을 사용하는 테이블 파악
+-- (Catalog Explorer에서 리니지 그래프로 확인하는 것이 더 효율적)
+```
+
+> 💡 **실전 팁**: Credential이나 IAM Role을 변경할 때는 반드시 **dev 환경에서 먼저 테스트**하세요. 프로덕션에서 `VALIDATE`가 실패하면 모든 외부 테이블 쿼리가 즉시 실패합니다. Terraform이나 Databricks Asset Bundles로 Credential을 코드로 관리하면, 변경 이력 추적과 롤백이 용이합니다.
+
+---
+
 ## 정리
 
 | 핵심 개념 | 설명 |

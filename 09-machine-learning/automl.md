@@ -230,6 +230,230 @@ print(runs[["run_id", "params.model_type", "metrics.val_f1_score", "metrics.val_
 
 ---
 
+## 현업 사례: AutoML 결과를 그대로 프로덕션에 올리면 안 되는 이유
+
+> 🔥 **AutoML의 가장 큰 오해: "자동이니까 바로 배포해도 되겠지"**
+
+AutoML은 놀라울 정도로 좋은 성능을 보여주지만, 그 결과를 **검증 없이 프로덕션에 배포하는 것은 위험**합니다. 현업에서 자주 보는 실수 패턴을 살펴보겠습니다.
+
+### AutoML 결과를 바로 배포했을 때 벌어지는 일
+
+```
+1주차: AutoML 실행, F1 = 0.95 달성! 🎉
+  - "와, 이 정도면 바로 프로덕션에 올리자"
+  - 모델 서빙 엔드포인트 생성, API 연동
+
+2주차: 비즈니스팀에서 이상한 보고
+  - "예측 결과가 너무 편향돼요. VIP 고객을 전부 이탈 예측으로 분류해요"
+  - 원인: AutoML이 customer_tier 컬럼을 피처로 사용했는데,
+    학습 데이터에서 VIP 이탈 비율이 높았음 (표본 편향)
+
+3주차: 더 심각한 문제 발견
+  - "주말 데이터가 들어오면 예측이 완전히 틀려요"
+  - 원인: 학습 데이터가 평일 데이터 위주였음
+  - AutoML은 데이터의 편향을 알려주지 않음
+
+4주차: 성능 급락
+  - F1이 0.95 → 0.68로 하락
+  - 원인: Data Drift (실제 서비스 데이터의 분포가 학습 데이터와 달라짐)
+  - AutoML은 학습 데이터 내에서만 최적화했을 뿐,
+    프로덕션 환경의 데이터 변화는 고려하지 않음
+```
+
+### AutoML이 해주지 않는 것들
+
+| 단계 | AutoML이 해주는 것 | 사람이 해야 하는 것 |
+|------|-------------------|-------------------|
+| **데이터 이해** | 기본 통계 | 비즈니스 맥락 이해, 편향 확인 |
+| **피처 선택** | 자동 선택 | 도메인 지식 기반 피처 검증 (data leakage 확인) |
+| **모델 학습** | 최적 알고리즘/하이퍼파라미터 탐색 | 결과 해석, 비즈니스 로직 확인 |
+| **평가** | 수치 메트릭 (F1, RMSE) | 슬라이스별 성능 확인 (성별, 연령대별 편향) |
+| **배포** | MLflow 등록 | A/B 테스트, 모니터링, 롤백 계획 |
+| **운영** | - | Data Drift 감지, 주기적 재학습 |
+
+---
+
+## AutoML이 정말 유용한 경우: 베이스라인(Baseline) 설정
+
+> 💡 **AutoML의 진짜 가치는 "프로덕션 모델"이 아니라 "베이스라인"입니다.**
+
+현업에서 AutoML은 다음 상황에서 가장 빛납니다.
+
+### 유용한 시나리오 1: "이 데이터로 예측이 가능한가?" 타당성 검증
+
+```python
+# 프로젝트 시작 1일차에 실행
+# "고객 이탈을 예측할 수 있을까?"에 대한 빠른 답변
+
+result = automl.classify(
+    dataset="catalog.schema.customer_data",
+    target_col="churned",
+    timeout_minutes=30,  # 30분이면 충분
+    max_trials=20
+)
+
+# 결과 해석:
+# F1 > 0.7 → "예측 가능성 있음, 프로젝트 진행하자"
+# F1 < 0.5 → "현재 피처로는 어려움, 데이터를 더 모으거나 피처를 추가해야"
+print(f"Best F1: {result.best_trial.metrics['val_f1_score']:.4f}")
+
+# SHAP 분석으로 어떤 피처가 중요한지 즉시 파악
+# → 도메인 전문가와 "이 피처가 말이 되나요?" 논의의 시작점
+```
+
+### 유용한 시나리오 2: 수동 모델 개선의 기준선
+
+```
+AutoML 결과: F1 = 0.85 (30분 소요)
+
+이제 데이터 사이언티스트가 수동으로 개선:
+- 피처 엔지니어링 추가 → F1 = 0.88 (2일 소요)
+- 앙상블 기법 적용 → F1 = 0.91 (3일 소요)
+- 도메인 지식 기반 피처 → F1 = 0.93 (1주 소요)
+
+AutoML이 없었다면:
+- "기준이 뭔지 몰라서 개선이 된 건지 확인 어려움"
+- "경영진에게 '3%p 개선했습니다'라고 수치로 보고하기 어려움"
+```
+
+### 유용한 시나리오 3: 비전문가가 빠르게 결과를 내야 할 때
+
+```python
+# 데이터 분석가가 "다음 주까지 매출 예측 해주세요"라는 요청을 받았을 때
+# ML 전문가가 아니어도 시작할 수 있음
+
+result = automl.forecast(
+    dataset="catalog.schema.daily_sales",
+    target_col="revenue",
+    time_col="date",
+    identity_col=["store_id"],
+    horizon=30,
+    timeout_minutes=60
+)
+
+# AutoML이 생성한 노트북을 ML 전문가에게 전달
+# "여기서부터 개선해주세요"
+print(f"Best trial notebook: {result.best_trial.notebook_url}")
+```
+
+---
+
+## 생성된 노트북을 커스터마이징하는 실전 패턴
+
+AutoML이 생성하는 노트북은 **수정 가능한 출발점**입니다. 현업에서 가장 많이 커스터마이징하는 부분을 소개합니다.
+
+### 커스터마이징 포인트 1: 피처 엔지니어링 추가
+
+```python
+# AutoML 노트북에서 가져온 코드 + 도메인 지식 피처 추가
+
+# AutoML이 생성한 기본 전처리 (그대로 유지)
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+
+# === 여기서부터 커스터마이징 ===
+# 도메인 지식 기반 피처 추가
+def add_domain_features(df):
+    # 고객 활동 관련 파생 피처
+    df['days_since_last_order'] = (
+        pd.Timestamp.now() - df['last_order_date']).dt.days
+    df['avg_order_value'] = df['total_spent'] / df['order_count'].clip(lower=1)
+    df['order_frequency'] = df['order_count'] / df['tenure_months'].clip(lower=1)
+
+    # 이상치 제거 (AutoML은 이것을 안 해줌)
+    df = df[df['avg_order_value'] < df['avg_order_value'].quantile(0.99)]
+
+    return df
+
+# AutoML 결과에서 데이터 로드 부분을 수정
+train_df = add_domain_features(train_df)
+```
+
+### 커스터마이징 포인트 2: 데이터 분할 전략 변경
+
+```python
+# AutoML 기본: 랜덤 분할 (train/validation/test)
+# 현업에서는 시간 기반 분할이 더 현실적
+
+# ❌ AutoML 기본 (랜덤 분할)
+from sklearn.model_selection import train_test_split
+X_train, X_test = train_test_split(X, test_size=0.2, random_state=42)
+
+# ✅ 시간 기반 분할로 변경 (더 현실적인 평가)
+train_mask = df['order_date'] < '2025-01-01'
+test_mask = df['order_date'] >= '2025-01-01'
+X_train, y_train = df[train_mask][features], df[train_mask][target]
+X_test, y_test = df[test_mask][features], df[test_mask][target]
+
+# 이렇게 하면 "과거 데이터로 학습 → 미래 데이터 예측" 시뮬레이션이 됨
+# 랜덤 분할보다 성능이 낮게 나오지만, 더 현실적인 기대치를 줌
+```
+
+### 커스터마이징 포인트 3: 슬라이스별 성능 평가 추가
+
+```python
+# AutoML은 전체 데이터에 대한 메트릭만 보여줌
+# 현업에서는 세그먼트별 성능이 더 중요함
+
+from sklearn.metrics import f1_score, classification_report
+
+# 전체 성능 (AutoML이 이미 보여줌)
+print(f"Overall F1: {f1_score(y_test, y_pred):.4f}")
+
+# === 세그먼트별 성능 (직접 추가해야 함) ===
+segments = {
+    'VIP': test_df['tier'] == 'VIP',
+    'Regular': test_df['tier'] == 'Regular',
+    'New': test_df['tenure_months'] < 3,
+    'High-value': test_df['total_spent'] > 1000000,
+}
+
+for name, mask in segments.items():
+    if mask.sum() > 0:
+        segment_f1 = f1_score(y_test[mask], y_pred[mask])
+        print(f"  {name} F1: {segment_f1:.4f} (n={mask.sum()})")
+
+# 결과 예시:
+# Overall F1: 0.85
+#   VIP F1: 0.62 ← 문제 발견! VIP 세그먼트에서 성능이 낮음
+#   Regular F1: 0.89
+#   New F1: 0.71 ← 신규 고객도 성능이 낮음
+#   High-value F1: 0.58 ← 고가치 고객에서 최악
+```
+
+### 커스터마이징 포인트 4: MLflow에 최종 모델 등록
+
+```python
+# AutoML 노트북을 커스터마이징한 후, 최종 모델을 MLflow에 등록
+
+import mlflow
+
+with mlflow.start_run(run_name="customized-churn-model-v1") as run:
+    # 커스텀 태그 추가
+    mlflow.set_tag("base", "automl")
+    mlflow.set_tag("customizations", "domain_features, time_split, segment_eval")
+    mlflow.set_tag("data_version", "2025-03-31")
+
+    # 모델 학습 + 로깅
+    model.fit(X_train, y_train)
+    mlflow.sklearn.log_model(
+        model, "model",
+        registered_model_name="catalog.ml.churn_predictor"
+    )
+
+    # 세그먼트별 메트릭 로깅
+    for name, mask in segments.items():
+        segment_f1 = f1_score(y_test[mask], y_pred[mask])
+        mlflow.log_metric(f"f1_{name.lower()}", segment_f1)
+
+    # 전체 메트릭
+    mlflow.log_metric("f1_overall", f1_score(y_test, y_pred))
+```
+
+> 💡 **현업 팁**: AutoML → 커스터마이징 → MLflow 등록 → Model Serving 배포의 전체 사이클을 처음에 1~2일 만에 완주하는 것을 목표로 하세요. 완벽한 모델을 만드는 것보다 **빠르게 전체 파이프라인을 구축하고, 이후에 모델을 개선하는** 접근이 현업에서 훨씬 효과적입니다. 많은 팀이 "모델 성능을 0.01 올리는 데 2주"를 쓰면서 배포 파이프라인은 구축하지 않습니다. 그러면 아무리 좋은 모델도 비즈니스 가치를 만들 수 없습니다.
+
+---
+
 ## 정리
 
 | 핵심 개념 | 설명 |

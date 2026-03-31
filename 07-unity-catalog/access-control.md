@@ -257,6 +257,195 @@ GRANT CREATE CATALOG ON METASTORE TO `platform_admins`;
 
 ---
 
+## 현업 사례: 권한을 개인에게 직접 줬다가 퇴사자 정리에 3일 걸린 경험
+
+> 🔥 **거의 모든 조직에서 한 번쯤 겪는 문제입니다.**
+
+프로젝트 초기에는 팀원이 5명이라 "그냥 개인한테 직접 GRANT 해주면 편하지"라고 생각합니다. 하지만 6개월이 지나면 상황이 완전히 달라집니다.
+
+### 실제 사고 시나리오
+
+```
+1월: 팀원 5명, 개인별로 GRANT 직접 부여
+  GRANT SELECT ON CATALOG production TO `alice@company.com`;
+  GRANT SELECT ON CATALOG production TO `bob@company.com`;
+  GRANT MODIFY ON SCHEMA production.bronze TO `alice@company.com`;
+  ...
+
+6월: 팀원 25명으로 증가, GRANT 문이 200개 이상으로 누적
+  - 누가 어디에 접근할 수 있는지 파악 불가
+  - SHOW GRANTS 결과가 화면 3페이지
+
+7월: 핵심 데이터 엔지니어 퇴사
+  - "이 사람이 어디에 권한이 있었지?"
+  - SHOW GRANTS TO `engineer@company.com` → 45개 권한
+  - 각각 확인하며 REVOKE하는 데 반나절
+  - "혹시 빼먹은 거 없나?" 확인하는 데 또 반나절
+
+8월: 감사(Audit) 요청
+  - "프로덕션 데이터에 접근 가능한 사람 목록을 주세요"
+  - 개인별로 GRANT된 권한을 전부 모아서 Excel로 정리
+  - 3일 걸림... 😱
+```
+
+### 이것을 안 하면 벌어지는 일
+
+| 안티패턴 | 결과 | 영향 |
+|---------|------|------|
+| 개인에게 직접 GRANT | 퇴사자 정리가 N x 권한 수 작업 | 운영 부담 폭증 |
+| ALL PRIVILEGES 남발 | 신입사원이 프로덕션 테이블을 DROP | 데이터 유실 사고 |
+| 권한 문서화 안 함 | 감사 시 누가 무엇에 접근하는지 파악 불가 | 규정 위반 |
+| dev/prod 카탈로그 미분리 | 개발 중 실수로 프로덕션 데이터 변경 | 서비스 장애 |
+
+---
+
+## 그룹 기반 권한 설계 패턴 (역할별 3~5개 그룹)
+
+현업에서 가장 효과적인 권한 관리 방법은 **역할(Role) 기반의 그룹**을 설계하는 것입니다. 개인에게는 절대 직접 GRANT하지 않고, 그룹 멤버십만 관리합니다.
+
+### 권장 그룹 설계 (5개 기본 그룹)
+
+```sql
+-- ===== 1. 데이터 뷰어 (읽기 전용 — 비즈니스 분석가, PM, 경영진) =====
+-- Gold 레이어만 조회 가능, 원시 데이터 접근 불가
+GRANT USE CATALOG ON CATALOG production TO `data_viewers`;
+GRANT USE SCHEMA ON SCHEMA production.gold TO `data_viewers`;
+GRANT SELECT ON SCHEMA production.gold TO `data_viewers`;
+
+-- ===== 2. 데이터 분석가 (Gold + Silver 읽기) =====
+-- Gold + Silver 레이어 조회, 직접 뷰/함수 생성 가능
+GRANT USE CATALOG ON CATALOG production TO `data_analysts`;
+GRANT USE SCHEMA ON SCHEMA production.gold TO `data_analysts`;
+GRANT USE SCHEMA ON SCHEMA production.silver TO `data_analysts`;
+GRANT SELECT ON SCHEMA production.gold TO `data_analysts`;
+GRANT SELECT ON SCHEMA production.silver TO `data_analysts`;
+GRANT CREATE VIEW ON SCHEMA production.gold TO `data_analysts`;
+
+-- ===== 3. 데이터 엔지니어 (Bronze~Gold 쓰기) =====
+-- 모든 레이어에 읽기/쓰기, 테이블 생성 가능
+GRANT USE CATALOG ON CATALOG production TO `data_engineers`;
+GRANT ALL PRIVILEGES ON SCHEMA production.bronze TO `data_engineers`;
+GRANT ALL PRIVILEGES ON SCHEMA production.silver TO `data_engineers`;
+GRANT ALL PRIVILEGES ON SCHEMA production.gold TO `data_engineers`;
+
+-- ===== 4. ML 엔지니어 (모델 + 피처 관리) =====
+-- Gold 읽기 + ML 전용 스키마 관리
+GRANT USE CATALOG ON CATALOG production TO `ml_engineers`;
+GRANT USE SCHEMA ON SCHEMA production.gold TO `ml_engineers`;
+GRANT SELECT ON SCHEMA production.gold TO `ml_engineers`;
+GRANT ALL PRIVILEGES ON SCHEMA production.ml_models TO `ml_engineers`;
+GRANT ALL PRIVILEGES ON SCHEMA production.features TO `ml_engineers`;
+
+-- ===== 5. 플랫폼 관리자 (전체 관리) =====
+-- 카탈로그 생성, External Location 관리, 권한 부여
+GRANT ALL PRIVILEGES ON CATALOG production TO `platform_admins`;
+GRANT CREATE CATALOG ON METASTORE TO `platform_admins`;
+```
+
+### 사용자 관리는 그룹 멤버십만으로
+
+```
+새 분석가 입사 시:
+  → data_analysts 그룹에 추가 (1분)
+  → 끝. 필요한 모든 권한이 자동으로 적용됩니다.
+
+분석가 퇴사 시:
+  → data_analysts 그룹에서 제거 (1분)
+  → 끝. 모든 권한이 자동으로 회수됩니다.
+
+분석가 → 엔지니어 전환 시:
+  → data_analysts에서 제거 + data_engineers에 추가 (2분)
+```
+
+> 💡 **현업 팁**: 그룹은 **IdP(Azure AD, Okta 등)에서 관리하고 SCIM으로 동기화**하는 것이 가장 좋습니다. 사람이 퇴사하면 HR 시스템 → IdP → Databricks로 자동 연쇄 삭제됩니다. 수동으로 Databricks 그룹을 관리하면 반드시 빠뜨리는 사람이 생깁니다.
+
+---
+
+## 최소 권한 원칙의 실전 적용
+
+"최소 권한 원칙(Principle of Least Privilege)"은 보안 교과서에 항상 나오지만, 현업에서 적용하려면 구체적인 패턴이 필요합니다.
+
+### 흔한 실수: ALL PRIVILEGES의 유혹
+
+```sql
+-- ❌ 위험: 편하지만 너무 많은 권한
+GRANT ALL PRIVILEGES ON CATALOG production TO `data_engineers`;
+-- → data_engineers 그룹의 모든 사람이 production 카탈로그의
+--   모든 스키마, 테이블을 생성/삭제/수정할 수 있게 됩니다
+-- → 신입 엔지니어가 실수로 DROP TABLE을 실행하면?
+
+-- ✅ 안전: 필요한 권한만 명시적으로 부여
+GRANT USE CATALOG ON CATALOG production TO `data_engineers`;
+GRANT USE SCHEMA ON SCHEMA production.bronze TO `data_engineers`;
+GRANT CREATE TABLE ON SCHEMA production.bronze TO `data_engineers`;
+GRANT MODIFY ON SCHEMA production.bronze TO `data_engineers`;
+GRANT SELECT ON SCHEMA production.bronze TO `data_engineers`;
+-- → DROP TABLE 권한이 없으므로 실수로 테이블 삭제 불가
+```
+
+### 환경별 권한 차등 적용
+
+```sql
+-- DEV 카탈로그: 자유롭게 실험
+GRANT ALL PRIVILEGES ON CATALOG dev TO `data_engineers`;
+GRANT ALL PRIVILEGES ON CATALOG dev TO `data_analysts`;
+
+-- STAGING 카탈로그: 제한적 쓰기
+GRANT USE CATALOG ON CATALOG staging TO `data_engineers`;
+GRANT SELECT ON CATALOG staging TO `data_engineers`;
+GRANT CREATE TABLE ON SCHEMA staging.bronze TO `data_engineers`;
+
+-- PRODUCTION 카탈로그: 서비스 프린시팔만 쓰기
+GRANT ALL PRIVILEGES ON CATALOG production TO `sp-etl-pipeline`;  -- 서비스 프린시팔
+GRANT SELECT ON CATALOG production TO `data_engineers`;           -- 엔지니어는 읽기만
+GRANT SELECT ON SCHEMA production.gold TO `data_analysts`;        -- 분석가는 Gold만
+```
+
+### 서비스 프린시팔 활용
+
+> 💡 **이것은 프로덕션 환경에서 가장 중요한 패턴입니다.**
+
+```
+프로덕션 파이프라인은 절대 개인 계정으로 실행하면 안 됩니다.
+
+이유:
+1. 개인이 퇴사하면 파이프라인이 멈춤
+2. 개인 계정은 비밀번호 변경, MFA 문제 등으로 인증이 끊길 수 있음
+3. 감사 시 "누가 이 데이터를 변경했는가"에 대한 추적이 어려움
+
+서비스 프린시팔 장점:
+- 퇴사와 무관하게 항상 동작
+- 파이프라인별로 별도의 서비스 프린시팔을 만들면 최소 권한이 자연스럽게 적용
+- 감사 로그에서 "어떤 파이프라인이 변경했는지" 명확하게 추적 가능
+```
+
+### 정기 감사 쿼리
+
+```sql
+-- 분기별 권한 감사 쿼리: 프로덕션 카탈로그에 접근 가능한 주체 확인
+SHOW GRANTS ON CATALOG production;
+
+-- 특정 테이블에 누가 접근할 수 있는지 확인
+SHOW GRANTS ON TABLE production.gold.daily_revenue;
+
+-- 시스템 테이블로 실제 접근 이력 감사
+SELECT
+    event_date,
+    user_identity.email AS user_email,
+    action_name,
+    request_params.full_name_arg AS target_object
+FROM system.access.audit
+WHERE action_name IN ('getTable', 'commandSubmit')
+    AND request_params.full_name_arg LIKE 'production.%'
+    AND event_date >= CURRENT_DATE() - INTERVAL 30 DAY
+ORDER BY event_date DESC
+LIMIT 100;
+```
+
+> 💡 **현업 팁**: 분기에 한 번 "이 사람이 정말 이 권한이 필요한가?"를 검토하는 **권한 리뷰(Access Review)** 를 하세요. 프로젝트가 끝났는데 권한이 남아있는 경우가 전체의 30% 이상입니다. 이것을 안 하면 시간이 지날수록 **권한이 비대해지는(Privilege Creep)** 현상이 발생합니다.
+
+---
+
 ## 정리
 
 | 기능 | 설명 |

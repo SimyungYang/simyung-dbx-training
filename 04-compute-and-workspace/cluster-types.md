@@ -231,6 +231,164 @@ cluster = w.clusters.create(
 
 ---
 
+## 현장에서 배운 것들: 클러스터 비용의 현실
+
+### All-Purpose 클러스터를 24시간 켜놓고 월말에 청구서 보고 놀란 경험
+
+이건 거의 모든 Databricks 신규 고객이 한 번씩 겪는 통과의례입니다. 제가 지원한 한 스타트업의 이야기를 공유합니다.
+
+데이터 엔지니어 3명이 있는 팀이었습니다. 각자 All-Purpose 클러스터를 하나씩 만들었는데, 자동 종료 설정을 깜빡했습니다.
+
+```
+상황:
+- 엔지니어 3명 × All-Purpose 클러스터 1개씩
+- 각 클러스터: i3.xlarge 4 workers + 1 driver = 5노드
+- 자동 종료: 설정 안 함 (기본값 없이 "Never"로 둠)
+- 실제 사용 시간: 하루 약 4시간 (나머지 20시간은 유휴)
+
+비용 계산:
+- DBU 단가: All-Purpose = ~$0.75/DBU (i3.xlarge ≈ 2 DBU/노드)
+- 시간당 비용: 5노드 × 2 DBU × $0.75 = $7.5/시간/클러스터
+- 월간 비용: $7.5 × 24시간 × 30일 × 3클러스터 = $16,200/월
+
+실제 필요한 비용 (자동 종료 30분 설정 시):
+- $7.5 × 4.5시간 × 22일 × 3클러스터 = $2,227.5/월
+
+낭비: $16,200 - $2,227.5 = $13,972.5/월 (86% 낭비!)
+```
+
+> ⚠️ **이것을 안 하면 이런 일이 벌어집니다**: 자동 종료 미설정은 Databricks 비용 최적화의 가장 기본이자, 가장 많이 놓치는 항목입니다. **모든 All-Purpose 클러스터에 10~30분 자동 종료를 반드시 설정하세요.** 워크스페이스 관리자가 정책(Cluster Policy)으로 강제할 수 있습니다.
+
+### 실전 클러스터 선택 의사결정 흐름
+
+20년간의 경험을 바탕으로, 고객에게 항상 추천하는 의사결정 흐름입니다.
+
+```
+질문 1: SQL만 사용하시나요?
+  ├─ Yes → Serverless SQL Warehouse (끝. 더 고민할 필요 없음)
+  └─ No → 질문 2
+
+질문 2: 프로덕션 스케줄 작업인가요?
+  ├─ Yes → 질문 3
+  └─ No (개발/탐색) → 질문 4
+
+질문 3: 특수 라이브러리나 GPU가 필요한가요?
+  ├─ Yes → Job Cluster (Classic)
+  └─ No → Serverless Job (비용 최적, 시작 빠름)
+
+질문 4: 팀 공유가 필요한가요?
+  ├─ Yes → Shared All-Purpose Cluster (비용 분담)
+  └─ No → Serverless Notebook (개인 작업, 관리 제로)
+```
+
+### 각 클러스터 유형별 실전 비용 비교
+
+같은 워크로드를 서로 다른 클러스터 유형으로 실행했을 때의 실제 비용을 비교합니다.
+
+| 시나리오 | All-Purpose (상시 가동) | All-Purpose (자동 종료) | Job Cluster | Serverless |
+|---------|----------------------|----------------------|-------------|------------|
+| **일 2시간 ETL** | $5,400/월 | $1,350/월 | $990/월 | $720/월 |
+| **일 8시간 개발** | $5,400/월 | $4,050/월 | N/A | $2,880/월 |
+| **주 1회 ML 학습 (GPU, 4시간)** | $8,640/월 | $2,160/월 | $540/월 | N/A (GPU 미지원 시) |
+| **간헐적 SQL 분석** | $5,400/월 | $1,000/월 | N/A | $200/월 |
+
+> 💡 **비용 최적화 공식**: (1) 프로덕션 = Serverless Job 또는 Job Cluster, (2) 개발 = Serverless Notebook, (3) SQL = Serverless SQL Warehouse. All-Purpose Cluster는 **공유 개발 환경이 꼭 필요하거나, 특수 라이브러리가 필수인 경우에만** 사용하세요.
+
+### 서버리스로 전환 후 비용이 오히려 올라간 사례와 원인
+
+"서버리스는 항상 저렴하다"는 것은 **거짓**입니다. 한 고객이 모든 워크로드를 Serverless로 전환했다가 비용이 30% 증가한 사례를 공유합니다.
+
+#### 원인 1: 장시간 연속 실행 워크로드
+
+```
+Classic Job Cluster:
+- 8시간 연속 ETL
+- i3.2xlarge 8 workers
+- 비용: 8노드 × 4 DBU × $0.25(Job 단가) × 8시간 = $64
+
+Serverless Job:
+- 같은 워크로드
+- DBU 단가가 높음 (약 $0.70/DBU)
+- 비용: ~$140 (약 2.2배)
+```
+
+**Serverless는 짧고 간헐적인 워크로드에 최적화**되어 있습니다. 8시간 이상 연속 실행되는 대규모 ETL은 Classic Job Cluster가 더 저렴할 수 있습니다.
+
+#### 원인 2: 과도한 Serverless SQL Warehouse 사용
+
+```
+상황: BI 팀 50명이 Serverless SQL Warehouse를 사용
+문제: 각자 무거운 쿼리를 동시에 실행 → 오토스케일링으로 노드가 최대치까지 확장
+결과: 월간 SQL Warehouse 비용 $30,000 (예상의 3배)
+```
+
+해결책:
+- Query Profile을 분석하여 비효율적인 쿼리 최적화
+- 무거운 배치 쿼리는 Scheduled Job으로 분리
+- SQL Warehouse의 Max Cluster 수를 적절히 제한
+
+#### 원인 3: 개발 중 Serverless Notebook의 유휴 비용
+
+```
+상황: 개발자가 Serverless Notebook에서 코드 작성 중 점심 식사 (1시간)
+Classic: 자동 종료 30분 설정 → 30분 후 종료 → 유휴 비용 $3.75
+Serverless: 세션이 유지되는 동안 과금 → 유휴 비용은 적지만 세션 타임아웃 전까지 과금
+```
+
+### 워크스페이스 관리자를 위한 Cluster Policy 실전 가이드
+
+비용 폭주를 막는 가장 효과적인 방법은 **Cluster Policy(클러스터 정책)**입니다.
+
+```json
+{
+    "cluster_name": {
+        "type": "fixed",
+        "value": "team-{user}-dev"
+    },
+    "autotermination_minutes": {
+        "type": "range",
+        "minValue": 10,
+        "maxValue": 60,
+        "defaultValue": 30
+    },
+    "num_workers": {
+        "type": "range",
+        "minValue": 1,
+        "maxValue": 8,
+        "defaultValue": 2
+    },
+    "node_type_id": {
+        "type": "allowlist",
+        "values": ["i3.xlarge", "i3.2xlarge", "m5.xlarge"],
+        "defaultValue": "i3.xlarge"
+    },
+    "spark_version": {
+        "type": "regex",
+        "pattern": "1[5-8]\\.[0-9]+\\.x-scala2\\.12"
+    },
+    "custom_tags.team": {
+        "type": "fixed",
+        "value": "data-engineering"
+    },
+    "custom_tags.cost_center": {
+        "type": "fixed",
+        "value": "DE-001"
+    }
+}
+```
+
+| 정책 항목 | 권장 설정 | 이유 |
+|----------|----------|------|
+| **자동 종료** | 10~30분 (기본 30분) | 유휴 클러스터 비용 방지 |
+| **최대 워커 수** | 팀 규모에 따라 4~16 | 무한 스케일아웃 방지 |
+| **노드 타입** | 허용 목록(allowlist)으로 제한 | 비싼 GPU 노드를 실수로 선택하는 것 방지 |
+| **태그** | 팀명, 비용 센터 필수 | 비용 추적과 차지백(chargeback) |
+| **Spot Instance** | 개발 환경에서는 first_on_demand=1, 나머지 Spot | 비용 40~60% 절감 |
+
+> 💡 **현업에서는 이렇게 합니다**: 워크스페이스 관리자가 팀별로 Cluster Policy를 만들고, 개발자는 해당 정책 범위 내에서만 클러스터를 생성할 수 있도록 합니다. "자유"보다 "가드레일 안의 자유"가 비용을 80% 절감합니다.
+
+---
+
 ## 정리
 
 | 핵심 개념 | 설명 |

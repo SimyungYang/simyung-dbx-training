@@ -229,6 +229,158 @@ GRANT APPLY TAG ON SCHEMA production.ecommerce TO `data_engineers`;
 
 ---
 
+## 실전 인사이트: PII 태그를 수동으로 관리하다가 누락이 발생한 사례
+
+한 이커머스 기업에서 데이터 스튜어드가 새 테이블이 생성될 때마다 수동으로 PII 컬럼에 태그를 부착하고 있었습니다. 처음에는 테이블이 20~30개라 관리가 가능했지만, 1년이 지나면서 테이블이 300개 이상으로 늘어났고, 다음과 같은 문제가 발생했습니다.
+
+| 문제 | 구체적 상황 |
+|------|-----------|
+| **신규 테이블 누락** | 데이터 엔지니어가 새 테이블을 생성하고 스튜어드에게 알리지 않아, PII 컬럼에 태그가 없는 상태로 3개월간 운영 |
+| **컬럼명 불일치** | 어떤 테이블은 `email`, 다른 테이블은 `user_email`, `contact_email`로 컬럼명이 달라서 PII 식별이 어려움 |
+| **ABAC 정책 공백** | 태그가 없는 PII 컬럼에는 마스킹 정책이 적용되지 않아, 비인가자가 원본 데이터를 조회 |
+| **감사 지적** | 개인정보보호 감사에서 "PII 컬럼 중 23%에 태그가 누락되어 있다"는 지적 |
+
+> ⚠️ **교훈**: PII 태그를 수동으로 관리하면, 테이블이 100개를 넘는 시점부터 **반드시 누락이 발생**합니다. 자동화가 필수입니다.
+
+---
+
+## 실전 인사이트: 자동 태깅 파이프라인 구축 패턴
+
+### 패턴 1: 컬럼명 기반 자동 태깅
+
+가장 간단하면서도 효과적인 방법입니다. 컬럼명에 특정 패턴이 포함되어 있으면 자동으로 PII 태그를 부착합니다.
+
+```sql
+-- PII 컬럼명 패턴 정의 테이블
+CREATE OR REPLACE TABLE production.governance.pii_patterns (
+  pattern STRING,
+  pii_type STRING,
+  description STRING
+);
+
+INSERT INTO production.governance.pii_patterns VALUES
+  ('%email%', 'email', '이메일 주소'),
+  ('%phone%', 'phone', '전화번호'),
+  ('%mobile%', 'phone', '휴대폰 번호'),
+  ('%ssn%', 'ssn', '주민등록번호'),
+  ('%jumin%', 'ssn', '주민번호'),
+  ('%birth%', 'birth_date', '생년월일'),
+  ('%address%', 'address', '주소'),
+  ('%card_number%', 'card', '카드번호'),
+  ('%account_no%', 'account', '계좌번호');
+
+-- 태그 미부착 PII 컬럼 식별 쿼리
+SELECT
+  c.table_catalog,
+  c.table_schema,
+  c.table_name,
+  c.column_name,
+  p.pii_type,
+  CASE WHEN ct.tag_name IS NOT NULL THEN '태그 있음' ELSE '⚠️ 태그 누락' END AS status
+FROM system.information_schema.columns c
+CROSS JOIN production.governance.pii_patterns p
+LEFT JOIN system.information_schema.column_tags ct
+  ON c.table_catalog = ct.catalog_name
+  AND c.table_schema = ct.schema_name
+  AND c.table_name = ct.table_name
+  AND c.column_name = ct.column_name
+  AND ct.tag_name = 'pii'
+WHERE LOWER(c.column_name) LIKE p.pattern
+  AND c.table_catalog = 'production';
+```
+
+### 패턴 2: AI 기반 자동 PII 탐지
+
+컬럼명으로 식별하기 어려운 경우(예: `field_1`, `col_a` 같은 비표준 이름), **데이터 샘플을 분석하여 PII를 탐지**하는 방법입니다.
+
+```python
+# AI 함수를 활용한 PII 자동 탐지 (개념)
+# 실제 구현 시 Databricks의 ai_classify 또는 외부 NER 모델을 활용합니다
+
+def detect_pii_columns(table_name: str) -> list:
+    """테이블의 각 컬럼에서 PII 패턴을 탐지합니다"""
+
+    # 1. 각 STRING 컬럼에서 샘플 100행 추출
+    # 2. 정규식 패턴 매칭 (이메일, 전화번호, 주민번호 등)
+    # 3. 매칭률이 80% 이상이면 해당 PII 유형으로 분류
+
+    pii_patterns = {
+        'email': r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+        'phone': r'^01[016789]-?\d{3,4}-?\d{4}$',
+        'ssn': r'^\d{6}-?\d{7}$',
+        'card': r'^\d{4}-?\d{4}-?\d{4}-?\d{4}$'
+    }
+    # ... 탐지 로직
+```
+
+### 패턴 3: 파이프라인 통합 자동 태깅
+
+데이터 수집 파이프라인(SDP, Lakeflow Jobs)에서 테이블을 생성/변경할 때 **자동으로 태그를 부착**하는 패턴입니다.
+
+```python
+# 테이블 생성 후 자동 태깅 (파이프라인의 post-processing 단계)
+from databricks.sdk import WorkspaceClient
+
+w = WorkspaceClient()
+
+def auto_tag_table(catalog, schema, table):
+    """신규 테이블 생성 후 자동으로 PII 태그를 부착합니다"""
+
+    # 1. PII 패턴에 매칭되는 컬럼 식별
+    columns = spark.sql(f"DESCRIBE TABLE {catalog}.{schema}.{table}").collect()
+
+    pii_column_patterns = {
+        'email': 'email', 'phone': 'phone', 'mobile': 'phone',
+        'ssn': 'ssn', 'jumin': 'ssn', 'address': 'address'
+    }
+
+    # 2. 매칭된 컬럼에 태그 부착
+    for col in columns:
+        col_name_lower = col.col_name.lower()
+        for pattern, pii_type in pii_column_patterns.items():
+            if pattern in col_name_lower:
+                spark.sql(f"""
+                    ALTER TABLE {catalog}.{schema}.{table}
+                    ALTER COLUMN {col.col_name}
+                    SET TAGS ('pii' = 'true', 'pii_type' = '{pii_type}')
+                """)
+                print(f"Tagged {col.col_name} as pii_type={pii_type}")
+```
+
+---
+
+## 실전 인사이트: ABAC가 RBAC보다 나은 실전 상황
+
+### 상황: 100개 테이블에 PII 마스킹 적용
+
+| 접근 방식 | RBAC (기존) | ABAC (태그 기반) |
+|-----------|-----------|-----------------|
+| **초기 설정** | 100개 테이블 x 3~5개 PII 컬럼 = 300~500개 마스킹 설정 | 1개 ABAC 정책 + 태그 부착 |
+| **신규 테이블 추가** | 매번 수동으로 마스킹 설정 추가 | 태그만 부착하면 자동 적용 |
+| **정책 변경** | 300~500개 마스킹 함수를 모두 수정 | 1개 ABAC 정책만 수정 |
+| **감사 준비** | 각 테이블별로 마스킹 현황 확인 | 태그 조회 쿼리 1개로 전체 현황 파악 |
+
+### ABAC가 RBAC보다 확실히 나은 시나리오
+
+| 시나리오 | 이유 |
+|---------|------|
+| **데이터 자산이 100개 이상** | RBAC은 자산 수에 비례하여 관리 비용 증가. ABAC는 정책 수에만 비례 |
+| **팀/프로젝트 간 데이터 공유가 빈번** | 새로운 공유 요청마다 RBAC 설정 vs 태그 기반 자동 적용 |
+| **규제 요건이 자주 변경** | GDPR → 개인정보보호법 변경 시 태그 기반 정책 1개만 수정 |
+| **멀티 카탈로그 환경** | 여러 카탈로그에 걸친 일관된 정책 적용이 ABAC로 쉬움 |
+
+### RBAC가 여전히 적합한 시나리오
+
+| 시나리오 | 이유 |
+|---------|------|
+| **소규모 조직 (테이블 50개 이하)** | ABAC 설정 오버헤드가 RBAC보다 큼 |
+| **단순한 권한 구조** | "이 팀은 이 스키마만 접근"이면 RBAC으로 충분 |
+| **ABAC가 Preview 단계** | 프로덕션 안정성이 중요하면 GA까지 대기 |
+
+> 💡 **실전 판단 기준**: 조직의 데이터 자산이 **100개 이상**이고, **PII 보호 요건**이 있다면 ABAC 도입을 적극 검토하세요. 태그 부착 자동화 파이프라인과 함께 도입하면, RBAC 대비 관리 비용을 **80% 이상 절감**할 수 있습니다.
+
+---
+
 ## 정리
 
 | 핵심 개념 | 설명 |
