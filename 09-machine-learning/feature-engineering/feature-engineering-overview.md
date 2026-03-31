@@ -187,7 +187,7 @@ fe = FeatureEngineeringClient()  # ✅ 권장
 
 ### Databricks의 Skew 방지 아키텍처
 
-```
+```text
 [학습 시]
   labels_df (customer_id, is_churned)
        │
@@ -225,7 +225,7 @@ Point-in-Time Lookup의 내부 동작을 더 상세히 이해하면, 시계열 �
 
 ### 동작 원리
 
-```
+```text
 labels_df:
   customer_id | event_timestamp | is_churned
   C001        | 2025-03-15      | True

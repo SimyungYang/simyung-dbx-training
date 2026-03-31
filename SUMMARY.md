@@ -104,6 +104,8 @@
 * [AI/BI 대시보드](08-ai-bi/lakeview-dashboards.md)
 * [Genie](08-ai-bi/genie.md)
 * [알림과 스케줄링](08-ai-bi/alerts-and-scheduling.md)
+* [AI/BI 아키텍처 심화](08-ai-bi/aibi-architecture.md)
+* [하이브리드 BI 전략](08-ai-bi/hybrid-bi-strategy.md)
 
 ## 머신러닝
 
