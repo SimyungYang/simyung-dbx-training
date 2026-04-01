@@ -4,91 +4,94 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Purpose
 
-이 레포지토리는 **데이터 관련 지식이 전혀 없는 사람** 을 대상으로 한 Databricks 종합 교육 자료 모음입니다.
-고객(비개발자 포함)이 처음부터 단계적으로 학습할 수 있도록 한국어 Markdown 파일로 작성합니다.
-최종 산출물은 **GitBook 또는 웹 호스팅(MkDocs, Docusaurus 등)** 형태로 배포 가능하도록 구성합니다.
+Databricks Data Intelligence Platform의 핵심 기능과 아키텍처를 체계적으로 다루는 한국어 교육 자료입니다.
+GitBook으로 배포: https://simyungyang.gitbook.io/databricks-training/
+GitHub: https://github.com/SimyungYang/simyung-dbx-training
 
-## Target Audience
+## 관련 프로젝트
 
-- 데이터 엔지니어링, 데이터 웨어하우스, ETL 등의 개념을 처음 접하는 사람
-- Databricks 플랫폼을 처음 사용하는 고객, SA, 파트너
+- **Databricks Enablements** (실전 가이드 & 핸즈온): https://simyungyang.gitbook.io/databricks-enablement-resources/
+  - GitHub: https://github.com/SimyungYang/databricks-enablement-blog
+  - 역할 분리: Training = 전체 문서(교육) / Enablements = 시나리오별 가이드 & 핸즈온
 
-## Covered Topics
+## 콘텐츠 품질 기준 (최우선 원칙)
 
-아래 주제들을 초보자도 이해할 수 있도록 자세히 다룹니다:
+모든 문서는 **Databricks Academy 수준** 으로 작성한다. 표면적 소개나 개요 수준에서 멈추지 않는다.
 
-0. **Prerequisites**— RDB 기초, 스키마 설계(Star/Snowflake), 빅데이터 역사(Hadoop→Spark→Lakehouse), 생태계, 실시간 처리 기술
-1. **Data Fundamentals**— 데이터 엔지니어링 기초, 데이터 웨어하우스 vs 데이터 레이크 개념
-2. **Databricks Overview**— 플랫폼 소개, 아키텍처, Workspace/Notebook 기초
-3. **Lakehouse Architecture**— Delta Lake, Lakehouse 패러다임, Medallion 아키텍처
-4. **Compute & Workspace**— Spark 기초, 클러스터, SQL Warehouse, Serverless
-5. **Data Engineering**— Auto Loader, SDP(선언적 파이프라인), Lakeflow Connect/Jobs
-6. **Data Warehousing**— Databricks SQL, AI 함수, 쿼리 최적화
-7. **Unity Catalog**— 데이터 거버넌스, 권한 관리, 리니지, Delta Sharing
-8. **AI/BI**— Lakeview 대시보드, Genie, 알림
-9. **Machine Learning**— MLflow, Model Serving, Feature Engineering
-10. **Agent Development**— AI 에이전트, Vector Search, RAG, Agent Evaluation
-11. **Lakebase**— 관리형 PostgreSQL OLTP, Delta Lake 동기화
-12. **Security & Governance**— 인증, 네트워크 보안, 시스템 테이블
-13. **Appendix**— CLI, Asset Bundles, Apps, 용어 사전, 학습 로드맵
+### 각 기술/개념에 반드시 포함할 내용:
 
-## Content Guidelines
+1. **왜 등장했는가** — 이전 기술의 한계, 해결하려는 문제
+2. **어떻게 작동하는가** — 핵심 메커니즘, 아키텍처, 동작 원리
+3. **실전에서 어떻게 활용되는가** — 구체적 사용 사례, 구성 예시, 코드
+4. **장단점과 트레이드오프** — 알려진 제약, 대안, 비용, 성능 비교
+5. **주의사항과 베스트 프랙티스** — 흔한 실수, 권장 설정, 모범 사례
 
-### Writing Style
+### 잘못된 예시 vs 올바른 예시:
+
+❌ "Instance Pool은 유휴 인스턴스를 미리 확보하여 클러스터 시작 시간을 단축합니다."
+✅ Instance Pool에 대해:
+- **왜 필요한가**: 클러스터 시작 시 EC2/VM 프로비저닝에 2-5분 소요 → 인터랙티브 작업에 병목
+- **어떻게 작동하는가**: 미리 VM을 확보(warm pool)하여 대기 → 요청 시 즉시 할당 (시작 시간 30초 이내)
+- **장점**: 클러스터 시작 시간 80% 단축, 동일 인스턴스 재사용으로 EBS 캐시 유지
+- **단점/트레이드오프**: 유휴 인스턴스 비용 발생 (EC2 비용은 계속 과금), Pool 크기 설계 필요
+- **언제 사용**: 인터랙티브 개발, Auto-scaling이 빈번한 Job, 여러 클러스터가 같은 사양을 공유할 때
+- **언제 사용하지 않을 때**: 서버리스 컴퓨트 사용 시 (Pool 불필요), 가끔 실행하는 배치 작업
+
+## 보강이 필요한 페이지 (TODO)
+
+### Score 1-2 (가장 시급):
+- `04-compute-and-workspace/cluster-policies/permissions-and-design.md` (38줄)
+- `14-best-practices/cost-optimization/cost-structure.md` (41줄)
+- `08-ai-bi/aibi-architecture.md` (53줄)
+- `02-databricks-overview/databricks-competitive.md` (64줄)
+- `07-unity-catalog/data-lineage/basics-and-visualization.md` (123줄)
+- `10-agent-development/agent-deployment/versioning-and-monitoring.md` (128줄)
+- `09-machine-learning/mlflow/model-registry/basics-and-registration.md` (153줄)
+- `06-data-warehousing/pivot-unpivot/pivot-basics.md` (155줄)
+- `05-data-engineering/auto-loader/auto-loader-hands-on/` (4개 파일)
+- `05-data-engineering/lakeflow-jobs/job-configuration/tasks-and-dependencies.md` (163줄)
+- `11-lakebase/lakebase-with-apps/optimization-and-crud.md` (169줄)
+- `09-machine-learning/mlflow/mlflow-tracing/analysis-and-evaluation.md` (169줄)
+- `12-security-and-governance/system-tables/overview-and-tables.md` (211줄)
+- `13-appendix/glossary.md` (240줄)
+- `13-appendix/databricks-asset-bundles.md` (274줄)
+- `00-prerequisites/bigdata-ecosystem.md` (327줄)
+- `09-machine-learning/model-serving/custom-model-deployment.md` (416줄)
+- `09-machine-learning/model-serving/endpoint-monitoring.md` (463줄)
+
+### Score 3 (보강 필요):
+- `08-ai-bi/hybrid-bi-strategy.md` (64줄)
+- `12-security-and-governance/system-tables/dashboard-and-setup.md` (65줄)
+- `02-databricks-overview/databricks-pricing.md` (70줄)
+- `11-lakebase/lakebase-with-apps/deployment.md` (72줄)
+- `09-machine-learning/mlflow/model-registry/permissions-and-serving.md` (91줄)
+- `08-ai-bi/aibi-overview.md` (99줄)
+
+### 전체적으로 부족한 패턴:
+- 대부분 문서에서 "장단점/트레이드오프" 섹션이 없음
+- "언제 사용하고, 언제 사용하지 않을까" 가이드가 부족
+- 비용 관련 정보 (DBU 소모량, 가격 비교)가 부족
+- 실무 시나리오 기반 설명이 부족 (이론만 있고 "그래서 어떻게 쓰나?"가 없음)
+- 다른 기술/서비스와의 비교가 부족 (예: Instance Pool vs Serverless, Delta Sync vs Direct Access)
+
+## Writing Style
+
 - **언어**: 한국어 (기술 용어는 영문 병기, 예: "데이터 레이크하우스(Data Lakehouse)")
-- **어투**: 정중하고 친절한 존댓말(합니다체)을 사용하며, 전문가가 설명하는 듯한 신뢰감 있는 톤 유지
-  - ❌ "~이다", "~임", "~함" (단답형/체언종결 금지)
-  - ✅ "~합니다", "~됩니다", "~할 수 있습니다", "~살펴보겠습니다"
-  - 예시: "이 섹션에서는 Delta Lake의 핵심 개념을 살펴보겠습니다. ACID 트랜잭션이 왜 중요한지 이해하고 나면, 데이터 파이프라인을 훨씬 안정적으로 설계하실 수 있습니다."
-- **톤**: 친절하고 쉬운 설명, 비유와 실생활 예시 적극 활용. 독자를 전문가로 성장시키는 멘토의 관점
-- **구조**: 각 문서는 "왜 필요한가 → 핵심 개념 → 동작 원리 → 실습 예제 → 정리" 흐름으로 구성
-- **시각 자료**:
-  - **공식 문서 이미지 우선 활용**: Databricks 공식 문서(docs.databricks.com)에 아키텍처 다이어그램, 스크린샷 등이 있으면 해당 이미지를 직접 활용합니다. 아키텍처를 따로 그리지 않습니다.
-  - 이미지 삽입 형식: `![설명](이미지URL)` 으로 공식 문서의 이미지를 임베딩하되, 아래에 원본 페이지 링크를 명시합니다.
-  - 공식 이미지가 없는 경우에만 Mermaid 다이어그램으로 보충합니다.
-  - 표, 코드 블록도 적극 활용합니다.
+- **어투**: 합니다체 ("~합니다", "~됩니다", "~할 수 있습니다")
+- **구조**: 왜 필요한가 → 핵심 개념 → 동작 원리 → 장단점/비교 → 실습/코드 → 베스트 프랙티스 → 정리
+- **시각 자료**: Databricks 공식 문서 이미지 우선 활용, 없으면 테이블로 표현 (Mermaid/ASCII art 사용 금지)
+- **한국어 볼드 렌더링**: `**볼드텍스트**` 뒤에 한글이 바로 오면 반드시 스페이스 추가. `**` 바로 안쪽에는 스페이스 넣지 않음.
 
-### Industry Terminology (산업 표준 용어)
-- Databricks 고유 용어가 아닌 **산업 표준 용어**(예: ACID, CDC, SCD, OLTP, OLAP, MPP, Columnar Storage, Schema-on-Read/Write, Data Mesh, Data Fabric 등)가 등장하면 반드시 별도의 상세 설명을 함께 제공
-- 용어 설명 방식:
-  - **인라인 설명**: 본문에서 처음 등장할 때 괄호 또는 박스(`> 💡`)로 쉬운 설명 제공
-  - **용어 사전 링크**: `13-appendix/glossary.md`의 해당 항목으로 링크하여 더 자세한 설명 참조 가능
-- 산업 표준 용어는 "왜 이런 개념이 생겼는지(배경)"까지 설명하여 초보자도 맥락을 이해할 수 있도록 함
+## File Organization
 
-### Source References
-- **공식 문서(1차 출처)**:
-  - AWS: https://docs.databricks.com/aws/en/
-  - Azure: https://learn.microsoft.com/en-us/azure/databricks/
+- 번호 prefix 폴더로 학습 순서 (예: `01-data-fundamentals/`)
+- 파일명 영문 kebab-case (예: `medallion-architecture.md`)
+- 200줄 이상이면 서브페이지로 분리
+- GitBook SUMMARY.md로 네비게이션 관리
+
+## Source References
+
+- **공식 문서**: https://docs.databricks.com/aws/en/
+- **Azure**: https://learn.microsoft.com/en-us/azure/databricks/
 - **릴리즈 노트**: https://docs.databricks.com/aws/en/release-notes/
-  - 최신 GA/Public Preview/Private Preview 기능 변경사항을 적극 반영
-  - 각 주제 문서에서 관련 신규 기능이 있으면 `> 🆕 **[2025.xx 릴리즈]**` 박스로 하이라이트
-  - 릴리즈 노트에 언급된 구현 레벨 가이드(마이그레이션 방법, 설정 변경 등)도 실습 예제에 포함
-- **공식 블로그**: https://www.databricks.com/blog
-  - 신규 피처 소개, 아키텍처 딥다이브, 베스트 프랙티스 글을 참고하여 실무 관점의 내용 보강
-  - 블로그에서 제시하는 벤치마크, 성능 비교, 고객 사례 등을 적절히 인용
-  - 특히 Data+AI Summit 발표 자료, 기술 블로그의 구현 예제를 교육 자료에 반영
-- 각 문서 하단에 **참고 링크 섹션** 을 두어 공식 문서, 릴리즈 노트, 블로그 원문을 명시
-
-### Incorporating New Features & Practical Implementation
-- 각 주제별 문서 작성 시 해당 영역의 **최신 릴리즈 노트와 블로그 글을 반드시 조회** 하여 반영
-- 신규 기능은 단순 소개에 그치지 않고, **왜 도입되었는지(배경) → 어떻게 쓰는지(구현) → 기존 방식 대비 장점** 흐름으로 설명
-- 코드 예제는 최신 API와 구문을 사용하며, deprecated된 방식은 마이그레이션 가이드와 함께 안내
-- Preview 단계(Private/Public)의 기능은 `> ⚠️ **Preview 기능**` 박스로 명시하고, GA 시점 기준으로 안정성 안내 포함
-
-### File Organization
-- 각 주제별 번호 prefix 폴더로 학습 순서를 명확히 함 (예: `01-data-fundamentals/`)
-- 문서 파일명은 영문 kebab-case 사용 (예: `medallion-architecture.md`)
-- 각 섹션 폴더에 `README.md`를 두어 해당 섹션의 학습 목표와 문서 목록을 안내
-- 웹 호스팅 도구(GitBook/MkDocs/Docusaurus)의 네비게이션 설정 파일 포함
-
-### Quality Standards
-- 전문 용어는 처음 등장 시 반드시 쉬운 말로 풀어서 설명
-- 코드 예제는 복사-붙여넣기로 바로 실행 가능하도록 작성
-- 각 문서는 독립적으로도 읽을 수 있되, 순서대로 읽으면 체계적으로 학습 가능하도록 구성
-
-## Web Hosting
-
-이 교육 자료는 웹에서 GitBook 스타일로 호스팅할 수 있도록 구성합니다:
-- **MkDocs (Material theme)**또는 **Docusaurus** 를 기본 호스팅 도구로 사용
-- `mkdocs.yml` 또는 `docusaurus.config.js`에 네비게이션, 테마, 검색 설정 포함
-- GitHub Pages 또는 Vercel/Netlify로 배포 가능
+- **블로그**: https://www.databricks.com/blog
