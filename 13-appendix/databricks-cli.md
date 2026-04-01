@@ -4,7 +4,7 @@
 
 > 💡 **Databricks CLI** 는 터미널(명령줄)에서 Databricks를 관리하고 조작할 수 있는 커맨드라인 도구입니다. Workspace, 클러스터, Job, SQL, Asset Bundles 등 대부분의 Databricks 기능을 CLI로 사용할 수 있습니다.
 
-GUI(웹 UI)만으로도 Databricks를 사용할 수 있지만, CLI를 활용하면 ** 반복 작업 자동화, CI/CD 파이프라인 구축, 스크립트 기반 관리** 등 더 효율적인 운영이 가능합니다. 특히 여러 Workspace를 관리하거나 배포 파이프라인을 구축할 때 CLI는 필수적인 도구입니다.
+GUI(웹 UI)만으로도 Databricks를 사용할 수 있지만, CLI를 활용하면 **반복 작업 자동화, CI/CD 파이프라인 구축, 스크립트 기반 관리** 등 더 효율적인 운영이 가능합니다. 특히 여러 Workspace를 관리하거나 배포 파이프라인을 구축할 때 CLI는 필수적인 도구입니다.
 
 ---
 
@@ -28,7 +28,7 @@ brew upgrade databricks/tap/databricks    # macOS
 curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh  # Linux
 ```
 
-> ⚠️ ** 주의**: Databricks CLI v2 (현재 버전)와 레거시 CLI (Python 패키지 `databricks-cli`)는 완전히 다른 도구입니다. 레거시 CLI는 더 이상 권장되지 않습니다. `pip install databricks-cli`로 설치한 것이 있다면 제거하고 새 CLI를 사용하세요.
+> ⚠️ **주의**: Databricks CLI v2 (현재 버전)와 레거시 CLI (Python 패키지 `databricks-cli`)는 완전히 다른 도구입니다. 레거시 CLI는 더 이상 권장되지 않습니다. `pip install databricks-cli`로 설치한 것이 있다면 제거하고 새 CLI를 사용하세요.
 
 ---
 
@@ -75,7 +75,7 @@ databricks clusters list
 
 ## 프로필 관리
 
-여러 Workspace를 사용하는 경우, ** 프로필** 을 통해 각 Workspace의 인증 정보를 관리합니다. 프로필은 `~/.databrickscfg` 파일에 저장됩니다.
+여러 Workspace를 사용하는 경우, **프로필** 을 통해 각 Workspace의 인증 정보를 관리합니다. 프로필은 `~/.databrickscfg` 파일에 저장됩니다.
 
 ```bash
 # 프로필 목록 확인
@@ -406,8 +406,8 @@ for r in runs:
 | 핵심 기능 | 설명 |
 |-----------|------|
 | **설치**| Homebrew(macOS) 또는 curl(Linux/Windows)로 설치합니다. 레거시 CLI와 혼동하지 마세요 |
-| ** 인증**| OAuth(권장) 또는 PAT 기반으로 설정합니다. CI/CD에서는 환경 변수를 사용합니다 |
-| ** 프로필**| 여러 Workspace의 인증을 `~/.databrickscfg`에서 프로필로 관리합니다 |
+| **인증**| OAuth(권장) 또는 PAT 기반으로 설정합니다. CI/CD에서는 환경 변수를 사용합니다 |
+| **프로필**| 여러 Workspace의 인증을 `~/.databrickscfg`에서 프로필로 관리합니다 |
 | **Workspace**| 노트북과 파일의 내보내기/가져오기를 수행합니다 |
 | **Clusters**| 클러스터의 생성, 시작, 정지, 상태 조회를 수행합니다 |
 | **Jobs**| Job의 생성, 실행, 모니터링, 파라미터 전달을 수행합니다 |

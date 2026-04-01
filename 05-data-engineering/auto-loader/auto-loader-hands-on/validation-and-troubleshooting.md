@@ -12,7 +12,7 @@
 | **중복 없음**| `GROUP BY`로 기본 키 중복 확인 | 중복 레코드 없음 |
 | **NULL 처리**| 필수 컬럼 NULL 비율 확인 | 허용 범위 내 |
 | **_rescued_data**| 파싱 실패 건 확인 | 0 또는 허용 범위 내 |
-| ** 스키마 일치** | `DESCRIBE`로 컬럼 타입 확인 | 예상 스키마와 일치 |
+| **스키마 일치** | `DESCRIBE`로 컬럼 타입 확인 | 예상 스키마와 일치 |
 
 ```sql
 -- 종합 데이터 품질 리포트
@@ -74,8 +74,8 @@ print("테이블, 체크포인트, 스키마 모두 초기화 완료.")
 | 문제 | 원인 | 해결 방법 |
 |------|------|-----------|
 | **UnknownFieldException**| `schemaEvolutionMode=failOnNewColumns`에서 새 컬럼 감지 | 스키마를 수동으로 업데이트하거나, `addNewColumns` 모드로 변경 |
-| ** 타입 불일치**| 같은 컬럼이 다른 타입으로 도착 (예: STRING → INT) | `schemaHints`로 타입을 명시하거나, `rescuedDataColumn`으로 처리 |
-| ** 스키마 덮어쓰기 필요**| 스키마 위치의 기존 스키마가 잘못된 경우 | `cloudFiles.allowOverwrites=true` 설정 후 스키마 위치 리셋 |
+| **타입 불일치**| 같은 컬럼이 다른 타입으로 도착 (예: STRING → INT) | `schemaHints`로 타입을 명시하거나, `rescuedDataColumn`으로 처리 |
+| **스키마 덮어쓰기 필요**| 스키마 위치의 기존 스키마가 잘못된 경우 | `cloudFiles.allowOverwrites=true` 설정 후 스키마 위치 리셋 |
 
 ```python
 # 스키마 충돌 해결 예제: 타입 힌트로 강제 지정
@@ -137,11 +137,11 @@ print("모든 실습 리소스 정리 완료!")
 
 | 실습 | 학습 포인트 |
 |------|-------------|
-| ** 실습 1: CSV 수집**| Auto Loader 기본 사용법, 체크포인트 기반 증분 처리 |
-| ** 실습 2: JSON + 스키마 진화**| `schemaEvolutionMode=addNewColumns`로 자동 스키마 확장 |
-| ** 실습 3: SDP 통합**| `read_files()` 함수로 Medallion 파이프라인 구축 |
-| ** 데이터 검증**| `_rescued_data`, 행 수 정합, NULL 비율 확인 |
-| ** 트러블슈팅** | 체크포인트 리셋, 스키마 충돌 해결, 일반 에러 대응 |
+| **실습 1: CSV 수집**| Auto Loader 기본 사용법, 체크포인트 기반 증분 처리 |
+| **실습 2: JSON + 스키마 진화**| `schemaEvolutionMode=addNewColumns`로 자동 스키마 확장 |
+| **실습 3: SDP 통합**| `read_files()` 함수로 Medallion 파이프라인 구축 |
+| **데이터 검증**| `_rescued_data`, 행 수 정합, NULL 비율 확인 |
+| **트러블슈팅** | 체크포인트 리셋, 스키마 충돌 해결, 일반 에러 대응 |
 
 ---
 

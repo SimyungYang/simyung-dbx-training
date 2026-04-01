@@ -4,7 +4,7 @@
 
 Databricks Python SDK는 Databricks 플랫폼의 모든 기능을 **프로그래밍 방식으로 제어** 할 수 있게 해주는 공식 Python 라이브러리입니다. 클러스터 생성, Job 실행, SQL 쿼리, Unity Catalog 관리 등 UI에서 할 수 있는 거의 모든 작업을 Python 코드로 자동화할 수 있습니다.
 
-> 💡 ** 왜 SDK가 필요한가?**
+> 💡 **왜 SDK가 필요한가?**
 > UI에서 수동으로 작업하는 것은 소규모 환경에서는 문제가 없지만, 수십 개의 클러스터를 관리하거나 수백 개의 Job을 배포할 때는 자동화가 필수적입니다. SDK를 사용하면 Infrastructure as Code(IaC) 방식으로 Databricks 리소스를 관리할 수 있습니다.
 
 ---
@@ -19,7 +19,7 @@ pip install databricks-sdk
 
 ### 인증 방법
 
-Databricks SDK는 ** 통합 인증(Unified Auth)** 을 지원합니다. 여러 인증 방법 중 환경에 맞는 것을 선택할 수 있습니다.
+Databricks SDK는 **통합 인증(Unified Auth)** 을 지원합니다. 여러 인증 방법 중 환경에 맞는 것을 선택할 수 있습니다.
 
 | 인증 방법 | 적합한 환경 | 보안 수준 |
 |---|---|---|
@@ -197,7 +197,7 @@ w.secrets.put_secret(scope="my-app-secrets", key="api-key", string_value="sk-...
 
 ## Databricks Connect
 
-Databricks Connect는 로컬 IDE(VS Code, PyCharm 등)에서 작성한 PySpark 코드를 ** 원격 Databricks 클러스터에서 실행** 할 수 있게 해주는 기능입니다. SDK의 일부로 제공됩니다.
+Databricks Connect는 로컬 IDE(VS Code, PyCharm 등)에서 작성한 PySpark 코드를 **원격 Databricks 클러스터에서 실행** 할 수 있게 해주는 기능입니다. SDK의 일부로 제공됩니다.
 
 ### 설치
 
@@ -230,11 +230,11 @@ for row in result:
 
 | 항목 | Databricks Connect | 로컬 PySpark |
 |---|---|---|
-| ** 실행 위치** | 원격 Databricks 클러스터 | 로컬 머신 |
-| ** 데이터 접근** | Unity Catalog 테이블 직접 접근 | 로컬 파일만 |
-| ** 스케일** | 클러스터 자원 활용 | 로컬 자원 제한 |
-| ** 디버깅** | 로컬 IDE에서 브레이크포인트 지원 | 로컬 IDE에서 디버깅 |
-| ** 적합 용도** | 개발·테스트 | 단위 테스트, 학습 |
+| **실행 위치**| 원격 Databricks 클러스터 | 로컬 머신 |
+| **데이터 접근**| Unity Catalog 테이블 직접 접근 | 로컬 파일만 |
+| **스케일**| 클러스터 자원 활용 | 로컬 자원 제한 |
+| **디버깅**| 로컬 IDE에서 브레이크포인트 지원 | 로컬 IDE에서 디버깅 |
+| **적합 용도**| 개발·테스트 | 단위 테스트, 학습 |
 
 ---
 
@@ -244,12 +244,12 @@ Databricks REST API를 직접 호출하는 것 대비 SDK를 사용하면 여러
 
 | 항목 | REST API | Python SDK |
 |---|---|---|
-| ** 타입 안전성** | 없음 (딕셔너리 기반) | 있음 (데이터 클래스) |
-| ** 자동 완성** | 불가 | IDE 자동 완성 지원 |
-| ** 인증 관리** | 수동 헤더 설정 | 통합 인증 자동 처리 |
-| ** 페이지네이션** | 수동 처리 | 자동 이터레이션 |
-| ** 장시간 작업** | 폴링 로직 직접 구현 | `.result()` 메서드로 자동 대기 |
-| ** 에러 처리** | HTTP 상태 코드 파싱 | 구조화된 예외 클래스 |
+| **타입 안전성**| 없음 (딕셔너리 기반) | 있음 (데이터 클래스) |
+| **자동 완성**| 불가 | IDE 자동 완성 지원 |
+| **인증 관리**| 수동 헤더 설정 | 통합 인증 자동 처리 |
+| **페이지네이션**| 수동 처리 | 자동 이터레이션 |
+| **장시간 작업**| 폴링 로직 직접 구현 | `.result()` 메서드로 자동 대기 |
+| **에러 처리**| HTTP 상태 코드 파싱 | 구조화된 예외 클래스 |
 | **API 버전 관리**| URL 경로에 직접 명시 | SDK 업데이트로 자동 반영 |
 
 REST API를 직접 호출하면 `requests` 라이브러리로 헤더·URL·페이지네이션을 모두 수동 관리해야 합니다. SDK는 이 모든 것을 추상화하므로 코드가 훨씬 간결해집니다.
@@ -286,10 +286,10 @@ print(f"서빙 엔드포인트: 총 {len(list(w.serving_endpoints.list()))}개")
 
 | 항목 | 내용 |
 |---|---|
-| ** 핵심 가치**| Python으로 Databricks 플랫폼 전체를 프로그래밍 방식으로 제어 |
-| ** 주요 클라이언트**| WorkspaceClient (워크스페이스), AccountClient (계정) |
-| ** 인증**| OAuth, PAT, Service Principal 등 통합 인증 |
-| ** 장점**| 타입 안전성, IDE 자동 완성, 자동 페이지네이션, 장시간 작업 대기 |
+| **핵심 가치**| Python으로 Databricks 플랫폼 전체를 프로그래밍 방식으로 제어 |
+| **주요 클라이언트**| WorkspaceClient (워크스페이스), AccountClient (계정) |
+| **인증**| OAuth, PAT, Service Principal 등 통합 인증 |
+| **장점**| 타입 안전성, IDE 자동 완성, 자동 페이지네이션, 장시간 작업 대기 |
 | **Databricks Connect** | 로컬 IDE에서 원격 Spark 실행 |
 
 ---

@@ -2,13 +2,13 @@
 
 ## Databricks에서 에이전트를 구축하는 방법
 
-Databricks는 AI 에이전트를 구축하기 위한 **Mosaic AI Agent Framework** 를 제공합니다. 에이전트의 표준 인터페이스인 **ChatAgent** 를 구현하면, MLflow로 추적하고, Model Serving으로 배포하고, Agent Evaluation으로 평가할 수 있습니다.
+Databricks는 AI 에이전트를 구축하기 위한 **Mosaic AI Agent Framework**를 제공합니다. 에이전트의 표준 인터페이스인 **ChatAgent** 를 구현하면, MLflow로 추적하고, Model Serving으로 배포하고, Agent Evaluation으로 평가할 수 있습니다.
 
 ---
 
 ## ChatAgent 인터페이스
 
-> 💡 **ChatAgent** 는 Databricks에서 AI 에이전트를 구축하기 위한 ** 표준 인터페이스** 입니다. 이 인터페이스를 구현하면 MLflow 로깅, Model Serving 배포, Review App, Agent Evaluation 등 Databricks의 모든 에이전트 도구와 자동으로 연동됩니다.
+> 💡 **ChatAgent**는 Databricks에서 AI 에이전트를 구축하기 위한 **표준 인터페이스** 입니다. 이 인터페이스를 구현하면 MLflow 로깅, Model Serving 배포, Review App, Agent Evaluation 등 Databricks의 모든 에이전트 도구와 자동으로 연동됩니다.
 
 ```python
 from mlflow.pyfunc import ChatAgent
@@ -99,7 +99,7 @@ class CustomerSupportAgent(ChatAgent):
 
 ## Unity Catalog Functions를 Tool로 활용
 
-에이전트가 사용할 수 있는 **도구(Tool)** 를 Unity Catalog의 SQL/Python 함수로 정의할 수 있습니다. 이렇게 하면 도구에 대한 ** 거버넌스(권한 관리, 감사)** 가 자동으로 적용됩니다.
+에이전트가 사용할 수 있는 **도구(Tool)**를 Unity Catalog의 SQL/Python 함수로 정의할 수 있습니다. 이렇게 하면 도구에 대한 **거버넌스(권한 관리, 감사)** 가 자동으로 적용됩니다.
 
 ### SQL Function Tool 생성
 
@@ -183,9 +183,9 @@ tools = [
 
 ## Managed MCP Servers
 
-> 🆕 **MCP(Model Context Protocol) Servers**: AI 에이전트가 Databricks 리소스(테이블, SQL Warehouse, 볼륨 등)와 외부 API에 ** 안전하게 연결** 할 수 있는 관리형 서버입니다.
+> 🆕 **MCP(Model Context Protocol) Servers**: AI 에이전트가 Databricks 리소스(테이블, SQL Warehouse, 볼륨 등)와 외부 API에 **안전하게 연결** 할 수 있는 관리형 서버입니다.
 
-MCP를 사용하면 에이전트가 접근할 수 있는 리소스를 ** 중앙에서 관리** 하고, 각 리소스에 대한 접근 권한을 Unity Catalog와 연동하여 제어할 수 있습니다.
+MCP를 사용하면 에이전트가 접근할 수 있는 리소스를 **중앙에서 관리** 하고, 각 리소스에 대한 접근 권한을 Unity Catalog와 연동하여 제어할 수 있습니다.
 
 ---
 
@@ -254,7 +254,7 @@ print(response2.messages[0].content)
 
 ## 첫 에이전트를 만들 때 가장 많이 하는 실수 5가지
 
-> 🔥 ** 현업에서 수십 건의 에이전트 프로젝트를 진행하며 발견한 패턴입니다.**
+> 🔥 **현업에서 수십 건의 에이전트 프로젝트를 진행하며 발견한 패턴입니다.**
 
 ### 실수 1: 프롬프트 없이 LLM에 직접 질문 전달
 
@@ -352,27 +352,27 @@ agents.deploy(model_name="catalog.schema.my_agent", model_version=1)
 
 | 비교 항목 | ChatAgent (직접 구현) | LangChain/LangGraph |
 |-----------|---------------------|---------------------|
-| ** 코드 복잡도** | 낮음 (Python 클래스 하나) | 중간~높음 (Chain, Graph 개념 학습 필요) |
-| ** 디버깅** | 쉬움 (표준 Python 디버깅) | 어려움 (프레임워크 내부 동작 파악 필요) |
-| ** 유연성** | 매우 높음 (완전한 제어) | 높음 (프레임워크 확장 가능) |
+| **코드 복잡도**| 낮음 (Python 클래스 하나) | 중간~높음 (Chain, Graph 개념 학습 필요) |
+| **디버깅**| 쉬움 (표준 Python 디버깅) | 어려움 (프레임워크 내부 동작 파악 필요) |
+| **유연성**| 매우 높음 (완전한 제어) | 높음 (프레임워크 확장 가능) |
 | **Databricks 통합**| 네이티브 (MLflow, Review App 자동 연동) | 지원 (mlflow.langchain 모듈) |
-| ** 멀티 스텝 로직**| 직접 구현해야 합니다 | LangGraph로 상태 머신 구현 가능 |
-| ** 커뮤니티/생태계**| Databricks 문서 중심 | 대규모 오픈소스 커뮤니티 |
-| ** 프로덕션 안정성**| 높음 (의존성 최소화) | 중간 (프레임워크 버전 업데이트 영향) |
-| ** 학습 곡선**| 낮음 (Python만 알면 됨) | 높음 (Chain, Agent, Tool, Memory 개념) |
+| **멀티 스텝 로직**| 직접 구현해야 합니다 | LangGraph로 상태 머신 구현 가능 |
+| **커뮤니티/생태계**| Databricks 문서 중심 | 대규모 오픈소스 커뮤니티 |
+| **프로덕션 안정성**| 높음 (의존성 최소화) | 중간 (프레임워크 버전 업데이트 영향) |
+| **학습 곡선**| 낮음 (Python만 알면 됨) | 높음 (Chain, Agent, Tool, Memory 개념) |
 
 ### 실전 선택 기준
 
-** 질문: "어떤 방식으로 에이전트를 구축할 것인가?"**
+**질문: "어떤 방식으로 에이전트를 구축할 것인가?"**
 
 | 상황 | 권장 방식 | 이유 |
 |------|---------|------|
 | 단순 RAG + Tool 호출 (1~3개) | **ChatAgent 직접 구현**| 가장 간단하고 디버깅이 쉬움 |
 | 복잡한 멀티 스텝 로직 (조건 분기, 반복, 상태 관리) | **LangGraph + ChatAgent**| 그래프 기반으로 복잡한 흐름 관리 가능 |
 | 빠른 프로토타이핑, 비개발자도 참여 | **Agent Builder (No-Code)**| UI에서 클릭으로 에이전트 구성 |
-| 기존 LangChain/CrewAI 코드가 있음 | ** 기존 프레임워크 + MLflow 래핑**| 기존 투자 활용, MLflow로 통합 관리 |
+| 기존 LangChain/CrewAI 코드가 있음 | **기존 프레임워크 + MLflow 래핑**| 기존 투자 활용, MLflow로 통합 관리 |
 
-> 🔥 ** 현업에서는**: 에이전트의 80%는 "문서 검색 + Tool 1~2개 호출"로 충분합니다. 이런 경우 **LangChain을 도입하면 오히려 불필요한 복잡성만 추가** 됩니다. LangGraph가 정말 필요한 경우는 "에이전트가 스스로 판단하여 여러 단계를 반복적으로 수행해야 하는 경우"뿐입니다. ** 단순한 것부터 시작하고, 필요할 때만 복잡성을 추가하세요.**
+> 🔥 **현업에서는**: 에이전트의 80%는 "문서 검색 + Tool 1~2개 호출"로 충분합니다. 이런 경우 **LangChain을 도입하면 오히려 불필요한 복잡성만 추가**됩니다. LangGraph가 정말 필요한 경우는 "에이전트가 스스로 판단하여 여러 단계를 반복적으로 수행해야 하는 경우"뿐입니다. **단순한 것부터 시작하고, 필요할 때만 복잡성을 추가하세요.**
 
 ---
 
@@ -461,7 +461,7 @@ def _validate_input(self, user_message: str) -> tuple[bool, str]:
     return True, ""
 ```
 
-> 💡 ** 현업 팁**: 프로덕션 에이전트에서 가장 중요한 것은 "** 절대 에러 페이지를 보여주지 않는 것**" 입니다. LLM이 실패하든, Vector Search가 실패하든, 사용자에게는 항상 자연어로 된 안내 메시지를 반환해야 합니다. 기술적 에러 메시지(stack trace)가 사용자에게 노출되면 신뢰를 잃습니다.
+> 💡 **현업 팁**: 프로덕션 에이전트에서 가장 중요한 것은 "**절대 에러 페이지를 보여주지 않는 것**" 입니다. LLM이 실패하든, Vector Search가 실패하든, 사용자에게는 항상 자연어로 된 안내 메시지를 반환해야 합니다. 기술적 에러 메시지(stack trace)가 사용자에게 노출되면 신뢰를 잃습니다.
 
 ---
 

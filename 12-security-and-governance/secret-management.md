@@ -2,7 +2,7 @@
 
 ## 왜 시크릿 관리가 필요한가요?
 
-데이터 파이프라인에서는 데이터베이스 비밀번호, API 키, 서비스 계정 자격 증명 등 **민감한 정보** 를 자주 사용합니다. 이러한 값을 노트북 코드나 설정 파일에 직접 입력하면 ** 보안 사고** 로 이어질 수 있습니다.
+데이터 파이프라인에서는 데이터베이스 비밀번호, API 키, 서비스 계정 자격 증명 등 **민감한 정보**를 자주 사용합니다. 이러한 값을 노트북 코드나 설정 파일에 직접 입력하면 **보안 사고** 로 이어질 수 있습니다.
 
 > 💡 기본 개념은 [보안 개요](./security-overview.md)의 "비밀 관리" 섹션에서 소개했습니다. 이 문서에서는 Secret Scope의 유형, CLI 관리, ACL 설정을 상세히 다룹니다.
 
@@ -24,9 +24,9 @@ Databricks가 자체적으로 관리하는 암호화된 저장소입니다.
 
 | 항목 | 설명 |
 |------|------|
-| ** 저장소**| Databricks 내부 (AES-256 암호화) |
-| ** 설정 복잡도**| 낮음 (별도 인프라 불필요) |
-| ** 적합한 환경**| AWS, GCP, 간편한 설정이 필요한 경우 |
+| **저장소**| Databricks 내부 (AES-256 암호화) |
+| **설정 복잡도**| 낮음 (별도 인프라 불필요) |
+| **적합한 환경**| AWS, GCP, 간편한 설정이 필요한 경우 |
 
 ### Azure Key Vault-backed Scope
 
@@ -34,9 +34,9 @@ Azure Key Vault의 Secret을 Databricks에서 직접 참조합니다.
 
 | 항목 | 설명 |
 |------|------|
-| ** 저장소**| Azure Key Vault |
-| ** 설정 복잡도**| 중간 (Key Vault 사전 구성 필요) |
-| ** 적합한 환경**| Azure 환경, 중앙 집중 키 관리 필요 시 |
+| **저장소**| Azure Key Vault |
+| **설정 복잡도**| 중간 (Key Vault 사전 구성 필요) |
+| **적합한 환경**| Azure 환경, 중앙 집중 키 관리 필요 시 |
 
 ```bash
 # Azure Key Vault-backed Scope 생성
@@ -267,7 +267,7 @@ connection_config = {
 
 ## 현업 사례: 코드에 비밀번호를 하드코딩해서 Git에 올라간 사고
 
-> 🔥 ** 실전 경험담**
+> 🔥 **실전 경험담**
 >
 > 한 스타트업의 데이터 엔지니어가 급하게 외부 API 연동 노트북을 작성하면서, **API 키를 코드에 직접 입력** 했습니다.
 >
@@ -277,16 +277,16 @@ connection_config = {
 > response = requests.get(url, headers={"Authorization": f"Bearer {api_key}"})
 > ```
 >
-> 이 노트북이 Git Repo에 커밋되었고, 해당 Repo가 ** 퍼블릭 리포지토리** 로 설정되어 있었습니다. 24시간도 안 되어 외부에서 API 키를 탈취하여 ** 약 $2,000(약 270만원)의 부정 API 호출** 이 발생했습니다. GitHub에는 Secret 탐지 봇이 돌고 있어서 퍼블릭 리포의 Secret은 수분 내에 발견됩니다.
+> 이 노트북이 Git Repo에 커밋되었고, 해당 Repo가 **퍼블릭 리포지토리**로 설정되어 있었습니다. 24시간도 안 되어 외부에서 API 키를 탈취하여 **약 $2,000(약 270만원)의 부정 API 호출** 이 발생했습니다. GitHub에는 Secret 탐지 봇이 돌고 있어서 퍼블릭 리포의 Secret은 수분 내에 발견됩니다.
 >
-> ** 사고 수습 과정:**
+> **사고 수습 과정:**
 > 1. API 키 즉시 무효화 (API 제공사에 연락)
 > 2. Git 이력에서 Secret 제거 (`git filter-branch` 사용, 하지만 이미 캐시된 사본은 제거 불가)
 > 3. 리포지토리를 Private으로 전환
 > 4. 모든 노트북 대상 Secret 하드코딩 감사 수행
 > 5. **Secret Scope 도입** 및 개발 가이드라인 배포
 >
-> ** 교훈**: 한 번 Git에 올라간 Secret은 ** 이력을 삭제해도 완전히 제거할 수 없습니다.** Fork, Cache, 로컬 Clone 등에 남아 있을 수 있기 때문입니다. ** 처음부터 코드에 Secret을 넣지 않는 것이 유일한 해결책** 입니다.
+> **교훈**: 한 번 Git에 올라간 Secret은 **이력을 삭제해도 완전히 제거할 수 없습니다.**Fork, Cache, 로컬 Clone 등에 남아 있을 수 있기 때문입니다. **처음부터 코드에 Secret을 넣지 않는 것이 유일한 해결책** 입니다.
 
 ---
 
@@ -307,12 +307,12 @@ connection_config = {
 
 | 원칙 | 설명 | 잘못된 예 | 올바른 예 |
 |------|------|----------|----------|
-| ** 환경별 분리**| dev/prod는 반드시 다른 Scope | `my-secrets` 하나에 전부 | `dev-db-secrets`, `prod-db-secrets` |
-| ** 용도별 분리**| DB, API, SP 등 용도별로 분리 | 모든 Secret을 한 Scope에 | DB/API/SP 별도 Scope |
-| ** 키 이름 통일**| 환경 간 같은 키 이름 사용 | `dev_password`, `prod_pw` | 양쪽 모두 `mysql-password` |
-| ** 최소 Scope 수**| 너무 많이 쪼개지 않음 | 팀원마다 별도 Scope | 환경+용도 조합 (5~8개) |
+| **환경별 분리**| dev/prod는 반드시 다른 Scope | `my-secrets` 하나에 전부 | `dev-db-secrets`, `prod-db-secrets` |
+| **용도별 분리**| DB, API, SP 등 용도별로 분리 | 모든 Secret을 한 Scope에 | DB/API/SP 별도 Scope |
+| **키 이름 통일**| 환경 간 같은 키 이름 사용 | `dev_password`, `prod_pw` | 양쪽 모두 `mysql-password` |
+| **최소 Scope 수**| 너무 많이 쪼개지 않음 | 팀원마다 별도 Scope | 환경+용도 조합 (5~8개) |
 
-> 💡 ** 현업 팁**: ** 키 이름을 환경 간에 통일** 하면, 노트북 코드에서 Scope 이름만 변경하여 환경을 전환할 수 있습니다. 이는 Asset Bundles와 결합하면 더욱 강력합니다.
+> 💡 **현업 팁**: **키 이름을 환경 간에 통일** 하면, 노트북 코드에서 Scope 이름만 변경하여 환경을 전환할 수 있습니다. 이는 Asset Bundles와 결합하면 더욱 강력합니다.
 
 ```python
 # 환경에 따라 Scope만 전환하는 패턴
@@ -334,12 +334,12 @@ Azure 환경에서 Key Vault-backed Scope를 사용할 때, 현업에서 자주 
 | 문제 | 원인 | 해결 방법 |
 |------|------|----------|
 | **`SecretDoesNotExist` 에러**| Key Vault의 Secret 이름에 밑줄(`_`) 사용 | Key Vault는 영숫자와 하이픈(`-`)만 허용합니다. `db_password` → `db-password`로 변경하세요 |
-| ** 접근 거부 (403)**| Databricks에 Key Vault 접근 권한 미부여 | Key Vault의 Access Policy에 Databricks 앱 등록이 필요합니다 |
+| **접근 거부 (403)**| Databricks에 Key Vault 접근 권한 미부여 | Key Vault의 Access Policy에 Databricks 앱 등록이 필요합니다 |
 | **Secret 업데이트 미반영**| Key Vault의 캐싱 | Key Vault Secret을 업데이트한 후 5~10분 대기하거나, 클러스터를 재시작하세요 |
 | **Soft Delete 충돌**| 삭제 후 같은 이름으로 재생성 불가 | Key Vault의 Soft Delete 기능이 활성화되어 있으면, 삭제된 Secret을 먼저 Purge해야 합니다 |
-| ** 네트워크 접근 차단**| Key Vault 방화벽 설정 | Databricks의 Control Plane IP를 Key Vault 방화벽 허용 목록에 추가하세요 |
+| **네트워크 접근 차단**| Key Vault 방화벽 설정 | Databricks의 Control Plane IP를 Key Vault 방화벽 허용 목록에 추가하세요 |
 
-> 🔥 ** 이것을 안 하면**: Azure Key Vault-backed Scope는 ** 읽기 전용** 입니다. `dbutils.secrets.put()`으로 값을 업데이트할 수 없고, Key Vault Portal이나 CLI에서 직접 업데이트해야 합니다. 이 사실을 모르고 자동화 스크립트에서 `put()`을 호출하여 에러가 발생하는 경우가 많습니다.
+> 🔥 **이것을 안 하면**: Azure Key Vault-backed Scope는 **읽기 전용** 입니다. `dbutils.secrets.put()`으로 값을 업데이트할 수 없고, Key Vault Portal이나 CLI에서 직접 업데이트해야 합니다. 이 사실을 모르고 자동화 스크립트에서 `put()`을 호출하여 에러가 발생하는 경우가 많습니다.
 
 ### Key Vault 연동 시 추가 보안 권장사항
 
@@ -368,11 +368,11 @@ az keyvault secret set \
 
 | 원칙 | 설명 |
 |------|------|
-| ** 코드에 비밀 금지** | 비밀번호, API 키를 코드에 절대 하드코딩하지 않습니다 |
-| ** 환경별 분리** | dev, staging, prod Scope을 분리합니다 |
-| ** 최소 권한** | 필요한 사용자/그룹에게만 READ 권한을 부여합니다 |
-| ** 정기 로테이션** | Secret 값을 주기적으로 변경합니다 (90일 권장) |
-| ** 감사** | Secret 접근 이벤트를 모니터링합니다 |
+| **코드에 비밀 금지**| 비밀번호, API 키를 코드에 절대 하드코딩하지 않습니다 |
+| **환경별 분리**| dev, staging, prod Scope을 분리합니다 |
+| **최소 권한**| 필요한 사용자/그룹에게만 READ 권한을 부여합니다 |
+| **정기 로테이션**| Secret 값을 주기적으로 변경합니다 (90일 권장) |
+| **감사**| Secret 접근 이벤트를 모니터링합니다 |
 | **SP 사용**| 프로덕션에서는 SP에 READ 권한을 부여합니다 |
 | **Git Hook 설정**| 커밋 전 Secret 패턴 검사 (pre-commit hook 활용) |
 | **Key Vault 선호**| Azure 환경에서는 Key Vault-backed Scope를 권장합니다 |

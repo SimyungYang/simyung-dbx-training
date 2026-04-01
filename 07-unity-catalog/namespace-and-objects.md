@@ -34,9 +34,9 @@ SELECT * FROM production.ecommerce.orders;
 
 ## Metastore — 최상위 컨테이너
 
-> 💡 **Metastore** 는 Unity Catalog의 ** 최상위 컨테이너** 입니다. 하나의 클라우드 리전에 하나의 Metastore가 존재하며, 해당 리전의 모든 Workspace가 이 Metastore를 공유합니다.
+> 💡 **Metastore**는 Unity Catalog의 **최상위 컨테이너** 입니다. 하나의 클라우드 리전에 하나의 Metastore가 존재하며, 해당 리전의 모든 Workspace가 이 Metastore를 공유합니다.
 
-Metastore는 직접 데이터를 담지 않고, 그 아래의 Catalog → Schema → Object를 ** 메타데이터(이름, 위치, 권한, 리니지 등)** 로 관리하는 카탈로그 역할을 합니다.
+Metastore는 직접 데이터를 담지 않고, 그 아래의 Catalog → Schema → Object를 **메타데이터(이름, 위치, 권한, 리니지 등)** 로 관리하는 카탈로그 역할을 합니다.
 
 ### Metastore 설정
 
@@ -44,10 +44,10 @@ Metastore는 계정 관리자가 생성하며, 보통 클라우드 리전당 하
 
 | 설정 항목 | 설명 |
 |-----------|------|
-| ** 이름**| Metastore의 식별 이름입니다 (예: `ap-northeast-2-metastore`) |
-| ** 리전**| 클라우드 리전입니다. Workspace와 동일한 리전이어야 합니다 |
-| ** 기본 스토리지**| 관리형 테이블의 기본 저장 위치입니다 (S3, ADLS, GCS) |
-| ** 소유자** | 계정 관리자 또는 Metastore 관리자 그룹입니다 |
+| **이름**| Metastore의 식별 이름입니다 (예: `ap-northeast-2-metastore`) |
+| **리전**| 클라우드 리전입니다. Workspace와 동일한 리전이어야 합니다 |
+| **기본 스토리지**| 관리형 테이블의 기본 저장 위치입니다 (S3, ADLS, GCS) |
+| **소유자** | 계정 관리자 또는 Metastore 관리자 그룹입니다 |
 
 ```sql
 -- Metastore 정보 확인
@@ -60,9 +60,9 @@ SELECT * FROM system.information_schema.catalogs;
 
 | 레벨 | 역할 | 일반적인 구성 전략 | 예시 |
 |------|------|-----------------|------|
-| **Metastore**| 최상위 컨테이너. ** 리전별 하나** 만 존재하며, 여러 Workspace에서 공유됩니다 | 계정 수준 관리 | US-East Metastore |
-| **Catalog**| 데이터 자산의 최상위 논리 그룹입니다. ** 환경별** 또는 ** 팀별** 로 분리합니다 | `production`, `staging`, `dev`, `sandbox` | 환경별 분리 |
-| **Schema**| 관련 객체를 논리적으로 그룹화합니다. ** 도메인별** 또는 **Medallion 계층별** 로 분리합니다 | `ecommerce`, `hr`, `finance` 또는 `bronze`, `silver`, `gold` | 도메인별 분리 |
+| **Metastore**| 최상위 컨테이너. **리전별 하나** 만 존재하며, 여러 Workspace에서 공유됩니다 | 계정 수준 관리 | US-East Metastore |
+| **Catalog**| 데이터 자산의 최상위 논리 그룹입니다. **환경별**또는 **팀별** 로 분리합니다 | `production`, `staging`, `dev`, `sandbox` | 환경별 분리 |
+| **Schema**| 관련 객체를 논리적으로 그룹화합니다. **도메인별**또는 **Medallion 계층별** 로 분리합니다 | `ecommerce`, `hr`, `finance` 또는 `bronze`, `silver`, `gold` | 도메인별 분리 |
 | **Object**| 실제 데이터 자산입니다. 테이블, 뷰, 볼륨, 함수, 모델 등 10가지 유형이 있습니다 | 의미 있는 이름 사용 | `orders`, `customers` |
 
 ---
@@ -100,7 +100,7 @@ LOCATION 's3://my-bucket/legacy/orders';
 
 ### View (뷰)
 
-뷰는 SQL 쿼리를 저장한 ** 가상 테이블** 입니다. 데이터를 물리적으로 저장하지 않고, 조회할 때마다 정의된 쿼리를 실행합니다. 복잡한 조인이나 필터를 미리 정의해두면 사용자가 간단하게 데이터에 접근할 수 있습니다.
+뷰는 SQL 쿼리를 저장한 **가상 테이블** 입니다. 데이터를 물리적으로 저장하지 않고, 조회할 때마다 정의된 쿼리를 실행합니다. 복잡한 조인이나 필터를 미리 정의해두면 사용자가 간단하게 데이터에 접근할 수 있습니다.
 
 ```sql
 -- 일반 View
@@ -257,7 +257,7 @@ OPTIONS (
 | **shared**| reference_data | 코드 테이블 등 |
 | | cross_team | 팀 간 공유 데이터 |
 
-> 💡 ** 권장**: 대부분의 조직에서는 ** 전략 1 (환경별 카탈로그 + 도메인별 스키마)** 로 시작하는 것을 권장합니다. 조직이 커지고 요구사항이 복잡해지면 전략 3으로 확장할 수 있습니다.
+> 💡 **권장**: 대부분의 조직에서는 **전략 1 (환경별 카탈로그 + 도메인별 스키마)** 로 시작하는 것을 권장합니다. 조직이 커지고 요구사항이 복잡해지면 전략 3으로 확장할 수 있습니다.
 
 ### SQL로 네임스페이스 생성
 
@@ -329,12 +329,12 @@ WHERE volume_schema = 'ecommerce';
 
 | 비교 | Managed (관리형) | External (외부) |
 |------|-----------------|----------------|
-| ** 데이터 위치**| Databricks가 관리하는 위치에 자동 저장 | 사용자가 지정한 외부 경로 (S3, ADLS) |
-| **DROP 시**| 테이블 + 데이터 ** 모두 삭제**| 테이블 정의만 삭제, ** 데이터는 유지**|
+| **데이터 위치**| Databricks가 관리하는 위치에 자동 저장 | 사용자가 지정한 외부 경로 (S3, ADLS) |
+| **DROP 시**| 테이블 + 데이터 **모두 삭제**| 테이블 정의만 삭제, **데이터는 유지**|
 | **Predictive Optimization**| ✅ 지원 | ❌ 미지원 |
-| ** 스토리지 관리**| 자동 (VACUUM, 압축 등) | 수동 또는 제한적 |
-| ** 마이그레이션**| 카탈로그 간 이동 가능 | 데이터 위치 고정 |
-| ** 권장**| ✅ 신규 테이블에 권장 | 기존 데이터 위치를 유지해야 할 때 |
+| **스토리지 관리**| 자동 (VACUUM, 압축 등) | 수동 또는 제한적 |
+| **마이그레이션**| 카탈로그 간 이동 가능 | 데이터 위치 고정 |
+| **권장**| ✅ 신규 테이블에 권장 | 기존 데이터 위치를 유지해야 할 때 |
 
 > 💡 **Managed를 권장하는 이유**: Managed Table은 Databricks가 데이터 레이아웃 최적화(Predictive Optimization), 파일 정리(VACUUM), 소형 파일 병합 등을 자동으로 수행합니다. External Table에서는 이러한 최적화 기능이 제한되므로, 특별한 이유가 없다면 Managed Table을 사용하는 것이 좋습니다.
 

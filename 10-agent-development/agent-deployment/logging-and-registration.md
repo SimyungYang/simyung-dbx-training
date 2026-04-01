@@ -65,7 +65,7 @@ class CustomerSupportAgent(mlflow.pyfunc.PythonModel):
 mlflow.models.set_model(CustomerSupportAgent())
 ```
 
-** 로깅 노트북**(모델 등록):
+**로깅 노트북**(모델 등록):
 
 ```python
 import mlflow
@@ -100,9 +100,9 @@ with mlflow.start_run():
 | 의존성 유형 | 지정 방법 | 예시 |
 |-----------|----------|------|
 | **Python 패키지**| `pip_requirements` | `["langchain>=0.3.0", "tiktoken"]` |
-| ** 환경 변수**| 엔드포인트 설정 시 지정 | `VECTOR_SEARCH_ENDPOINT`, `API_KEY` |
-| ** 리소스 의존성**| `resources` 파라미터 | Vector Search Index, Serving Endpoint |
-| ** 추가 파일**| `code_paths` 또는 `artifacts` | 프롬프트 템플릿, 설정 파일 |
+| **환경 변수**| 엔드포인트 설정 시 지정 | `VECTOR_SEARCH_ENDPOINT`, `API_KEY` |
+| **리소스 의존성**| `resources` 파라미터 | Vector Search Index, Serving Endpoint |
+| **추가 파일**| `code_paths` 또는 `artifacts` | 프롬프트 템플릿, 설정 파일 |
 
 ```python
 # 리소스 의존성 명시 (배포 시 자동으로 권한 설정)
@@ -135,9 +135,9 @@ with mlflow.start_run():
 
 | 개념 | 설명 |
 |------|------|
-| ** 모델 이름**| `catalog.schema.model_name` 형식의 3단계 네임스페이스 |
-| ** 버전**| 로깅할 때마다 자동으로 버전 번호가 증가합니다 (v1, v2, v3...) |
-| ** 앨리어스** | `champion`, `challenger` 같은 이름으로 특정 버전을 지칭할 수 있습니다 |
+| **모델 이름**| `catalog.schema.model_name` 형식의 3단계 네임스페이스 |
+| **버전**| 로깅할 때마다 자동으로 버전 번호가 증가합니다 (v1, v2, v3...) |
+| **앨리어스** | `champion`, `challenger` 같은 이름으로 특정 버전을 지칭할 수 있습니다 |
 
 ```python
 from mlflow import MlflowClient

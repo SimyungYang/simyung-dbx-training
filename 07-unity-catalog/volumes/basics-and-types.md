@@ -2,7 +2,7 @@
 
 ## Volumes란?
 
-> 💡 **Volume** 은 Unity Catalog에서 ** 비테이블 파일**(이미지, PDF, CSV, 모델 파일, 로그 등)을 관리하는 저장 공간입니다. 테이블이 행/열 구조의 데이터를 관리한다면, Volume은 ** 파일 자체** 를 관리합니다.
+> 💡 **Volume**은 Unity Catalog에서 **비테이블 파일**(이미지, PDF, CSV, 모델 파일, 로그 등)을 관리하는 저장 공간입니다. 테이블이 행/열 구조의 데이터를 관리한다면, Volume은 **파일 자체** 를 관리합니다.
 
 테이블과 동일한 `카탈로그.스키마` 체계에 속하므로, 동일한 권한 관리(GRANT/REVOKE)와 감사(Audit)가 적용됩니다.
 
@@ -129,9 +129,9 @@ SHOW GRANTS ON VOLUME production.ecommerce.raw_files;
 | 시나리오 | 저장 파일 | 처리 방법 |
 |----------|----------|----------|
 | **RAG 문서 저장**| PDF, DOCX, 웹 페이지 | `ai_parse_document`로 파싱 → 청킹 → Vector Search |
-| ** 원본 데이터 수집**| CSV, JSON, Parquet | Auto Loader로 읽어서 Delta 테이블에 적재 |
+| **원본 데이터 수집**| CSV, JSON, Parquet | Auto Loader로 읽어서 Delta 테이블에 적재 |
 | **ML 모델 아티팩트**| 모델 파일, 설정 파일 | MLflow 모델과 함께 관리 |
-| ** 이미지/미디어**| 상품 이미지, 의료 영상 | Spark로 배치 처리, ML 모델 입력 |
-| ** 보고서/내보내기** | PDF 리포트, Excel 파일 | 대시보드 결과를 파일로 내보내기 |
+| **이미지/미디어**| 상품 이미지, 의료 영상 | Spark로 배치 처리, ML 모델 입력 |
+| **보고서/내보내기** | PDF 리포트, Excel 파일 | 대시보드 결과를 파일로 내보내기 |
 
 ---

@@ -97,7 +97,7 @@ def silver_events():
 |------|-------|--------|
 | **pipelines.trigger.interval**| `"once"` 또는 연속 | 배치: `"once"`, 실시간: `"5 seconds"` |
 | **Serverless 스케일링**| 자동 | Enhanced Autoscaling이 워크로드에 맞게 자동 조절 |
-| ** 테이블 속성**| 기본값 | Liquid Clustering 적용 시 읽기 성능 대폭 향상 |
+| **테이블 속성**| 기본값 | Liquid Clustering 적용 시 읽기 성능 대폭 향상 |
 
 ### 4.2 Auto Loader 파일 감지 모드 선택
 

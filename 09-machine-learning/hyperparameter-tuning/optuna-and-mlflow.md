@@ -52,9 +52,9 @@ with mlflow.start_run(run_name="optuna-tuning"):
 |-----------|---------|--------|
 | **Databricks 내장**| ML Runtime에 포함 | `%pip install optuna` 필요 |
 | **Spark 분산**| SparkTrials 지원 | 별도 분산 구현 필요 |
-| ** 가지치기(Pruning)**| 미지원 | 내장 지원 |
+| **가지치기(Pruning)**| 미지원 | 내장 지원 |
 | **API 직관성**| 함수형 | 객체지향형 (더 직관적) |
-| ** 시각화**| 제한적 | `optuna.visualization` 내장 |
+| **시각화**| 제한적 | `optuna.visualization` 내장 |
 
 ---
 

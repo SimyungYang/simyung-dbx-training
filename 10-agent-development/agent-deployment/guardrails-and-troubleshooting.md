@@ -196,13 +196,13 @@ print(f"에이전트 응답: {response.choices[0].message.content}")
 
 | 핵심 포인트 | 설명 |
 |------------|------|
-| ** 배포 파이프라인**| 개발 → MLflow 로깅 → UC 등록 → Model Serving → 모니터링 |
+| **배포 파이프라인**| 개발 → MLflow 로깅 → UC 등록 → Model Serving → 모니터링 |
 | **agents.deploy()**| 엔드포인트, Review App, Inference Tables를 한 번에 설정하는 가장 간편한 방법입니다 |
 | **set_model()**| 에이전트 코드를 별도 파일로 분리하고, 진입점을 지정하는 권장 패턴입니다 |
 | **Review App**| 배포 전 테스터 피드백을 수집하고, 평가 데이터셋으로 활용합니다 |
 | **Inference Tables**| 모든 요청/응답을 자동 기록하여 모니터링과 디버깅에 활용합니다 |
 | **Guardrails**| Safety, PII, Topic Control, Rate Limiting으로 안전한 운영을 보장합니다 |
-| ** 버전 관리** | UC 앨리어스(champion/challenger)로 무중단 업데이트와 롤백이 가능합니다 |
+| **버전 관리** | UC 앨리어스(champion/challenger)로 무중단 업데이트와 롤백이 가능합니다 |
 
 ---
 
