@@ -2,7 +2,7 @@
 
 ## 왜 피처 테이블 관리가 중요한가?
 
-머신러닝 프로젝트에서 데이터 과학자들이 가장 많은 시간을 보내는 단계는 **피처 엔지니어링(Feature Engineering)**입니다. 문제는 각자가 만든 피처가 노트북 곳곳에 흩어져 있어, 재사용이 어렵고 일관성이 깨지기 쉽다는 것입니다.
+머신러닝 프로젝트에서 데이터 과학자들이 가장 많은 시간을 보내는 단계는 **피처 엔지니어링(Feature Engineering)** 입니다. 문제는 각자가 만든 피처가 노트북 곳곳에 흩어져 있어, 재사용이 어렵고 일관성이 깨지기 쉽다는 것입니다.
 
 | 문제 | 설명 |
 |------|------|
@@ -11,7 +11,7 @@
 | ** 버전 관리 부재**| 피처 정의가 바뀌어도 이전 버전을 추적할 수 없습니다 |
 | ** 발견 불가**| 다른 팀이 만든 유용한 피처가 있는지 알 수 없습니다 |
 
-> 💡 ** 피처 테이블(Feature Table)**이란 ML 학습에 사용되는 피처들을 ** 기본 키(Primary Key)**와 함께 저장한 Delta 테이블입니다. Unity Catalog에 등록되어 검색, 공유, 리니지 추적이 가능합니다. Databricks Feature Engineering은 이러한 피처 테이블을 체계적으로 생성, 관리, 조회하는 프레임워크입니다.
+> 💡 ** 피처 테이블(Feature Table)** 이란 ML 학습에 사용되는 피처들을 ** 기본 키(Primary Key)** 와 함께 저장한 Delta 테이블입니다. Unity Catalog에 등록되어 검색, 공유, 리니지 추적이 가능합니다. Databricks Feature Engineering은 이러한 피처 테이블을 체계적으로 생성, 관리, 조회하는 프레임워크입니다.
 
 ---
 
@@ -107,13 +107,13 @@ fe.create_table(
 
 ## 피처 명명 규칙 및 조직화
 
-체계적인 피처 관리를 위해 **일관된 명명 규칙**을 정하는 것이 중요합니다.
+체계적인 피처 관리를 위해 **일관된 명명 규칙** 을 정하는 것이 중요합니다.
 
 ### 추천 명명 규칙
 
 | 구분 | 규칙 | 예시 |
 |------|------|------|
-| **테이블 이름**| `{entity}_features` 또는 `{entity}_{domain}_features` | `customer_features`, `product_behavior_features` |
+| ** 테이블 이름**| `{entity}_features` 또는 `{entity}_{domain}_features` | `customer_features`, `product_behavior_features` |
 | ** 피처 이름**| `{집계방법}_{대상}_{기간}` | `avg_amount_30d`, `count_transactions_7d` |
 | ** 타임스탬프 키**| `timestamp` 또는 `event_time` | `timestamp` |
 | ** 기본 키**| 엔티티의 고유 식별자 | `customer_id`, `product_id` |
@@ -128,13 +128,13 @@ fe.create_table(
 | | merchant_features | 가맹점 피처 |
 | | customer_product_features | 고객-상품 교차 피처 |
 
-> 💡 ** 피처 검색**: Unity Catalog에 등록된 피처 테이블은 Databricks UI의 **Feature**탭에서 검색하고 메타데이터(설명, 태그, 리니지)를 확인할 수 있습니다. 팀 간 피처 공유에 매우 유용합니다.
+> 💡 ** 피처 검색**: Unity Catalog에 등록된 피처 테이블은 Databricks UI의 **Feature** 탭에서 검색하고 메타데이터(설명, 태그, 리니지)를 확인할 수 있습니다. 팀 간 피처 공유에 매우 유용합니다.
 
 ---
 
 ## FeatureLookup 상세
 
-`FeatureLookup`은 피처 테이블에서 원하는 피처를 ** 기본 키로 조인하여 가져오는**메커니즘입니다. 학습 데이터를 만들 때 라벨 데이터에 피처를 결합하는 핵심 도구입니다.
+`FeatureLookup`은 피처 테이블에서 원하는 피처를 ** 기본 키로 조인하여 가져오는** 메커니즘입니다. 학습 데이터를 만들 때 라벨 데이터에 피처를 결합하는 핵심 도구입니다.
 
 ### 기본 사용법
 
@@ -200,9 +200,9 @@ display(training_df)
 
 ## Point-in-time Lookups
 
-시계열 데이터에서는 **미래 데이터 누수(Data Leakage)** 를 방지하기 위해 Point-in-time Lookup이 필수적입니다. 이벤트 발생 시점 기준으로 **그 시점까지 알 수 있었던 피처만** 가져옵니다.
+시계열 데이터에서는 ** 미래 데이터 누수(Data Leakage)** 를 방지하기 위해 Point-in-time Lookup이 필수적입니다. 이벤트 발생 시점 기준으로 ** 그 시점까지 알 수 있었던 피처만** 가져옵니다.
 
-> 💡 **데이터 누수(Data Leakage)** 란 학습 시에는 알 수 없는 미래 데이터가 피처로 포함되는 것을 말합니다. 예를 들어, 화요일에 발생한 거래의 사기 여부를 예측할 때 수요일의 피처 값을 사용하면 실제 서빙 환경과 달라집니다.
+> 💡 ** 데이터 누수(Data Leakage)** 란 학습 시에는 알 수 없는 미래 데이터가 피처로 포함되는 것을 말합니다. 예를 들어, 화요일에 발생한 거래의 사기 여부를 예측할 때 수요일의 피처 값을 사용하면 실제 서빙 환경과 달라집니다.
 
 ```python
 # Point-in-time Lookup 예시
@@ -227,7 +227,7 @@ training_set = fe.create_training_set(
 | 라벨 데이터 | 피처 테이블 | 결과 |
 |------------|-----------|------|
 | customer_id=A, event_time=14:00 | customer_id=A, timestamp=13:00, count=5 | count=5 (13:00 피처 사용) |
-| customer_id=A, event_time=14:00 | customer_id=A, timestamp=15:00, count=8 | **사용 안 함** (미래 데이터) |
+| customer_id=A, event_time=14:00 | customer_id=A, timestamp=15:00, count=8 | ** 사용 안 함** (미래 데이터) |
 | customer_id=A, event_time=16:00 | customer_id=A, timestamp=15:00, count=8 | count=8 (15:00 피처 사용) |
 
 ---
@@ -236,11 +236,11 @@ training_set = fe.create_training_set(
 
 | 특성 | 오프라인 스토어 | 온라인 스토어 |
 |------|---------------|-------------|
-| **저장소** | Delta 테이블 (Unity Catalog) | DynamoDB, Azure Cosmos DB 등 |
-| **지연 시간** | 초~분 단위 | 밀리초 단위 |
-| **용도** | 배치 학습, 분석, 백필 | 실시간 추론 서빙 |
-| **데이터 크기** | 수십 TB까지 | 최신 스냅샷만 저장 |
-| **비용** | 상대적으로 저렴 | 읽기 처리량에 따라 증가 |
+| ** 저장소** | Delta 테이블 (Unity Catalog) | DynamoDB, Azure Cosmos DB 등 |
+| ** 지연 시간** | 초~분 단위 | 밀리초 단위 |
+| ** 용도** | 배치 학습, 분석, 백필 | 실시간 추론 서빙 |
+| ** 데이터 크기** | 수십 TB까지 | 최신 스냅샷만 저장 |
+| ** 비용** | 상대적으로 저렴 | 읽기 처리량에 따라 증가 |
 
 ### 온라인 스토어 퍼블리시
 
@@ -384,9 +384,9 @@ fe.write_table(
 
 | 항목 | 권장 사항 |
 |------|----------|
-| **기본 키 설계** | 비즈니스 엔티티의 고유 식별자를 사용합니다 (`customer_id`, `product_id`) |
-| **피처 분리** | 도메인별로 별도의 피처 테이블을 만듭니다 (고객, 상품, 가맹점 등) |
-| **설명 추가** | `description`과 `tags`를 반드시 작성하여 팀 간 검색이 가능하게 합니다 |
+| ** 기본 키 설계** | 비즈니스 엔티티의 고유 식별자를 사용합니다 (`customer_id`, `product_id`) |
+| ** 피처 분리** | 도메인별로 별도의 피처 테이블을 만듭니다 (고객, 상품, 가맹점 등) |
+| ** 설명 추가** | `description`과 `tags`를 반드시 작성하여 팀 간 검색이 가능하게 합니다 |
 | **Point-in-time**| 시계열 피처에는 반드시 타임스탬프 키를 포함합니다 |
 | ** 스케줄 갱신**| Databricks Jobs로 피처 테이블을 정기적으로 갱신합니다 |
 | ** 테스트**| 피처 계산 로직에 대한 단위 테스트를 작성합니다 |

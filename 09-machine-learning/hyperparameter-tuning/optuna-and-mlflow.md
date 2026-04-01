@@ -2,7 +2,7 @@
 
 ## Optuna 연동
 
-**Optuna**는 최신 하이퍼파라미터 최적화 프레임워크로, Hyperopt보다 더 직관적인 API와 고급 기능(가지치기, 다목적 최적화)을 제공합니다.
+**Optuna** 는 최신 하이퍼파라미터 최적화 프레임워크로, Hyperopt보다 더 직관적인 API와 고급 기능(가지치기, 다목적 최적화)을 제공합니다.
 
 ```python
 import optuna

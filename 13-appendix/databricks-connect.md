@@ -5,7 +5,7 @@
 
 ## 개념
 
-> 💡 **Databricks Connect**는 로컬 개발 환경(VS Code, PyCharm 등)에서 작성한 코드를 **원격 Databricks 클러스터에서 실행**할 수 있게 해주는 클라이언트 라이브러리입니다. 코드는 로컬에서 작성하지만, 실제 Spark 연산은 Databricks의 클러스터에서 처리됩니다.
+> 💡 **Databricks Connect** 는 로컬 개발 환경(VS Code, PyCharm 등)에서 작성한 코드를 ** 원격 Databricks 클러스터에서 실행** 할 수 있게 해주는 클라이언트 라이브러리입니다. 코드는 로컬에서 작성하지만, 실제 Spark 연산은 Databricks의 클러스터에서 처리됩니다.
 
 ### 왜 Databricks Connect가 필요한가요?
 
@@ -50,7 +50,7 @@ pip install databricks-connect==16.2.*
 python -c "from databricks.connect import DatabricksSession; print('OK')"
 ```
 
-> ⚠️ **중요**: `databricks-connect`의 버전은 반드시 클러스터의 **Databricks Runtime 버전과 일치**해야 합니다. 버전이 맞지 않으면 호환성 오류가 발생합니다.
+> ⚠️ **중요**: `databricks-connect`의 버전은 반드시 클러스터의 **Databricks Runtime 버전과 일치** 해야 합니다. 버전이 맞지 않으면 호환성 오류가 발생합니다.
 
 ### 인증 설정
 
@@ -107,7 +107,7 @@ spark = DatabricksSession.builder.getOrCreate()
 
 ### VS Code
 
-VS Code는 **Databricks Extension**과 함께 사용하면 가장 편리합니다.
+VS Code는 **Databricks Extension** 과 함께 사용하면 가장 편리합니다.
 
 ```
 VS Code 설정 순서:
@@ -120,7 +120,7 @@ VS Code 설정 순서:
 
 | VS Code 기능 | Databricks Connect 지원 |
 |-------------|------------------------|
-| **코드 자동완성**| ✅ PySpark API 자동완성 |
+| ** 코드 자동완성**| ✅ PySpark API 자동완성 |
 | ** 디버깅 (Breakpoint)**| ✅ 로컬 코드 디버깅 가능 |
 | ** 변수 탐색기**| ✅ DataFrame 내용 확인 |
 | ** 통합 터미널**| ✅ CLI 명령 실행 |
@@ -253,7 +253,7 @@ def test_transformation_logic(spark):
 
 ## Serverless 컴퓨트와의 연동
 
-Databricks Connect는 **Serverless Compute**에도 연결할 수 있습니다. 클러스터를 미리 시작할 필요 없이, 코드 실행 시 자동으로 서버리스 리소스가 할당됩니다.
+Databricks Connect는 **Serverless Compute** 에도 연결할 수 있습니다. 클러스터를 미리 시작할 필요 없이, 코드 실행 시 자동으로 서버리스 리소스가 할당됩니다.
 
 ```python
 from databricks.connect import DatabricksSession
@@ -272,7 +272,7 @@ df.show()
 
 | 항목 | Classic Compute | Serverless Compute |
 |------|----------------|-------------------|
-| **시작 시간**| 수 분 (클러스터 시작 대기) | 수 초 |
+| ** 시작 시간**| 수 분 (클러스터 시작 대기) | 수 초 |
 | ** 비용 모델**| 클러스터 가동 시간 기준 | 실행 시간 기준 |
 | ** 설정**| cluster_id 필요 | serverless=True |
 | ** 관리**| 클러스터 사양 직접 설정 | Databricks가 관리 |

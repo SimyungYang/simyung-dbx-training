@@ -2,7 +2,7 @@
 
 ## 시스템 테이블이란?
 
-> 💡 **시스템 테이블(System Tables)**은 Databricks 플랫폼의 운영 데이터(감사 로그, 빌링, 리니지, 사용량 등)를 **SQL로 직접 조회**할 수 있는 내장 테이블입니다. `system` 카탈로그 아래에 위치하며, Unity Catalog가 활성화된 모든 워크스페이스에서 사용할 수 있습니다.
+> 💡 **시스템 테이블(System Tables)** 은 Databricks 플랫폼의 운영 데이터(감사 로그, 빌링, 리니지, 사용량 등)를 **SQL로 직접 조회** 할 수 있는 내장 테이블입니다. `system` 카탈로그 아래에 위치하며, Unity Catalog가 활성화된 모든 워크스페이스에서 사용할 수 있습니다.
 
 시스템 테이블을 활용하면 별도의 모니터링 도구 없이도, SQL 쿼리와 대시보드만으로 플랫폼 전체의 운영 상황을 파악할 수 있습니다.
 
@@ -14,7 +14,7 @@
 
 | 테이블 | 설명 |
 |--------|------|
-| `system.access.audit` | **모든 사용자 활동 로그**. 누가, 언제, 어떤 작업을 했는지 기록합니다. 테이블 조회, 클러스터 생성, 권한 변경 등 모든 API 호출이 포함됩니다 |
+| `system.access.audit` | ** 모든 사용자 활동 로그**. 누가, 언제, 어떤 작업을 했는지 기록합니다. 테이블 조회, 클러스터 생성, 권한 변경 등 모든 API 호출이 포함됩니다 |
 
 ```sql
 -- 최근 7일간 누가 어떤 테이블에 접근했는지 확인
@@ -47,7 +47,7 @@ ORDER BY late_night_actions DESC;
 
 | 테이블 | 설명 |
 |--------|------|
-| `system.billing.usage` | **DBU 사용량**상세 기록. 클러스터, Warehouse, Jobs, Serverless 등 워크로드별 소비량입니다 |
+| `system.billing.usage` | **DBU 사용량** 상세 기록. 클러스터, Warehouse, Jobs, Serverless 등 워크로드별 소비량입니다 |
 | `system.billing.list_prices` | **DBU 단가** 정보입니다 |
 
 ```sql

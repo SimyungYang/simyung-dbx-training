@@ -18,7 +18,7 @@ GROUP BY usage_date
 ORDER BY usage_date;
 ```
 
-**쿼리 2: SKU별 비용 분포**
+** 쿼리 2: SKU별 비용 분포**
 
 ```sql
 SELECT
@@ -45,7 +45,7 @@ GROUP BY 1, 2
 ORDER BY total_dbus DESC;
 ```
 
-**쿼리 4: Top 10 고비용 클러스터**
+** 쿼리 4: Top 10 고비용 클러스터**
 
 ```sql
 SELECT
@@ -60,7 +60,7 @@ ORDER BY total_dbus DESC
 LIMIT 10;
 ```
 
-**쿼리 5: 주말/야간 불필요 사용 탐지**
+** 쿼리 5: 주말/야간 불필요 사용 탐지**
 
 ```sql
 SELECT
@@ -78,7 +78,7 @@ HAVING SUM(usage_quantity) > 10
 ORDER BY dbus DESC;
 ```
 
-**쿼리 6: 서버리스 vs 클래식 비용 비교**
+** 쿼리 6: 서버리스 vs 클래식 비용 비교**
 
 ```sql
 SELECT
@@ -94,7 +94,7 @@ WHERE
 GROUP BY 1;
 ```
 
-**쿼리 7: 일별 비용 추이 (전주 대비)**
+** 쿼리 7: 일별 비용 추이 (전주 대비)**
 
 ```sql
 WITH daily AS (
@@ -129,7 +129,7 @@ GROUP BY 1, 2
 ORDER BY month, monthly_dbus DESC;
 ```
 
-**쿼리 9: 사용자별 비용 (Chargeback)**
+** 쿼리 9: 사용자별 비용 (Chargeback)**
 
 ```sql
 SELECT
@@ -145,7 +145,7 @@ ORDER BY total_dbus DESC
 LIMIT 20;
 ```
 
-**쿼리 10: 비용 이상 감지 (일평균 대비 200% 초과)**
+** 쿼리 10: 비용 이상 감지 (일평균 대비 200% 초과)**
 
 ```sql
 WITH stats AS (
@@ -175,7 +175,7 @@ ORDER BY b.usage_date;
 
 ### 5.2 팀별/프로젝트별 비용 할당 (태그 기반)
 
-비용을 조직 단위로 추적하려면 **Custom Tag**체계를 설계해야 합니다.
+비용을 조직 단위로 추적하려면 **Custom Tag** 체계를 설계해야 합니다.
 
 ```python
 # 태그 표준 체계 예시

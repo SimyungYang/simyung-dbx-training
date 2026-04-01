@@ -2,11 +2,11 @@
 
 ## 윈도우 유형 (Window Types)
 
-스트리밍 집계에서 **시간 기반 윈도우**는 데이터를 시간 구간별로 그룹화하는 핵심 메커니즘입니다. Structured Streaming은 3가지 윈도우 유형을 지원합니다.
+스트리밍 집계에서 **시간 기반 윈도우** 는 데이터를 시간 구간별로 그룹화하는 핵심 메커니즘입니다. Structured Streaming은 3가지 윈도우 유형을 지원합니다.
 
 ### Tumbling Window (고정 윈도우)
 
-**겹치지 않는 고정 크기**윈도우입니다. 각 이벤트는 정확히 하나의 윈도우에만 속합니다.
+** 겹치지 않는 고정 크기** 윈도우입니다. 각 이벤트는 정확히 하나의 윈도우에만 속합니다.
 
 ```python
 from pyspark.sql.functions import window
@@ -27,7 +27,7 @@ df.withWatermark("event_time", "10 minutes") \
 
 ### Sliding Window (슬라이딩 윈도우)
 
-** 윈도우가 겹치는**구간 집계입니다. 하나의 이벤트가 여러 윈도우에 속할 수 있습니다.
+** 윈도우가 겹치는** 구간 집계입니다. 하나의 이벤트가 여러 윈도우에 속할 수 있습니다.
 
 ```python
 # 10분 윈도우, 5분마다 슬라이딩
@@ -83,7 +83,7 @@ df.withWatermark("event_time", "1 hour") \
 
 ## Output Mode 심화
 
-writeStream의 `outputMode`는 ** 결과 테이블의 어떤 행을 싱크에 쓸 것인지**를 결정합니다.
+writeStream의 `outputMode`는 ** 결과 테이블의 어떤 행을 싱크에 쓸 것인지** 를 결정합니다.
 
 | Output Mode | 동작 | 사용 가능 조건 | 적합한 싱크 |
 |------------|------|-------------|-----------|
@@ -105,17 +105,17 @@ df.groupBy("status").count() \
   .format("memory").queryName("status_count").start()
 ```
 
-> ⚠️ **Complete Mode 주의**: 결과 테이블 전체를 매번 다시 쓰므로, **결과가 소규모(수천 행 이하)인 경우에만** 사용하세요. 대규모 결과에 사용하면 성능이 급격히 저하됩니다.
+> ⚠️ **Complete Mode 주의**: 결과 테이블 전체를 매번 다시 쓰므로, ** 결과가 소규모(수천 행 이하)인 경우에만** 사용하세요. 대규모 결과에 사용하면 성능이 급격히 저하됩니다.
 
 ---
 
 ## Change Data Feed (CDF)
 
-**Change Data Feed(CDF)**는 Delta 테이블에서 발생한 행 수준 변경사항(INSERT, UPDATE, DELETE)을 스트리밍으로 읽을 수 있게 해주는 기능입니다. CDC 파이프라인의 핵심 기술입니다.
+**Change Data Feed(CDF)** 는 Delta 테이블에서 발생한 행 수준 변경사항(INSERT, UPDATE, DELETE)을 스트리밍으로 읽을 수 있게 해주는 기능입니다. CDC 파이프라인의 핵심 기술입니다.
 
 ### CDF가 필요한 이유
 
-일반적인 `readStream`으로 Delta 테이블을 읽으면 ** 새로 추가된 행(Append)만**볼 수 있습니다. UPDATE나 DELETE는 감지할 수 없습니다. CDF를 활성화하면 ** 모든 변경 유형**을 스트림으로 처리할 수 있습니다.
+일반적인 `readStream`으로 Delta 테이블을 읽으면 ** 새로 추가된 행(Append)만** 볼 수 있습니다. UPDATE나 DELETE는 감지할 수 없습니다. CDF를 활성화하면 ** 모든 변경 유형** 을 스트림으로 처리할 수 있습니다.
 
 | 시나리오 | readStream (기본) | readStream + CDF |
 |---------|------------------|------------------|
@@ -172,8 +172,8 @@ changes_df.select(
 | `_change_type` | 설명 | 데이터 |
 |---------------|------|--------|
 | `insert` | 새 행 삽입 | 삽입된 행 |
-| `update_preimage` | 업데이트 **이전** 값 | 변경 전 행 |
-| `update_postimage` | 업데이트 **이후** 값 | 변경 후 행 |
+| `update_preimage` | 업데이트 ** 이전** 값 | 변경 전 행 |
+| `update_postimage` | 업데이트 ** 이후** 값 | 변경 후 행 |
 | `delete` | 행 삭제 | 삭제된 행 |
 
 ### CDF 활용: SCD Type 2 파이프라인
@@ -222,19 +222,19 @@ def upsert_to_scd2(batch_df, batch_id):
 | **Lakeflow Connect**| ❌ 불필요 | 소스 DB의 CDC를 직접 캡처 |
 | **Materialized View 증분**| ✅ 활용 | MV가 소스 변경을 효율적으로 감지 |
 
-> 💡 **CDF vs CDC**: CDF(Change Data Feed)는 **Delta 테이블 내부의 변경 추적**기능이고, CDC(Change Data Capture)는 ** 외부 DB의 변경을 캡처**하는 기술입니다. Lakeflow Connect가 외부 CDC를 캡처하면, 그 결과를 CDF가 활성화된 Delta 테이블에 저장하여 다운스트림에 전파하는 패턴이 일반적입니다.
+> 💡 **CDF vs CDC**: CDF(Change Data Feed)는 **Delta 테이블 내부의 변경 추적** 기능이고, CDC(Change Data Capture)는 ** 외부 DB의 변경을 캡처** 하는 기술입니다. Lakeflow Connect가 외부 CDC를 캡처하면, 그 결과를 CDF가 활성화된 Delta 테이블에 저장하여 다운스트림에 전파하는 패턴이 일반적입니다.
 
 ---
 
 ## State Store 관리
 
-윈도우 집계, 스트림 조인 등 **상태 기반 연산**은 내부적으로 **State Store**에 중간 상태를 저장합니다. 프로덕션에서 가장 흔한 스트리밍 문제는 **State Store 크기 증가**입니다.
+윈도우 집계, 스트림 조인 등 ** 상태 기반 연산** 은 내부적으로 **State Store** 에 중간 상태를 저장합니다. 프로덕션에서 가장 흔한 스트리밍 문제는 **State Store 크기 증가** 입니다.
 
 ### State Store가 커지는 원인
 
 | 원인 | 설명 | 해결 |
 |------|------|------|
-| **워터마크 미설정**| 오래된 상태가 정리되지 않음 | 반드시 `withWatermark()` 설정 |
+| ** 워터마크 미설정**| 오래된 상태가 정리되지 않음 | 반드시 `withWatermark()` 설정 |
 | ** 워터마크가 너무 큼**| 1시간 워터마크 = 1시간치 상태 유지 | 비즈니스 요구 최소한으로 설정 |
 | ** 높은 카디널리티 키**| user_id별 집계 시 수억 개 상태 | 키 카디널리티 검토, 사전 집계 |
 | **Session Window**| 세션이 닫히기 전까지 상태 유지 | gap duration을 짧게 |
@@ -254,7 +254,7 @@ if progress and progress.get("stateOperators"):
         print(f"Rows dropped (late): {op.get('numRowsDroppedByWatermark', 0):,}")
 ```
 
-> ⚠️ **State Store OOM**: State Store가 메모리를 초과하면 RocksDB State Store Backend로 디스크에 spill됩니다. Databricks는 기본적으로 RocksDB를 사용하므로 OOM은 드물지만, **디스크 I/O 증가로 지연시간이 늘어날 수** 있습니다.
+> ⚠️ **State Store OOM**: State Store가 메모리를 초과하면 RocksDB State Store Backend로 디스크에 spill됩니다. Databricks는 기본적으로 RocksDB를 사용하므로 OOM은 드물지만, ** 디스크 I/O 증가로 지연시간이 늘어날 수** 있습니다.
 
 ---
 

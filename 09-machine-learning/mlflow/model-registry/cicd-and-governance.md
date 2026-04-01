@@ -216,16 +216,16 @@ def promote_to_prod(staging_model_name, staging_version, prod_model_name):
 
 ## 모델 리니지
 
-Unity Catalog는 모델의 ** 전체 생애주기 리니지**를 자동으로 추적합니다.
+Unity Catalog는 모델의 ** 전체 생애주기 리니지** 를 자동으로 추적합니다.
 
 ### 리니지가 추적하는 정보
 
 | 방향 | 구성 요소 | 설명 |
 |------|----------|------|
-| **소스 (upstream)** | catalog.ecommerce.gold_orders | 학습 데이터 |
+| ** 소스 (upstream)** | catalog.ecommerce.gold_orders | 학습 데이터 |
 | | catalog.ml.customer_features | 피처 테이블 |
 | | catalog.ml.fraud_detection | 모델 (v1: deprecated, v2: champion, v3: challenger) |
-| **소비자 (downstream)** | Serving Endpoint: fraud-detection-endpoint | 모델 서빙 |
+| ** 소비자 (downstream)** | Serving Endpoint: fraud-detection-endpoint | 모델 서빙 |
 | | Dashboard: fraud_monitoring_daily | 모니터링 대시보드 |
 | | Job: daily_fraud_scoring_pipeline | 일일 스코어링 파이프라인 |
 
@@ -255,7 +255,7 @@ WHERE source_table_full_name = 'catalog.ecommerce.gold_orders'
 
 | 주의사항 | 설명 |
 |---------|------|
-| **모델 아티팩트 크기** | UC Registry에 등록 가능한 모델 크기에는 실질적 제한이 없지만, 수 GB 이상의 대형 모델은 등록/로드 시간이 오래 걸릴 수 있습니다 |
+| ** 모델 아티팩트 크기** | UC Registry에 등록 가능한 모델 크기에는 실질적 제한이 없지만, 수 GB 이상의 대형 모델은 등록/로드 시간이 오래 걸릴 수 있습니다 |
 | **Alias 충돌**| 하나의 Alias는 하나의 버전에만 할당됩니다. 기존 Alias를 다른 버전으로 옮기면 이전 버전에서 자동 제거됩니다 |
 | ** 삭제 정책**| 모델 버전을 삭제하면 복구할 수 없습니다. 중요한 버전에는 `do_not_delete` 태그를 붙여 실수를 방지하세요 |
 | ** 서빙 참조 충돌**| Model Serving이 특정 버전을 직접 참조(by version number)하는 경우, 해당 버전을 삭제하면 서빙이 실패합니다. Alias 참조를 권장합니다 |

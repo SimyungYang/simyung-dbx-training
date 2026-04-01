@@ -135,7 +135,7 @@ ORDER BY total_revenue DESC;
 
 ### 파이프라인 생성 및 실행
 
-1. Workspace에서 **Pipelines**→ **Create Pipeline**클릭
+1. Workspace에서 **Pipelines**→ **Create Pipeline** 클릭
 2. Pipeline 이름: `auto-loader-lab-pipeline`
 3. Source Code: 위 SQL이 포함된 노트북 경로 지정
 4. Target Catalog: `training`

@@ -28,19 +28,19 @@ GROUP BY usage_date
 HAVING estimated_cost_usd > 500;
 ```
 
-> 💡 위 쿼리를 **SQL Alert**로 등록하고, Slack/이메일로 알림을 설정하면 비용 이상을 즉시 감지할 수 있습니다.
+> 💡 위 쿼리를 **SQL Alert** 로 등록하고, Slack/이메일로 알림을 설정하면 비용 이상을 즉시 감지할 수 있습니다.
 
 ---
 
 ## 활성화 방법
 
-시스템 테이블은 **계정 관리자(Account Admin)**가 활성화해야 합니다.
+시스템 테이블은 ** 계정 관리자(Account Admin)** 가 활성화해야 합니다.
 
 1. **Account Console**→ **Settings**→ **Feature Enablement**
 2. **System Tables**→ **Enable**
 3. 활성화 후 데이터가 채워지기까지 최대 24시간이 소요될 수 있습니다
 
-> 💡 시스템 테이블의 데이터는 **읽기 전용**이며, Unity Catalog의 `system` 카탈로그에 위치합니다. 조회하려면 `USE CATALOG system` 권한이 필요합니다.
+> 💡 시스템 테이블의 데이터는 ** 읽기 전용** 이며, Unity Catalog의 `system` 카탈로그에 위치합니다. 조회하려면 `USE CATALOG system` 권한이 필요합니다.
 
 ---
 
@@ -48,11 +48,11 @@ HAVING estimated_cost_usd > 500;
 
 | 핵심 카테고리 | 대표 테이블 | 활용 |
 |-------------|-----------|------|
-| **감사** | `system.access.audit` | 누가 무엇을 했는지 추적 |
-| **빌링** | `system.billing.usage` | 비용 분석, 예산 관리 |
-| **컴퓨트** | `system.compute.clusters` | 유휴 리소스 감지 |
-| **워크플로우** | `system.lakeflow.jobs` | Job 성공/실패 모니터링 |
-| **리니지** | `system.lineage.table_lineage` | 데이터 흐름 추적 |
+| ** 감사** | `system.access.audit` | 누가 무엇을 했는지 추적 |
+| ** 빌링** | `system.billing.usage` | 비용 분석, 예산 관리 |
+| ** 컴퓨트** | `system.compute.clusters` | 유휴 리소스 감지 |
+| ** 워크플로우** | `system.lakeflow.jobs` | Job 성공/실패 모니터링 |
+| ** 리니지** | `system.lineage.table_lineage` | 데이터 흐름 추적 |
 
 ---
 

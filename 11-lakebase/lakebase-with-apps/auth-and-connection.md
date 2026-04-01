@@ -50,7 +50,7 @@ conn = psycopg2.connect(
 
 ## 커넥션 풀링 설정
 
-프로덕션 앱에서는 ** 커넥션 풀링(Connection Pooling)**이 필수입니다. 매 요청마다 새 연결을 생성하면 성능이 크게 저하됩니다.
+프로덕션 앱에서는 ** 커넥션 풀링(Connection Pooling)** 이 필수입니다. 매 요청마다 새 연결을 생성하면 성능이 크게 저하됩니다.
 
 > 💡 ** 커넥션 풀링(Connection Pooling)**: 데이터베이스 연결을 미리 여러 개 만들어 놓고, 요청이 올 때마다 재사용하는 기법입니다. 연결 생성/종료의 오버헤드를 줄여 응답 속도를 크게 향상시킵니다.
 
@@ -98,7 +98,7 @@ def handle_request():
 
 ## 트랜잭션 관리
 
-OLTP 앱에서 **트랜잭션(Transaction)** 관리는 데이터 정합성의 핵심입니다.
+OLTP 앱에서 ** 트랜잭션(Transaction)** 관리는 데이터 정합성의 핵심입니다.
 
 ```python
 def transfer_order(conn, order_id, new_status):

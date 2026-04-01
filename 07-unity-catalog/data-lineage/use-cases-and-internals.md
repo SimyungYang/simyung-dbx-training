@@ -48,7 +48,7 @@ WHERE target_table_full_name = 'production.ecommerce.silver_orders';
 
 ### 리니지 수집 메커니즘
 
-Unity Catalog의 리니지는 **쿼리 실행 시 자동으로**수집됩니다. 별도의 설정이나 에이전트 설치가 필요하지 않습니다.
+Unity Catalog의 리니지는 **쿼리 실행 시 자동으로** 수집됩니다. 별도의 설정이나 에이전트 설치가 필요하지 않습니다.
 
 | 단계 | 설명 |
 |------|------|

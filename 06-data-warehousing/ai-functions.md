@@ -2,9 +2,9 @@
 
 ## 왜 SQL에 AI 함수가 필요한가요?
 
-전통적으로 텍스트 분류, 감정 분석, 정보 추출 같은 작업을 하려면 Python 코드를 작성하고, ML 모델을 별도로 호출해야 했습니다. Databricks의 **AI 함수**를 사용하면 이 모든 것을 **SQL 쿼리 한 줄**로 수행할 수 있습니다.
+전통적으로 텍스트 분류, 감정 분석, 정보 추출 같은 작업을 하려면 Python 코드를 작성하고, ML 모델을 별도로 호출해야 했습니다. Databricks의 **AI 함수** 를 사용하면 이 모든 것을 **SQL 쿼리 한 줄** 로 수행할 수 있습니다.
 
-> 💡 AI 함수는 내부적으로 **Model Serving 엔드포인트**를 호출합니다. Foundation Model API에서 제공하는 LLM(Llama, DBRX 등)이나 외부 모델(OpenAI, Anthropic) 엔드포인트를 사용할 수 있습니다. SQL Warehouse(Pro 또는 Serverless)에서 실행해야 합니다.
+> 💡 AI 함수는 내부적으로 **Model Serving 엔드포인트** 를 호출합니다. Foundation Model API에서 제공하는 LLM(Llama, DBRX 등)이나 외부 모델(OpenAI, Anthropic) 엔드포인트를 사용할 수 있습니다. SQL Warehouse(Pro 또는 Serverless)에서 실행해야 합니다.
 
 ---
 

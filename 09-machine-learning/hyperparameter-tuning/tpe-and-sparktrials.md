@@ -2,11 +2,11 @@
 
 ## TPE(Tree-structured Parzen Estimator) 알고리즘 원리
 
-Hyperopt의 기본 알고리즘인 **TPE**는 Bayesian Optimization의 일종으로, 일반적인 Gaussian Process 기반 방법보다 고차원 공간에서 더 효율적입니다.
+Hyperopt의 기본 알고리즘인 **TPE** 는 Bayesian Optimization의 일종으로, 일반적인 Gaussian Process 기반 방법보다 고차원 공간에서 더 효율적입니다.
 
 ### TPE의 핵심 아이디어
 
-일반적인 Bayesian Optimization은 `P(y|x)` (파라미터 x가 주어졌을 때 성능 y의 확률)를 모델링하지만, TPE는 **역방향**으로 `P(x|y)` (성능 y가 주어졌을 때 파라미터 x의 확률)를 모델링합니다.
+일반적인 Bayesian Optimization은 `P(y|x)` (파라미터 x가 주어졌을 때 성능 y의 확률)를 모델링하지만, TPE는 ** 역방향** 으로 `P(x|y)` (성능 y가 주어졌을 때 파라미터 x의 확률)를 모델링합니다.
 
 ```
 TPE 동작 과정:
@@ -28,7 +28,7 @@ TPE 동작 과정:
 
 | 특성 | Gaussian Process (GP) | TPE |
 |------|----------------------|-----|
-| **고차원 확장성**| 차원이 높으면 성능 저하 | 차원에 강건 |
+| ** 고차원 확장성**| 차원이 높으면 성능 저하 | 차원에 강건 |
 | ** 조건부 파라미터**| 처리 어려움 | 자연스럽게 지원 |
 | ** 범주형 파라미터**| 인코딩 필요 | 직접 지원 (`hp.choice`) |
 | ** 계산 비용**| O(n^3) — 시행 수 증가 시 느림 | O(n log n) — 빠름 |
@@ -77,7 +77,7 @@ parallelism = sqrt(max_evals):  (권장 균형점)
   적절한 이전 결과 반영 + 합리적 실행 시간
 ```
 
-> 💡 ** 실무 권장**: `parallelism`은 **Worker 노드 수**와 **max_evals의 제곱근**중 작은 값을 선택합니다. 예를 들어 Worker 8대, max_evals=100이면 `parallelism=8`이 적절합니다.
+> 💡 ** 실무 권장**: `parallelism`은 **Worker 노드 수** 와 **max_evals의 제곱근** 중 작은 값을 선택합니다. 예를 들어 Worker 8대, max_evals=100이면 `parallelism=8`이 적절합니다.
 
 ### SparkTrials 주의사항
 

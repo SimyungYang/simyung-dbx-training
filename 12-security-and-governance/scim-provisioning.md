@@ -2,7 +2,7 @@
 
 ## SCIM이란?
 
-**SCIM(System for Cross-domain Identity Management)**은 기업의 ID 공급자(IdP)에서 Databricks로 사용자와 그룹 정보를 ** 자동 동기화**하는 표준 프로토콜입니다.
+**SCIM(System for Cross-domain Identity Management)** 은 기업의 ID 공급자(IdP)에서 Databricks로 사용자와 그룹 정보를 ** 자동 동기화** 하는 표준 프로토콜입니다.
 
 > 💡 기본 개념은 [인증과 접근 제어](./identity-and-access.md)의 "SCIM 프로비저닝" 섹션에서 소개했습니다. 이 문서에서는 실제 설정 절차와 고급 구성을 다룹니다.
 
@@ -12,20 +12,20 @@
 
 | 상황 | SCIM 없이 (수동) | SCIM으로 (자동) |
 |------|----------------|----------------|
-| **신규 입사** | 관리자가 Databricks에 수동 추가 | IdP에 추가하면 자동 동기화 |
-| **퇴사** | 관리자가 수동 비활성화 (누락 위험) | IdP에서 비활성화하면 자동 반영 |
-| **그룹 변경** | 수동 그룹 멤버십 변경 | IdP 그룹 변경이 자동 반영 |
-| **부서 이동** | 여러 시스템에서 개별 변경 | IdP 한 곳에서 변경하면 전파 |
+| ** 신규 입사** | 관리자가 Databricks에 수동 추가 | IdP에 추가하면 자동 동기화 |
+| ** 퇴사** | 관리자가 수동 비활성화 (누락 위험) | IdP에서 비활성화하면 자동 반영 |
+| ** 그룹 변경** | 수동 그룹 멤버십 변경 | IdP 그룹 변경이 자동 반영 |
+| ** 부서 이동** | 여러 시스템에서 개별 변경 | IdP 한 곳에서 변경하면 전파 |
 
 ---
 
 ## Account 수준 vs Workspace 수준 SCIM
 
-Databricks에서는 **두 수준**의 SCIM을 제공합니다.
+Databricks에서는 ** 두 수준** 의 SCIM을 제공합니다.
 
 | 항목 | Account 수준 SCIM | Workspace 수준 SCIM |
 |------|-------------------|---------------------|
-| **관리 범위** | 전체 Account의 사용자/그룹 | 개별 Workspace의 사용자/그룹 |
+| ** 관리 범위** | 전체 Account의 사용자/그룹 | 개별 Workspace의 사용자/그룹 |
 | **SCIM 엔드포인트**| `accounts.cloud.databricks.com/api/2.0/accounts/<id>/scim/v2` | `<workspace-url>/api/2.0/preview/scim/v2` |
 | **Unity Catalog 호환**| 완전 호환 | 제한적 |
 | ** 권장 여부**| ** 강력 권장**| 레거시 (비권장) |
@@ -46,7 +46,7 @@ SCIM을 통해 동기화되는 정보는 다음과 같습니다.
 | ** 그룹 생성**| IdP의 그룹이 Databricks Account 그룹으로 생성됩니다 | 단방향 |
 | ** 그룹 멤버십**| 그룹의 멤버 추가/제거가 자동 반영됩니다 | 단방향 |
 
-> ⚠️ SCIM은 **IdP → Databricks 단방향**동기화입니다. Databricks에서 직접 변경한 내용은 다음 동기화 시 IdP의 정보로 덮어씌워질 수 있습니다.
+> ⚠️ SCIM은 **IdP → Databricks 단방향** 동기화입니다. Databricks에서 직접 변경한 내용은 다음 동기화 시 IdP의 정보로 덮어씌워질 수 있습니다.
 
 ---
 
@@ -60,8 +60,8 @@ SCIM을 통해 동기화되는 정보는 다음과 같습니다.
 ### 단계 1: Databricks에서 SCIM 토큰 생성
 
 1. **Databricks Account Console**> **Settings**> **User provisioning**
-2. **Enable user provisioning**클릭
-3. **Generate token**클릭하여 SCIM 토큰을 복사합니다
+2. **Enable user provisioning** 클릭
+3. **Generate token** 클릭하여 SCIM 토큰을 복사합니다
 
 ```
 SCIM Base URL: https://accounts.cloud.databricks.com/api/2.0/accounts/<account-id>/scim/v2
@@ -71,19 +71,19 @@ Bearer Token:  dapi_xxxxxxxxxxxxxxxxxxxxxxxxx
 ### 단계 2: Okta에서 SCIM 앱 설정
 
 1. **Okta Admin Console**> **Applications**> Databricks 앱 선택
-2. **Provisioning**탭 > **Configure API Integration**클릭
-3. **Enable API Integration**체크
+2. **Provisioning** 탭 > **Configure API Integration** 클릭
+3. **Enable API Integration** 체크
 
 | 항목 | 값 |
 |------|---|
 | **SCIM connector base URL**| `https://accounts.cloud.databricks.com/api/2.0/accounts/<account-id>/scim/v2` |
 | **API Token**| 위에서 생성한 SCIM 토큰 |
 
-4. **Test API Credentials**클릭하여 연결 확인
+4. **Test API Credentials** 클릭하여 연결 확인
 
 ### 단계 3: 프로비저닝 설정
 
-**To App**설정에서 다음을 활성화합니다:
+**To App** 설정에서 다음을 활성화합니다:
 
 | 기능 | 설명 | 권장 |
 |------|------|------|
@@ -93,8 +93,8 @@ Bearer Token:  dapi_xxxxxxxxxxxxxxxxxxxxxxxxx
 
 ### 단계 4: 사용자/그룹 할당
 
-1. **Assignments**탭에서 동기화할 사용자/그룹을 선택합니다
-2. **Push Groups**탭에서 Databricks로 동기화할 그룹을 설정합니다
+1. **Assignments** 탭에서 동기화할 사용자/그룹을 선택합니다
+2. **Push Groups** 탭에서 Databricks로 동기화할 그룹을 설정합니다
 
 ---
 
@@ -109,14 +109,14 @@ Okta 설정과 동일하게 Account Console에서 SCIM 토큰을 생성합니다
 1. **Azure Portal**> **Microsoft Entra ID**> **Enterprise applications**
 2. Databricks 앱 선택 > **Provisioning**> **Get started**
 3. **Provisioning Mode**: `Automatic` 선택
-4. **Admin Credentials**설정:
+4. **Admin Credentials** 설정:
 
 | 항목 | 값 |
 |------|---|
 | **Tenant URL**| `https://accounts.cloud.databricks.com/api/2.0/accounts/<account-id>/scim/v2` |
 | **Secret Token**| Databricks SCIM 토큰 |
 
-5. **Test Connection**클릭하여 연결 확인
+5. **Test Connection** 클릭하여 연결 확인
 
 ### 단계 3: 매핑 설정
 
@@ -175,11 +175,11 @@ databricks account groups get <group-id>
 
 | 항목 | 설명 |
 |------|------|
-| **토큰 갱신** | SCIM 토큰은 만료 기간이 있습니다. 만료 전 갱신해야 동기화가 중단되지 않습니다 |
-| **삭제 vs 비활성화** | SCIM은 사용자를 **삭제하지 않고 비활성화**합니다. 완전 삭제는 수동으로 처리합니다 |
-| **그룹 이름 변경** | IdP에서 그룹 이름을 변경하면, Databricks에서 새 그룹으로 인식될 수 있습니다 |
-| **동기화 지연** | IdP에서 변경 후 Databricks에 반영되기까지 최대 40분이 소요될 수 있습니다 |
-| **중복 방지** | Account SCIM과 Workspace SCIM을 동시에 사용하지 마세요 |
+| ** 토큰 갱신** | SCIM 토큰은 만료 기간이 있습니다. 만료 전 갱신해야 동기화가 중단되지 않습니다 |
+| ** 삭제 vs 비활성화** | SCIM은 사용자를 ** 삭제하지 않고 비활성화** 합니다. 완전 삭제는 수동으로 처리합니다 |
+| ** 그룹 이름 변경** | IdP에서 그룹 이름을 변경하면, Databricks에서 새 그룹으로 인식될 수 있습니다 |
+| ** 동기화 지연** | IdP에서 변경 후 Databricks에 반영되기까지 최대 40분이 소요될 수 있습니다 |
+| ** 중복 방지** | Account SCIM과 Workspace SCIM을 동시에 사용하지 마세요 |
 
 ---
 
@@ -197,7 +197,7 @@ databricks account groups get <group-id>
 
 ## SCIM 프로토콜 내부 동작 상세
 
-SCIM은 **REST API 기반의 CRUD(Create, Read, Update, Delete)**프로토콜입니다. IdP가 Databricks의 SCIM 엔드포인트에 HTTP 요청을 보내는 방식으로 동기화가 이루어집니다.
+SCIM은 **REST API 기반의 CRUD(Create, Read, Update, Delete)** 프로토콜입니다. IdP가 Databricks의 SCIM 엔드포인트에 HTTP 요청을 보내는 방식으로 동기화가 이루어집니다.
 
 ### SCIM REST API 구조
 
@@ -338,7 +338,7 @@ curl -X PATCH \
   }'
 ```
 
-> ⚠️ ** 주의**: Databricks에서 직접 변경한 내용은 다음 IdP 동기화 시 IdP의 상태로 덮어써질 수 있습니다. 반드시 **IdP에서도 동일하게 비활성화**해야 합니다.
+> ⚠️ ** 주의**: Databricks에서 직접 변경한 내용은 다음 IdP 동기화 시 IdP의 상태로 덮어써질 수 있습니다. 반드시 **IdP에서도 동일하게 비활성화** 해야 합니다.
 
 ---
 
@@ -365,7 +365,7 @@ curl -X PATCH \
 | | - MLE Training Team | - |
 | | - MLE Serving Team | - |
 
-> 💡 ** 실무 권장**: IdP의 조직 구조(부서별 중첩 그룹)와 Databricks의 접근 제어 그룹을 **분리하여 설계**하세요. IdP에서 `dbx-` 접두사가 붙은 평면 그룹을 별도로 생성하고, 이 그룹만 SCIM으로 동기화하면 중첩 문제를 회피할 수 있습니다.
+> 💡 ** 실무 권장**: IdP의 조직 구조(부서별 중첩 그룹)와 Databricks의 접근 제어 그룹을 ** 분리하여 설계** 하세요. IdP에서 `dbx-` 접두사가 붙은 평면 그룹을 별도로 생성하고, 이 그룹만 SCIM으로 동기화하면 중첩 문제를 회피할 수 있습니다.
 
 ---
 

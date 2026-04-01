@@ -2,9 +2,9 @@
 
 ## 왜 Deletion Vectors가 필요한가요?
 
-Delta Lake에서 데이터를 삭제(DELETE)하거나 수정(UPDATE)할 때, 내부적으로는 어떤 일이 벌어질까요? 기존 방식에서는 변경 대상이 포함된 파일 전체를 **다시 작성(rewrite)**해야 했습니다. 1GB 파일에서 단 1행만 삭제해도, 나머지 999,999행을 포함한 새 파일을 써야 했던 것입니다.
+Delta Lake에서 데이터를 삭제(DELETE)하거나 수정(UPDATE)할 때, 내부적으로는 어떤 일이 벌어질까요? 기존 방식에서는 변경 대상이 포함된 파일 전체를 **다시 작성(rewrite)** 해야 했습니다. 1GB 파일에서 단 1행만 삭제해도, 나머지 999,999행을 포함한 새 파일을 써야 했던 것입니다.
 
-> 💡 **Deletion Vectors(삭제 벡터)**는 이러한 비효율을 해결하기 위해 도입된 기술입니다. 파일을 다시 쓰지 않고, ** 어떤 행이 삭제되었는지를 별도의 파일에 기록**하는 방식으로 DELETE, UPDATE, MERGE의 성능을 크게 향상시킵니다.
+> 💡 **Deletion Vectors(삭제 벡터)** 는 이러한 비효율을 해결하기 위해 도입된 기술입니다. 파일을 다시 쓰지 않고, ** 어떤 행이 삭제되었는지를 별도의 파일에 기록** 하는 방식으로 DELETE, UPDATE, MERGE의 성능을 크게 향상시킵니다.
 
 ---
 
@@ -12,7 +12,7 @@ Delta Lake에서 데이터를 삭제(DELETE)하거나 수정(UPDATE)할 때, 내
 
 ### Copy-on-Write (기존 방식)
 
-기존 Delta Lake는 **Copy-on-Write(CoW)**방식을 사용했습니다.
+기존 Delta Lake는 **Copy-on-Write(CoW)** 방식을 사용했습니다.
 
 ```
 DELETE FROM orders WHERE order_id = 42;
@@ -56,7 +56,7 @@ Deletion Vectors 동작:
 
 ### Deletion Vector 파일
 
-Deletion Vector는 ** 비트맵(bitmap)**형태로 저장됩니다. 각 비트가 파일 내 한 행에 대응하며, 삭제된 행은 1, 유효한 행은 0으로 표시됩니다.
+Deletion Vector는 ** 비트맵(bitmap)** 형태로 저장됩니다. 각 비트가 파일 내 한 행에 대응하며, 삭제된 행은 1, 유효한 행은 0으로 표시됩니다.
 
 ```
 Parquet 파일: part-00001.parquet (100만 행)
@@ -69,7 +69,7 @@ DV 파일:      part-00001.deletion_vector.bin
 
 ### 읽기 시 동작
 
-쿼리를 실행할 때, Delta Lake는 Parquet 파일과 함께 해당 파일의 Deletion Vector를 읽어 ** 삭제된 행을 자동으로 필터링**합니다.
+쿼리를 실행할 때, Delta Lake는 Parquet 파일과 함께 해당 파일의 Deletion Vector를 읽어 ** 삭제된 행을 자동으로 필터링** 합니다.
 
 ```sql
 -- 사용자 입장에서는 완전히 투명합니다
@@ -110,7 +110,7 @@ ALTER TABLE catalog.schema.orders
 SET TBLPROPERTIES ('delta.enableDeletionVectors' = true);
 ```
 
-> 💡 Databricks Runtime 14.0 이상에서 생성된 Delta 테이블은 **기본적으로 Deletion Vectors가 활성화**되어 있습니다. 별도의 설정 없이 자동으로 적용됩니다.
+> 💡 Databricks Runtime 14.0 이상에서 생성된 Delta 테이블은 **기본적으로 Deletion Vectors가 활성화** 되어 있습니다. 별도의 설정 없이 자동으로 적용됩니다.
 
 ### 비활성화
 
@@ -124,7 +124,7 @@ SET TBLPROPERTIES ('delta.enableDeletionVectors' = false);
 
 ## OPTIMIZE와의 관계
 
-Deletion Vectors가 쌓이면 읽기 시 DV를 확인하는 오버헤드가 증가할 수 있습니다. **OPTIMIZE**를 실행하면 DV가 적용된 파일들이 새로 작성되면서, Deletion Vectors가 **물리적으로 반영(materialized)**됩니다.
+Deletion Vectors가 쌓이면 읽기 시 DV를 확인하는 오버헤드가 증가할 수 있습니다. **OPTIMIZE** 를 실행하면 DV가 적용된 파일들이 새로 작성되면서, Deletion Vectors가 ** 물리적으로 반영(materialized)** 됩니다.
 
 ```sql
 -- OPTIMIZE 실행 시 DV가 적용된 파일이 정리됩니다
@@ -134,7 +134,7 @@ OPTIMIZE catalog.schema.orders;
 -- OPTIMIZE 후: 삭제된 행이 제거된 새 Parquet 파일 (물리적 삭제)
 ```
 
-> 💡 Deletion Vectors는 **쓰기 성능을 즉시 개선**하지만, DV가 많이 쌓이면 읽기 성능이 약간 저하될 수 있습니다. 정기적인 OPTIMIZE로 DV를 정리하는 것이 좋습니다. **Predictive Optimization**이 활성화되어 있다면 이 작업도 자동으로 처리됩니다.
+> 💡 Deletion Vectors는 ** 쓰기 성능을 즉시 개선** 하지만, DV가 많이 쌓이면 읽기 성능이 약간 저하될 수 있습니다. 정기적인 OPTIMIZE로 DV를 정리하는 것이 좋습니다. **Predictive Optimization** 이 활성화되어 있다면 이 작업도 자동으로 처리됩니다.
 
 ---
 
@@ -154,11 +154,11 @@ OPTIMIZE catalog.schema.orders;
 
 ## DV 내부 저장 구조 — RoaringBitmap
 
-Deletion Vectors는 내부적으로 **RoaringBitmap**데이터 구조를 사용하여 삭제된 행의 위치를 매우 효율적으로 저장합니다.
+Deletion Vectors는 내부적으로 **RoaringBitmap** 데이터 구조를 사용하여 삭제된 행의 위치를 매우 효율적으로 저장합니다.
 
 ### RoaringBitmap이란?
 
-> 💡 **RoaringBitmap**은 정수 집합을 메모리 효율적으로 저장하는 압축 비트맵 데이터 구조입니다. 일반 비트맵보다 훨씬 적은 공간을 사용하면서도 빠른 집합 연산(합집합, 교집합)을 지원합니다.
+> 💡 **RoaringBitmap** 은 정수 집합을 메모리 효율적으로 저장하는 압축 비트맵 데이터 구조입니다. 일반 비트맵보다 훨씬 적은 공간을 사용하면서도 빠른 집합 연산(합집합, 교집합)을 지원합니다.
 
 ```
 일반 비트맵 (100만 행, 3행 삭제):
@@ -180,7 +180,7 @@ DV는 두 가지 방식으로 저장될 수 있습니다.
 
 | 저장 방식 | 설명 | 사용 시점 |
 |-----------|------|----------|
-| **인라인(Inline)**| Delta 트랜잭션 로그에 직접 포함 | 삭제된 행이 소수일 때 (수십 바이트) |
+| ** 인라인(Inline)**| Delta 트랜잭션 로그에 직접 포함 | 삭제된 행이 소수일 때 (수십 바이트) |
 | ** 독립 파일(On-disk)**| 별도 `.bin` 파일로 저장 | 삭제된 행이 많을 때 (수 KB~수 MB) |
 
 ```
@@ -201,7 +201,7 @@ _delta_log/
 
 ## Copy-on-Write vs Merge-on-Read 성능 특성 심층 분석
 
-DV의 도입으로 Delta Lake는 사실상 **Merge-on-Read(MoR)**방식을 채택하게 되었습니다. 두 방식의 성능 특성을 워크로드별로 비교합니다.
+DV의 도입으로 Delta Lake는 사실상 **Merge-on-Read(MoR)** 방식을 채택하게 되었습니다. 두 방식의 성능 특성을 워크로드별로 비교합니다.
 
 ### 워크로드별 성능 비교
 
@@ -232,7 +232,7 @@ DV가 활성화된 상태에서 읽기 시 추가되는 오버헤드입니다.
   - DV > 1MB: 1~5ms 추가 (OPTIMIZE 필요 신호)
 ```
 
-> 💡 ** 핵심 교훈**: DV의 읽기 오버헤드는 대부분의 경우 무시할 수 있는 수준이지만, DV가 **매우 크게 누적**되면 의미 있는 성능 저하가 발생합니다. 이때가 OPTIMIZE를 실행해야 하는 시점입니다.
+> 💡 ** 핵심 교훈**: DV의 읽기 오버헤드는 대부분의 경우 무시할 수 있는 수준이지만, DV가 ** 매우 크게 누적** 되면 의미 있는 성능 저하가 발생합니다. 이때가 OPTIMIZE를 실행해야 하는 시점입니다.
 
 ---
 
@@ -242,8 +242,8 @@ Photon 엔진은 DV를 네이티브로 지원하며, DV 기반 연산에 대해 
 
 | 최적화 | 설명 |
 |--------|------|
-| **벡터화된 DV 필터링** | RoaringBitmap을 SIMD 연산으로 처리하여 CPU 오버헤드를 최소화합니다 |
-| **프리페치** | Parquet 파일과 DV 파일을 동시에 프리페치하여 I/O 대기를 줄입니다 |
+| ** 벡터화된 DV 필터링** | RoaringBitmap을 SIMD 연산으로 처리하여 CPU 오버헤드를 최소화합니다 |
+| ** 프리페치** | Parquet 파일과 DV 파일을 동시에 프리페치하여 I/O 대기를 줄입니다 |
 | **DV-aware 파일 건너뛰기**| DV로 인해 모든 행이 삭제된 파일은 아예 읽지 않습니다 |
 | ** 최적화된 MERGE**| DV + Photon 조합으로 MERGE 연산 성능이 기존 대비 3~10배 향상됩니다 |
 

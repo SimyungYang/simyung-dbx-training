@@ -53,7 +53,7 @@ ANALYZE TABLE catalog.schema.table_name COMPUTE DELTA STATISTICS;
 
 ### 3.3 Predictive Optimization 활용
 
-Predictive Optimization은 Unity Catalog 관리형 테이블에 대해 OPTIMIZE, VACUUM, ANALYZE를 **자동으로 실행**합니다.
+Predictive Optimization은 Unity Catalog 관리형 테이블에 대해 OPTIMIZE, VACUUM, ANALYZE를 **자동으로 실행** 합니다.
 
 ```sql
 -- 카탈로그 수준에서 Predictive Optimization 활성화
@@ -66,7 +66,7 @@ ALTER SCHEMA my_catalog.my_schema ENABLE PREDICTIVE OPTIMIZATION;
 ALTER SCHEMA my_catalog.temp_schema DISABLE PREDICTIVE OPTIMIZATION;
 ```
 
-> 💡 **비용 효과**: Predictive Optimization을 활성화하면 수동 OPTIMIZE/VACUUM 작업을 관리할 필요가 없어지고, 서버리스 Jobs SKU로 과금되어 효율적입니다. 2024년 11월 이후 생성된 계정에는 기본 활성화되어 있습니다.
+> 💡 ** 비용 효과**: Predictive Optimization을 활성화하면 수동 OPTIMIZE/VACUUM 작업을 관리할 필요가 없어지고, 서버리스 Jobs SKU로 과금되어 효율적입니다. 2024년 11월 이후 생성된 계정에는 기본 활성화되어 있습니다.
 
 ---
 
@@ -82,7 +82,7 @@ ALTER SCHEMA my_catalog.temp_schema DISABLE PREDICTIVE OPTIMIZATION;
 | 50-200명 | 다양한 혼합 | X-Large | 5-10 |
 | 200명+ | 대시보드 + Ad-hoc | 2X-Large | 10+ |
 
-> 💡 **Serverless 전략**: Serverless SQL Warehouse를 사용한다면 **큰 단일 Warehouse에서 시작**하는 것이 권장됩니다. Serverless의 Intelligent Workload Management가 자동으로 동시성을 관리합니다.
+> 💡 **Serverless 전략**: Serverless SQL Warehouse를 사용한다면 ** 큰 단일 Warehouse에서 시작** 하는 것이 권장됩니다. Serverless의 Intelligent Workload Management가 자동으로 동시성을 관리합니다.
 
 ### 4.2 Auto Stop vs Always On 비용 비교
 

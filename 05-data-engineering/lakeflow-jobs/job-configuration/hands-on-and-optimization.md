@@ -155,8 +155,8 @@ new_cluster:
 
 - **Auto-scaling 활용**: `autoscale.min_workers`와 `autoscale.max_workers`를 설정하여 워크로드에 맞게 자동 조절합니다
 - **Photon 엔진 사용**: SQL 및 DataFrame 워크로드에서 성능이 2~8배 향상됩니다
-- **태스크별 클러스터 공유**: 동일한 컴퓨트가 필요한 태스크는 `job_cluster_key`로 클러스터를 공유할 수 있습니다
-- **불필요한 셔플 제거**: `broadcast join`, `partition pruning` 등으로 데이터 이동을 최소화합니다
+- ** 태스크별 클러스터 공유**: 동일한 컴퓨트가 필요한 태스크는 `job_cluster_key`로 클러스터를 공유할 수 있습니다
+- ** 불필요한 셔플 제거**: `broadcast join`, `partition pruning` 등으로 데이터 이동을 최소화합니다
 - **Delta 최적화**: `optimizeWrite`, `autoCompact`를 활성화하여 소규모 파일 문제를 방지합니다
 
 ```yaml
@@ -189,12 +189,12 @@ tasks:
 
 | 구성 요소 | 핵심 포인트 |
 |-----------|-------------|
-| **태스크 유형** | Notebook, SQL, dbt, Pipeline 등 워크로드에 맞는 유형을 선택합니다 |
-| **의존성** | DAG로 선형, 병렬, 조건부 흐름을 설계합니다 |
-| **클러스터** | Job Cluster + Spot 인스턴스로 비용을 최적화합니다 |
-| **파라미터** | `dbutils.widgets`와 Task Values로 태스크 간 데이터를 전달합니다 |
-| **재시도/타임아웃** | 일시적 장애에 대비하되, 멱등성을 보장합니다 |
-| **알림** | 프로덕션 Job에는 반드시 실패 알림을 설정합니다 |
+| ** 태스크 유형** | Notebook, SQL, dbt, Pipeline 등 워크로드에 맞는 유형을 선택합니다 |
+| ** 의존성** | DAG로 선형, 병렬, 조건부 흐름을 설계합니다 |
+| ** 클러스터** | Job Cluster + Spot 인스턴스로 비용을 최적화합니다 |
+| ** 파라미터** | `dbutils.widgets`와 Task Values로 태스크 간 데이터를 전달합니다 |
+| ** 재시도/타임아웃** | 일시적 장애에 대비하되, 멱등성을 보장합니다 |
+| ** 알림** | 프로덕션 Job에는 반드시 실패 알림을 설정합니다 |
 
 ---
 

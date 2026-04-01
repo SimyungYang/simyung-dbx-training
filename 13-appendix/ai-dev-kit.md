@@ -2,14 +2,14 @@
 
 ## AI Dev Kit란?
 
-Databricks AI Dev Kit는 **AI 코딩 어시스턴트**(Claude Code, VS Code Copilot, Cursor 등)와 **Databricks 플랫폼**을 연결하는 통합 도구입니다. MCP(Model Context Protocol) 서버를 통해 AI 어시스턴트가 Databricks의 리소스에 직접 접근할 수 있게 해주며, 자연어 명령만으로 SQL 실행, 클러스터 관리, 파이프라인 생성, 대시보드 구축 등의 작업을 수행할 수 있습니다.
+Databricks AI Dev Kit는 **AI 코딩 어시스턴트**(Claude Code, VS Code Copilot, Cursor 등)와 **Databricks 플랫폼** 을 연결하는 통합 도구입니다. MCP(Model Context Protocol) 서버를 통해 AI 어시스턴트가 Databricks의 리소스에 직접 접근할 수 있게 해주며, 자연어 명령만으로 SQL 실행, 클러스터 관리, 파이프라인 생성, 대시보드 구축 등의 작업을 수행할 수 있습니다.
 
-> 💡 **MCP(Model Context Protocol)**란?
+> 💡 **MCP(Model Context Protocol)** 란?
 > Anthropic이 제안한 개방형 프로토콜로, AI 모델이 외부 도구·데이터 소스와 표준화된 방식으로 소통할 수 있게 합니다. AI Dev Kit는 이 프로토콜을 활용하여 Databricks API를 AI 어시스턴트의 "도구(tool)"로 노출합니다.
 
 ### 왜 AI Dev Kit가 필요한가?
 
-기존에는 Databricks 작업을 수행하려면 UI에 접속하거나 CLI/SDK를 직접 호출해야 했습니다. AI Dev Kit를 사용하면 개발자가 **코딩 환경을 떠나지 않고**자연어로 Databricks 플랫폼과 상호작용할 수 있습니다.
+기존에는 Databricks 작업을 수행하려면 UI에 접속하거나 CLI/SDK를 직접 호출해야 했습니다. AI Dev Kit를 사용하면 개발자가 ** 코딩 환경을 떠나지 않고** 자연어로 Databricks 플랫폼과 상호작용할 수 있습니다.
 
 | 기존 방식 | AI Dev Kit 방식 |
 |---|---|
@@ -292,8 +292,8 @@ resources:
 
 ### 보안 고려사항
 
-- AI Dev Kit는 **사용자의 Databricks 권한**을 그대로 상속합니다. Unity Catalog 권한이 적용되므로 접근 권한이 없는 데이터는 조회할 수 없습니다.
-- PAT(개인 접근 토큰)보다 **OAuth 인증**을 권장합니다. 토큰 만료 관리가 자동으로 이루어집니다.
+- AI Dev Kit는 ** 사용자의 Databricks 권한** 을 그대로 상속합니다. Unity Catalog 권한이 적용되므로 접근 권한이 없는 데이터는 조회할 수 없습니다.
+- PAT(개인 접근 토큰)보다 **OAuth 인증** 을 권장합니다. 토큰 만료 관리가 자동으로 이루어집니다.
 - `.mcp.json` 파일에 토큰을 직접 작성하지 마세요. 환경 변수나 프로파일을 사용하세요.
 - `.gitignore`에 민감한 설정 파일이 포함되어 있는지 확인하세요.
 
@@ -303,7 +303,7 @@ resources:
 
 | 항목 | 내용 |
 |---|---|
-| **핵심 가치**| AI 코딩 어시스턴트에서 자연어로 Databricks 플랫폼 제어 |
+| ** 핵심 가치**| AI 코딩 어시스턴트에서 자연어로 Databricks 플랫폼 제어 |
 | ** 기반 기술**| MCP (Model Context Protocol) |
 | ** 지원 도구**| Claude Code, VS Code, Cursor, Windsurf, Claude Desktop |
 | ** 인증**| Databricks Unified Auth (OAuth, PAT, Service Principal) |

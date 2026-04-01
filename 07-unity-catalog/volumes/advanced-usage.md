@@ -64,7 +64,7 @@ cleanup_old_files("/Volumes/production/ecommerce/temp_files/", days_to_keep=30)
 
 ## Volume과 Auto Loader 연동
 
-Volume은 **Auto Loader의 소스 경로**로 직접 사용할 수 있어, 파일 수집 파이프라인의 랜딩 존 역할을 합니다.
+Volume은 **Auto Loader의 소스 경로** 로 직접 사용할 수 있어, 파일 수집 파이프라인의 랜딩 존 역할을 합니다.
 
 ### Auto Loader + Volume 패턴
 
@@ -189,7 +189,7 @@ parsed_docs = spark.sql(f"""
 | ** 동시 접근**| 여러 클러스터에서 동시에 같은 Volume에 접근 가능 (파일 레벨 잠금은 없음) |
 | ** 트랜잭션**| Volume의 파일 조작은 ACID 트랜잭션을 지원하지 않습니다. Delta 테이블과 달리 원자적 쓰기가 보장되지 않습니다 |
 
-> ⚠️ **Volume vs Delta Table**: 구조화된 데이터는 반드시 **Delta Table**로 관리하세요. Volume은 비정형 파일(이미지, PDF, 모델 파일 등)이나 외부 시스템과의 파일 교환용으로 사용합니다. CSV/JSON 파일도 Volume에 저장 후 Auto Loader로 Delta Table에 적재하는 것이 모범 사례입니다.
+> ⚠️ **Volume vs Delta Table**: 구조화된 데이터는 반드시 **Delta Table** 로 관리하세요. Volume은 비정형 파일(이미지, PDF, 모델 파일 등)이나 외부 시스템과의 파일 교환용으로 사용합니다. CSV/JSON 파일도 Volume에 저장 후 Auto Loader로 Delta Table에 적재하는 것이 모범 사례입니다.
 
 ---
 

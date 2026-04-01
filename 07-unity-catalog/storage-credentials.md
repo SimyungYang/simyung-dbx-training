@@ -2,9 +2,9 @@
 
 ## 스토리지 자격 증명이란?
 
-**스토리지 자격 증명(Storage Credential)**은 Unity Catalog가 클라우드 스토리지(S3, ADLS, GCS)에 접근할 때 사용하는 ** 인증 정보 객체**입니다. 외부 로케이션(External Location)을 생성하려면 반드시 스토리지 자격 증명이 필요합니다.
+**스토리지 자격 증명(Storage Credential)** 은 Unity Catalog가 클라우드 스토리지(S3, ADLS, GCS)에 접근할 때 사용하는 ** 인증 정보 객체** 입니다. 외부 로케이션(External Location)을 생성하려면 반드시 스토리지 자격 증명이 필요합니다.
 
-> 💡 **비유**: 스토리지 자격 증명은 "건물 마스터키"와 같습니다. 이 키가 있어야 외부 로케이션(건물 내 특정 사무실)에 접근할 수 있습니다. Databricks는 사용자의 클라우드 자격 증명 대신, Unity Catalog가 관리하는 자격 증명으로 스토리지에 접근합니다.
+> 💡 ** 비유**: 스토리지 자격 증명은 "건물 마스터키"와 같습니다. 이 키가 있어야 외부 로케이션(건물 내 특정 사무실)에 접근할 수 있습니다. Databricks는 사용자의 클라우드 자격 증명 대신, Unity Catalog가 관리하는 자격 증명으로 스토리지에 접근합니다.
 
 ---
 
@@ -14,7 +14,7 @@
 
 ### AWS: IAM Role
 
-AWS 환경에서는 **IAM Role**을 사용하여 S3 버킷에 접근합니다. Databricks가 이 역할을 **Assume(위임)** 하여 스토리지에 접근합니다.
+AWS 환경에서는 **IAM Role** 을 사용하여 S3 버킷에 접근합니다. Databricks가 이 역할을 **Assume(위임)** 하여 스토리지에 접근합니다.
 
 ```json
 {
@@ -40,7 +40,7 @@ AWS 환경에서는 **IAM Role**을 사용하여 S3 버킷에 접근합니다. D
 
 ### Azure: Managed Identity / Service Principal
 
-Azure 환경에서는 **Managed Identity**또는 **Service Principal**을 사용합니다.
+Azure 환경에서는 **Managed Identity** 또는 **Service Principal** 을 사용합니다.
 
 | 방식 | 설명 | 권장 여부 |
 |------|------|----------|
@@ -49,7 +49,7 @@ Azure 환경에서는 **Managed Identity**또는 **Service Principal**을 사용
 
 ### GCP: Service Account
 
-GCP 환경에서는 **Service Account**를 사용하여 GCS 버킷에 접근합니다.
+GCP 환경에서는 **Service Account** 를 사용하여 GCS 버킷에 접근합니다.
 
 ---
 
@@ -174,7 +174,7 @@ DROP STORAGE CREDENTIAL aws_s3_credential;
 
 ## AWS IAM Role 신뢰 정책 설정
 
-AWS에서 Storage Credential을 사용하려면, IAM Role의 ** 신뢰 정책(Trust Policy)**에 Databricks를 추가해야 합니다.
+AWS에서 Storage Credential을 사용하려면, IAM Role의 ** 신뢰 정책(Trust Policy)** 에 Databricks를 추가해야 합니다.
 
 ```json
 {
@@ -253,7 +253,7 @@ Storage Credential 3: prod-raw-cred
   → External Location: /raw/ingestion/
 ```
 
-> 💡 **원칙**: Credential은 **용도(analytics, ML, raw data)와 환경(dev, staging, prod)** 별로 분리하세요. 하나의 Credential이 접근할 수 있는 범위가 좁을수록, 사고 시 피해 범위도 좁아집니다.
+> 💡 **원칙**: Credential은 ** 용도(analytics, ML, raw data)와 환경(dev, staging, prod)** 별로 분리하세요. 하나의 Credential이 접근할 수 있는 범위가 좁을수록, 사고 시 피해 범위도 좁아집니다.
 
 ---
 
@@ -270,7 +270,7 @@ Storage Credential 3: prod-raw-cred
 | 3 | AssumeRole → Data Access Role | Account B |
 | 4 | S3 버킷 접근 | 최종 데이터 접근 |
 
-> **역할 체인**: UC Master Role → Credential Role → Data Role
+> ** 역할 체인**: UC Master Role → Credential Role → Data Role
 
 ```json
 // Account B의 Data Access Role 신뢰 정책
@@ -307,9 +307,9 @@ Storage Credential 3: prod-raw-cred
 }
 ```
 
-> ⚠️ **크로스 계정 접근 시 주의사항**:
+> ⚠️ ** 크로스 계정 접근 시 주의사항**:
 > - **STS 토큰 만료**: AssumeRole 체인이 길어지면 토큰 갱신이 빈번해집니다. 장시간 배치 잡에서 토큰 만료 에러가 날 수 있으므로, 세션 기간(Duration)을 충분히 설정하세요 (최대 12시간)
-> - **리전 일치**: S3 버킷과 IAM Role이 같은 리전에 있어야 지연이 최소화됩니다
+> - ** 리전 일치**: S3 버킷과 IAM Role이 같은 리전에 있어야 지연이 최소화됩니다
 > - **CloudTrail 양쪽 활성화**: Account A와 B 모두에서 AssumeRole 이벤트를 추적할 수 있도록 CloudTrail을 활성화하세요
 
 ---
@@ -351,7 +351,7 @@ WHERE credential_name = 'aws_s3_credential';
 -- (Catalog Explorer에서 리니지 그래프로 확인하는 것이 더 효율적)
 ```
 
-> 💡 **실전 팁**: Credential이나 IAM Role을 변경할 때는 반드시 **dev 환경에서 먼저 테스트**하세요. 프로덕션에서 `VALIDATE`가 실패하면 모든 외부 테이블 쿼리가 즉시 실패합니다. Terraform이나 Databricks Asset Bundles로 Credential을 코드로 관리하면, 변경 이력 추적과 롤백이 용이합니다.
+> 💡 **실전 팁**: Credential이나 IAM Role을 변경할 때는 반드시 **dev 환경에서 먼저 테스트** 하세요. 프로덕션에서 `VALIDATE`가 실패하면 모든 외부 테이블 쿼리가 즉시 실패합니다. Terraform이나 Databricks Asset Bundles로 Credential을 코드로 관리하면, 변경 이력 추적과 롤백이 용이합니다.
 
 ---
 

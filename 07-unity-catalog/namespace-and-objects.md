@@ -4,7 +4,7 @@
 
 > 💡 Unity Catalog는 **Catalog → Schema → Object**3단계 계층 구조로 모든 데이터 자산을 관리합니다. 이 구조는 ANSI SQL 표준의 3-Level 네임스페이스를 따릅니다.
 
-전통적인 데이터베이스에서 `database.table` 형식으로 2단계 네임스페이스를 사용하는 것과 달리, Unity Catalog는 **Catalog**라는 최상위 계층을 추가하여 3단계로 확장했습니다. 이를 통해 환경별(production/staging/dev), 팀별, 도메인별 데이터를 명확하게 분리하고 독립적으로 권한을 관리할 수 있습니다.
+전통적인 데이터베이스에서 `database.table` 형식으로 2단계 네임스페이스를 사용하는 것과 달리, Unity Catalog는 **Catalog** 라는 최상위 계층을 추가하여 3단계로 확장했습니다. 이를 통해 환경별(production/staging/dev), 팀별, 도메인별 데이터를 명확하게 분리하고 독립적으로 권한을 관리할 수 있습니다.
 
 | 수준 | 이름 | 유형 |
 |------|------|------|
@@ -34,9 +34,9 @@ SELECT * FROM production.ecommerce.orders;
 
 ## Metastore — 최상위 컨테이너
 
-> 💡 **Metastore**는 Unity Catalog의 **최상위 컨테이너**입니다. 하나의 클라우드 리전에 하나의 Metastore가 존재하며, 해당 리전의 모든 Workspace가 이 Metastore를 공유합니다.
+> 💡 **Metastore** 는 Unity Catalog의 ** 최상위 컨테이너** 입니다. 하나의 클라우드 리전에 하나의 Metastore가 존재하며, 해당 리전의 모든 Workspace가 이 Metastore를 공유합니다.
 
-Metastore는 직접 데이터를 담지 않고, 그 아래의 Catalog → Schema → Object를 **메타데이터(이름, 위치, 권한, 리니지 등)**로 관리하는 카탈로그 역할을 합니다.
+Metastore는 직접 데이터를 담지 않고, 그 아래의 Catalog → Schema → Object를 ** 메타데이터(이름, 위치, 권한, 리니지 등)** 로 관리하는 카탈로그 역할을 합니다.
 
 ### Metastore 설정
 
@@ -60,9 +60,9 @@ SELECT * FROM system.information_schema.catalogs;
 
 | 레벨 | 역할 | 일반적인 구성 전략 | 예시 |
 |------|------|-----------------|------|
-| **Metastore**| 최상위 컨테이너. ** 리전별 하나**만 존재하며, 여러 Workspace에서 공유됩니다 | 계정 수준 관리 | US-East Metastore |
-| **Catalog**| 데이터 자산의 최상위 논리 그룹입니다. ** 환경별**또는 ** 팀별**로 분리합니다 | `production`, `staging`, `dev`, `sandbox` | 환경별 분리 |
-| **Schema**| 관련 객체를 논리적으로 그룹화합니다. ** 도메인별**또는 **Medallion 계층별**로 분리합니다 | `ecommerce`, `hr`, `finance` 또는 `bronze`, `silver`, `gold` | 도메인별 분리 |
+| **Metastore**| 최상위 컨테이너. ** 리전별 하나** 만 존재하며, 여러 Workspace에서 공유됩니다 | 계정 수준 관리 | US-East Metastore |
+| **Catalog**| 데이터 자산의 최상위 논리 그룹입니다. ** 환경별** 또는 ** 팀별** 로 분리합니다 | `production`, `staging`, `dev`, `sandbox` | 환경별 분리 |
+| **Schema**| 관련 객체를 논리적으로 그룹화합니다. ** 도메인별** 또는 **Medallion 계층별** 로 분리합니다 | `ecommerce`, `hr`, `finance` 또는 `bronze`, `silver`, `gold` | 도메인별 분리 |
 | **Object**| 실제 데이터 자산입니다. 테이블, 뷰, 볼륨, 함수, 모델 등 10가지 유형이 있습니다 | 의미 있는 이름 사용 | `orders`, `customers` |
 
 ---
@@ -100,7 +100,7 @@ LOCATION 's3://my-bucket/legacy/orders';
 
 ### View (뷰)
 
-뷰는 SQL 쿼리를 저장한 ** 가상 테이블**입니다. 데이터를 물리적으로 저장하지 않고, 조회할 때마다 정의된 쿼리를 실행합니다. 복잡한 조인이나 필터를 미리 정의해두면 사용자가 간단하게 데이터에 접근할 수 있습니다.
+뷰는 SQL 쿼리를 저장한 ** 가상 테이블** 입니다. 데이터를 물리적으로 저장하지 않고, 조회할 때마다 정의된 쿼리를 실행합니다. 복잡한 조인이나 필터를 미리 정의해두면 사용자가 간단하게 데이터에 접근할 수 있습니다.
 
 ```sql
 -- 일반 View
@@ -196,7 +196,7 @@ model = mlflow.pyfunc.load_model("models:/production.ml_models.churn_prediction@
 
 ### Connection (연결)
 
-외부 시스템(MySQL, PostgreSQL, Snowflake 등)의 **연결 정보**를 저장합니다. Lakeflow Connect에서 외부 데이터 소스를 연결할 때 사용합니다.
+외부 시스템(MySQL, PostgreSQL, Snowflake 등)의 **연결 정보** 를 저장합니다. Lakeflow Connect에서 외부 데이터 소스를 연결할 때 사용합니다.
 
 ```sql
 CREATE CONNECTION mysql_prod TYPE MYSQL
@@ -257,7 +257,7 @@ OPTIONS (
 | **shared**| reference_data | 코드 테이블 등 |
 | | cross_team | 팀 간 공유 데이터 |
 
-> 💡 ** 권장**: 대부분의 조직에서는 **전략 1 (환경별 카탈로그 + 도메인별 스키마)** 로 시작하는 것을 권장합니다. 조직이 커지고 요구사항이 복잡해지면 전략 3으로 확장할 수 있습니다.
+> 💡 ** 권장**: 대부분의 조직에서는 ** 전략 1 (환경별 카탈로그 + 도메인별 스키마)** 로 시작하는 것을 권장합니다. 조직이 커지고 요구사항이 복잡해지면 전략 3으로 확장할 수 있습니다.
 
 ### SQL로 네임스페이스 생성
 
@@ -296,7 +296,7 @@ SELECT * FROM orders;  -- = production.ecommerce.orders
 
 ## Information Schema — 메타데이터 조회
 
-Unity Catalog는 **ANSI SQL 표준의 information_schema**를 제공하여, 카탈로그, 스키마, 테이블 등의 메타데이터를 SQL로 조회할 수 있습니다.
+Unity Catalog는 **ANSI SQL 표준의 information_schema** 를 제공하여, 카탈로그, 스키마, 테이블 등의 메타데이터를 SQL로 조회할 수 있습니다.
 
 ```sql
 -- 카탈로그 목록 조회
@@ -329,7 +329,7 @@ WHERE volume_schema = 'ecommerce';
 
 | 비교 | Managed (관리형) | External (외부) |
 |------|-----------------|----------------|
-| **데이터 위치**| Databricks가 관리하는 위치에 자동 저장 | 사용자가 지정한 외부 경로 (S3, ADLS) |
+| ** 데이터 위치**| Databricks가 관리하는 위치에 자동 저장 | 사용자가 지정한 외부 경로 (S3, ADLS) |
 | **DROP 시**| 테이블 + 데이터 ** 모두 삭제**| 테이블 정의만 삭제, ** 데이터는 유지**|
 | **Predictive Optimization**| ✅ 지원 | ❌ 미지원 |
 | ** 스토리지 관리**| 자동 (VACUUM, 압축 등) | 수동 또는 제한적 |

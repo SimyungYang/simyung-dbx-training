@@ -2,15 +2,15 @@
 
 ## 워크스페이스 관리가 왜 중요한가요?
 
-Databricks를 조직에 도입하면 **누가 무엇을 할 수 있는지, 비용은 어떻게 통제할 것인지, 환경은 어떻게 분리할 것인지**를 체계적으로 관리해야 합니다. 이러한 관리 없이 플랫폼을 운영하면 비용 폭증, 보안 사고, 환경 간 간섭 등의 문제가 발생할 수 있습니다.
+Databricks를 조직에 도입하면 **누가 무엇을 할 수 있는지, 비용은 어떻게 통제할 것인지, 환경은 어떻게 분리할 것인지** 를 체계적으로 관리해야 합니다. 이러한 관리 없이 플랫폼을 운영하면 비용 폭증, 보안 사고, 환경 간 간섭 등의 문제가 발생할 수 있습니다.
 
-> 💡 **워크스페이스(Workspace)**는 Databricks에서 사용자가 작업하는 독립적인 환경입니다. 노트북, 클러스터, Job, 데이터 등이 워크스페이스 단위로 격리됩니다.
+> 💡 ** 워크스페이스(Workspace)** 는 Databricks에서 사용자가 작업하는 독립적인 환경입니다. 노트북, 클러스터, Job, 데이터 등이 워크스페이스 단위로 격리됩니다.
 
 ---
 
 ## Account vs Workspace 관리 구조
 
-Databricks는 **2계층 관리 구조**를 사용합니다. 이 구조를 이해하는 것이 관리의 출발점입니다.
+Databricks는 **2계층 관리 구조** 를 사용합니다. 이 구조를 이해하는 것이 관리의 출발점입니다.
 
 | 계층 | 역할 | 관리 대상 | 접근 방법 |
 |------|------|-----------|-----------|
@@ -57,7 +57,7 @@ Account Admin이 Account Console에서 워크스페이스를 생성합니다.
 | ** 프로젝트별 분리**| 프로젝트 A / 프로젝트 B | 프로젝트 완료 시 정리 용이 |
 | ** 규제별 분리**| PII 처리용 / 일반 분석용 | 규제 요건이 엄격한 산업 |
 
-> 💡 Unity Catalog를 사용하면 여러 Workspace에서 ** 동일한 데이터 카탈로그**를 공유할 수 있으므로, Workspace를 분리해도 데이터 접근성은 유지됩니다.
+> 💡 Unity Catalog를 사용하면 여러 Workspace에서 ** 동일한 데이터 카탈로그** 를 공유할 수 있으므로, Workspace를 분리해도 데이터 접근성은 유지됩니다.
 
 ---
 
@@ -65,7 +65,7 @@ Account Admin이 Account Console에서 워크스페이스를 생성합니다.
 
 ### Account 수준 사용자 관리
 
-사용자와 그룹은 **Account 수준**에서 관리하는 것이 권장됩니다. Account에서 생성된 사용자를 각 Workspace에 할당하는 방식입니다.
+사용자와 그룹은 **Account 수준** 에서 관리하는 것이 권장됩니다. Account에서 생성된 사용자를 각 Workspace에 할당하는 방식입니다.
 
 ```text
 Account 수준 관리 흐름:
@@ -95,7 +95,7 @@ SCIM Token: <Account Admin이 생성한 PAT>
 
 ### 그룹 기반 권한 관리
 
-개별 사용자 대신 ** 그룹**에 권한을 부여하는 것이 모범 사례입니다.
+개별 사용자 대신 ** 그룹** 에 권한을 부여하는 것이 모범 사례입니다.
 
 ```sql
 -- Unity Catalog에서 그룹 기반 권한 부여
@@ -111,7 +111,7 @@ GRANT ALL PRIVILEGES ON SCHEMA analytics.silver TO `data_engineers`;
 
 ## 클러스터 정책으로 비용 통제
 
-**클러스터 정책(Cluster Policy)**은 사용자가 생성할 수 있는 클러스터의 사양을 제한하여 비용을 통제하는 핵심 도구입니다.
+** 클러스터 정책(Cluster Policy)** 은 사용자가 생성할 수 있는 클러스터의 사양을 제한하여 비용을 통제하는 핵심 도구입니다.
 
 ### 클러스터 정책 예시
 
@@ -193,13 +193,13 @@ databricks cluster-policies create --json '{
 
 ## 태그 기반 비용 할당
 
-** 태그(Tags)**를 활용하면 비용을 팀, 프로젝트, 환경별로 정확하게 추적할 수 있습니다.
+** 태그(Tags)** 를 활용하면 비용을 팀, 프로젝트, 환경별로 정확하게 추적할 수 있습니다.
 
 ### 태그 적용 대상
 
 | 대상 | 태그 설정 방법 | 예시 |
 |------|---------------|------|
-| **클러스터** | 클러스터 설정 > Custom Tags | `team:analytics`, `project:recommendation` |
+| ** 클러스터** | 클러스터 설정 > Custom Tags | `team:analytics`, `project:recommendation` |
 | **Job**| Job 설정 > Tags | `env:prod`, `owner:data-eng` |
 | **SQL Warehouse**| Warehouse 설정 > Tags | `department:finance` |
 | ** 클러스터 정책**| 정책에서 태그 강제 지정 | `cost_center:CC-1234` |
@@ -226,7 +226,7 @@ databricks cluster-policies create --json '{
 
 ### 시스템 테이블로 비용 분석
 
-Unity Catalog의 ** 시스템 테이블**을 통해 DBU 사용량을 상세히 분석할 수 있습니다.
+Unity Catalog의 ** 시스템 테이블** 을 통해 DBU 사용량을 상세히 분석할 수 있습니다.
 
 ```sql
 -- 팀별 월간 DBU 사용량 조회

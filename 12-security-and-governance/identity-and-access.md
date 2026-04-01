@@ -4,7 +4,7 @@
 
 데이터 플랫폼에서 가장 근본적인 보안 질문은 "**이 사람이 누구이며, 무엇을 할 수 있는가?**" 입니다. 아무리 강력한 암호화와 네트워크 보안을 구축해도, ID 관리가 허술하면 권한 없는 사용자가 민감 데이터에 접근하거나 퇴사자의 계정이 방치되는 보안 사고가 발생할 수 있습니다.
 
-> 💡 **IAM(Identity and Access Management)**은 "누가(Who) 무엇에(What) 어떤 권한으로(How) 접근할 수 있는가"를 체계적으로 관리하는 보안 프레임워크입니다. Databricks는 기업의 기존 ID 시스템(Okta, Azure AD/Entra ID, Google Workspace 등)과 연동하여 통합적인 ID 관리를 제공합니다.
+> 💡 **IAM(Identity and Access Management)** 은 "누가(Who) 무엇에(What) 어떤 권한으로(How) 접근할 수 있는가"를 체계적으로 관리하는 보안 프레임워크입니다. Databricks는 기업의 기존 ID 시스템(Okta, Azure AD/Entra ID, Google Workspace 등)과 연동하여 통합적인 ID 관리를 제공합니다.
 
 | 구성 요소 | 역할 | 연결 |
 |-----------|------|------|
@@ -17,7 +17,7 @@
 
 ## 계정(Account) vs 워크스페이스(Workspace) 수준 ID
 
-Databricks의 ID 관리는 ** 두 가지 수준**에서 이루어집니다.
+Databricks의 ID 관리는 ** 두 가지 수준** 에서 이루어집니다.
 
 | 수준 | 설명 | 관리 주체 |
 |------|------|----------|
@@ -26,7 +26,7 @@ Databricks의 ID 관리는 ** 두 가지 수준**에서 이루어집니다.
 
 ### ID Federation (ID 연합)
 
-> 💡 **ID Federation**은 Account 수준에서 관리하는 사용자/그룹을 **별도 추가 없이**워크스페이스에서 사용할 수 있게 해주는 기능입니다. ID Federation이 활성화되면, Account에 사용자를 추가하면 해당 사용자가 모든 연합 워크스페이스에서 인증할 수 있습니다.
+> 💡 **ID Federation** 은 Account 수준에서 관리하는 사용자/그룹을 ** 별도 추가 없이** 워크스페이스에서 사용할 수 있게 해주는 기능입니다. ID Federation이 활성화되면, Account에 사용자를 추가하면 해당 사용자가 모든 연합 워크스페이스에서 인증할 수 있습니다.
 
 | Account 수준 프린시펄 | 워크스페이스 A (Federation ON) | 워크스페이스 B (Federation ON) |
 |---------------------|---------------------------|---------------------------|
@@ -52,18 +52,18 @@ Databricks의 ID 관리는 ** 두 가지 수준**에서 이루어집니다.
 
 ### 그룹 (Group)
 
-사용자와 Service Principal을 묶어 관리하는 단위입니다. 권한을 개별 사용자 대신 ** 그룹에 부여**하면 관리가 훨씬 효율적입니다.
+사용자와 Service Principal을 묶어 관리하는 단위입니다. 권한을 개별 사용자 대신 ** 그룹에 부여** 하면 관리가 훨씬 효율적입니다.
 
 | 그룹 유형 | 설명 | 예시 |
 |-----------|------|------|
 | **Account 그룹**| Account 수준에서 생성. 모든 워크스페이스에서 사용 가능 | `data-engineers`, `data-analysts` |
 | **Workspace 로컬 그룹**| 특정 워크스페이스에서만 유효 | `ws-a-admins` |
 
-> 💡 ** 모범 사례**: 항상 **Account 그룹**을 사용하세요. Workspace 로컬 그룹은 레거시 방식이며, Unity Catalog에서 권한을 부여할 때 Account 그룹만 사용할 수 있습니다.
+> 💡 ** 모범 사례**: 항상 **Account 그룹** 을 사용하세요. Workspace 로컬 그룹은 레거시 방식이며, Unity Catalog에서 권한을 부여할 때 Account 그룹만 사용할 수 있습니다.
 
 ### 서비스 프린시펄 (Service Principal)
 
-> 💡 **Service Principal(서비스 프린시펄)**은 사람이 아닌 ** 애플리케이션/자동화 시스템**을 위한 계정입니다. 개인 계정으로 프로덕션 파이프라인을 실행하면, 그 사람이 퇴사하면 파이프라인이 중단됩니다. Service Principal을 사용하면 이 문제를 방지할 수 있습니다.
+> 💡 **Service Principal(서비스 프린시펄)** 은 사람이 아닌 ** 애플리케이션/자동화 시스템** 을 위한 계정입니다. 개인 계정으로 프로덕션 파이프라인을 실행하면, 그 사람이 퇴사하면 파이프라인이 중단됩니다. Service Principal을 사용하면 이 문제를 방지할 수 있습니다.
 
 ```python
 # Service Principal로 인증 (Python SDK)
@@ -78,9 +78,9 @@ w = WorkspaceClient(
 
 | 구분 | 개인 계정 | Service Principal |
 |------|----------|-----------------|
-| **소유자** | 특정 사용자 | 조직/팀 |
-| **수명** | 사용자 퇴사 시 비활성화 | 영구적 |
-| **용도** | 대화형 작업 | 프로덕션 자동화 |
+| ** 소유자** | 특정 사용자 | 조직/팀 |
+| ** 수명** | 사용자 퇴사 시 비활성화 | 영구적 |
+| ** 용도** | 대화형 작업 | 프로덕션 자동화 |
 | **MFA**| 적용 가능 | 해당 없음 (M2M 인증) |
 | ** 모범 사례**| 개발, 탐색 | ** 프로덕션 Job, 파이프라인, CI/CD**|
 
@@ -88,7 +88,7 @@ w = WorkspaceClient(
 
 ## SSO (Single Sign-On) 설정
 
-> 💡 **SSO(Single Sign-On)**란 한 번 로그인하면 여러 서비스에 추가 로그인 없이 접근할 수 있는 인증 방식입니다. 회사에서 Okta로 로그인하면 Databricks, Slack, JIRA 등에 별도 로그인 없이 바로 접근하는 것이 SSO입니다.
+> 💡 **SSO(Single Sign-On)** 란 한 번 로그인하면 여러 서비스에 추가 로그인 없이 접근할 수 있는 인증 방식입니다. 회사에서 Okta로 로그인하면 Databricks, Slack, JIRA 등에 별도 로그인 없이 바로 접근하는 것이 SSO입니다.
 
 ### 지원 프로토콜
 
@@ -110,13 +110,13 @@ w = WorkspaceClient(
 
 ### SSO 설정 단계 (Okta 예시)
 
-1. **Okta 관리 콘솔**에서 Databricks 앱을 생성합니다
-2. SAML 2.0 설정에서 **Single Sign-On URL**과 **Audience URI**를 입력합니다
+1. **Okta 관리 콘솔** 에서 Databricks 앱을 생성합니다
+2. SAML 2.0 설정에서 **Single Sign-On URL** 과 **Audience URI** 를 입력합니다
    - SSO URL: `https://accounts.cloud.databricks.com/login/saml`
    - Audience URI: `https://accounts.cloud.databricks.com`
-3. **Databricks Account Console**> **Settings**> **Single sign-on**에서 SAML 설정을 입력합니다
-4. **Test SSO**로 동작을 확인합니다
-5. 성공 확인 후 **비밀번호 로그인 비활성화**를 권장합니다
+3. **Databricks Account Console**> **Settings**> **Single sign-on** 에서 SAML 설정을 입력합니다
+4. **Test SSO** 로 동작을 확인합니다
+5. 성공 확인 후 ** 비밀번호 로그인 비활성화** 를 권장합니다
 
 > ⚠️ **SSO 강제 전 주의**: SSO를 강제 활성화하기 전에 반드시 테스트를 완료하세요. SSO 설정이 잘못된 상태에서 비밀번호 로그인을 비활성화하면 모든 사용자가 로그인할 수 없게 됩니다.
 
@@ -124,34 +124,34 @@ w = WorkspaceClient(
 
 ## SCIM 프로비저닝
 
-> 💡 **SCIM(System for Cross-domain Identity Management)**은 사용자와 그룹 정보를 기업의 ID 공급자(IdP)에서 Databricks로 ** 자동 동기화**하는 표준 프로토콜입니다.
+> 💡 **SCIM(System for Cross-domain Identity Management)** 은 사용자와 그룹 정보를 기업의 ID 공급자(IdP)에서 Databricks로 ** 자동 동기화** 하는 표준 프로토콜입니다.
 
 ### SCIM의 동작
 
 | 이벤트 | 방향 | 설명 |
 |--------|------|------|
-| **사용자 추가** | ID Provider → Databricks Account | SCIM 동기화로 자동 반영됩니다 |
-| **사용자 삭제** | ID Provider → Databricks Account | SCIM 동기화로 자동 반영됩니다 |
-| **그룹 변경** | ID Provider → Databricks Account | SCIM 동기화로 자동 반영됩니다 |
+| ** 사용자 추가** | ID Provider → Databricks Account | SCIM 동기화로 자동 반영됩니다 |
+| ** 사용자 삭제** | ID Provider → Databricks Account | SCIM 동기화로 자동 반영됩니다 |
+| ** 그룹 변경** | ID Provider → Databricks Account | SCIM 동기화로 자동 반영됩니다 |
 
 | SCIM으로 동기화되는 정보 | 설명 |
 |------------------------|------|
-| **사용자 생성/삭제** | IdP에서 사용자를 추가/삭제하면 Databricks에도 자동 반영됩니다 |
-| **그룹 멤버십** | IdP의 그룹(예: "data-engineers")에 사용자를 추가하면, Databricks 그룹에도 자동 추가됩니다 |
-| **사용자 비활성화** | 퇴사 등으로 IdP에서 비활성화하면 Databricks에서도 비활성화됩니다 |
-| **사용자 속성** | 이름, 이메일, 부서 등 프로필 정보가 동기화됩니다 |
+| ** 사용자 생성/삭제** | IdP에서 사용자를 추가/삭제하면 Databricks에도 자동 반영됩니다 |
+| ** 그룹 멤버십** | IdP의 그룹(예: "data-engineers")에 사용자를 추가하면, Databricks 그룹에도 자동 추가됩니다 |
+| ** 사용자 비활성화** | 퇴사 등으로 IdP에서 비활성화하면 Databricks에서도 비활성화됩니다 |
+| ** 사용자 속성** | 이름, 이메일, 부서 등 프로필 정보가 동기화됩니다 |
 
 ### 왜 SCIM이 중요한가요?
 
-SCIM 없이는 Databricks에서 사용자를 **수동으로** 추가/삭제해야 합니다. 직원이 수백~수천 명인 조직에서 이는 매우 비효율적이고, 퇴사자의 접근 권한이 제때 회수되지 않는 보안 위험이 발생합니다.
+SCIM 없이는 Databricks에서 사용자를 ** 수동으로** 추가/삭제해야 합니다. 직원이 수백~수천 명인 조직에서 이는 매우 비효율적이고, 퇴사자의 접근 권한이 제때 회수되지 않는 보안 위험이 발생합니다.
 
 ### SCIM 설정 (Account 수준)
 
-SCIM은 **Account 수준**에서 설정하는 것이 권장됩니다.
+SCIM은 **Account 수준** 에서 설정하는 것이 권장됩니다.
 
-1. **Account Console**> **Settings**> **User provisioning**이동
-2. **Enable SCIM provisioning**클릭
-3. **SCIM Token**생성 및 복사
+1. **Account Console**> **Settings**> **User provisioning** 이동
+2. **Enable SCIM provisioning** 클릭
+3. **SCIM Token** 생성 및 복사
 4. IdP(Okta, Azure AD)에서 Databricks SCIM 앱을 설정합니다:
    - SCIM Base URL: `https://accounts.cloud.databricks.com/api/2.0/accounts/<account-id>/scim/v2`
    - Bearer Token: 위에서 생성한 토큰
@@ -163,16 +163,16 @@ SCIM은 **Account 수준**에서 설정하는 것이 권장됩니다.
 
 ## MFA (다중 인증)
 
-> 💡 **MFA(Multi-Factor Authentication)**는 비밀번호 외에 추가 인증 수단(OTP, 푸시 알림, 보안 키)을 요구하여 계정 보안을 강화하는 방법입니다. 비밀번호가 유출되더라도 MFA가 있으면 무단 접근을 방지할 수 있습니다.
+> 💡 **MFA(Multi-Factor Authentication)** 는 비밀번호 외에 추가 인증 수단(OTP, 푸시 알림, 보안 키)을 요구하여 계정 보안을 강화하는 방법입니다. 비밀번호가 유출되더라도 MFA가 있으면 무단 접근을 방지할 수 있습니다.
 
 ### MFA 적용 방식
 
 | 방식 | 설명 |
 |------|------|
-| **IdP 측 MFA**| SSO를 사용하는 경우, IdP(Okta, Azure AD)에서 MFA를 설정합니다. ** 가장 권장되는 방식**입니다 |
+| **IdP 측 MFA**| SSO를 사용하는 경우, IdP(Okta, Azure AD)에서 MFA를 설정합니다. ** 가장 권장되는 방식** 입니다 |
 | **Databricks 내장 MFA**| Databricks 자체 비밀번호 로그인 시 사용할 수 있는 TOTP(시간 기반 OTP)입니다 |
 
-> 💡 SSO를 사용하는 환경에서는 **IdP 측에서 MFA를 강제**하는 것이 가장 효과적입니다. Databricks에서 별도로 MFA를 설정할 필요 없이, IdP의 정책 한 곳에서 관리할 수 있습니다.
+> 💡 SSO를 사용하는 환경에서는 **IdP 측에서 MFA를 강제** 하는 것이 가장 효과적입니다. Databricks에서 별도로 MFA를 설정할 필요 없이, IdP의 정책 한 곳에서 관리할 수 있습니다.
 
 ---
 
@@ -224,7 +224,7 @@ w = WorkspaceClient(
 
 ## PAT (Personal Access Token) 관리
 
-> 💡 **PAT(Personal Access Token)**는 `dapi` 접두사가 붙는 개인용 API 토큰입니다. 간단한 API 호출이나 개발 환경에서 사용하지만, OAuth보다 보안성이 낮으므로 프로덕션에서는 권장하지 않습니다.
+> 💡 **PAT(Personal Access Token)** 는 `dapi` 접두사가 붙는 개인용 API 토큰입니다. 간단한 API 호출이나 개발 환경에서 사용하지만, OAuth보다 보안성이 낮으므로 프로덕션에서는 권장하지 않습니다.
 
 ### PAT vs OAuth 비교
 
