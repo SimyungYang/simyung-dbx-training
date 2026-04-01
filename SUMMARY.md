@@ -3,6 +3,8 @@
 ## Databricks 플랫폼
 
 * [Databricks란?](02-databricks-overview/what-is-databricks.md)
+  * [경쟁사 비교](02-databricks-overview/databricks-competitive.md)
+  * [가격 모델](02-databricks-overview/databricks-pricing.md)
 * [Databricks 아키텍처](02-databricks-overview/databricks-architecture.md)
 * [Workspace UI 둘러보기](02-databricks-overview/workspace-ui-tour.md)
 * [Notebook 사용법](02-databricks-overview/notebooks-basics.md)
@@ -40,6 +42,7 @@
 ## 데이터 엔지니어링
 
 * [데이터 엔지니어링 개요](05-data-engineering/data-engineering-overview.md)
+  * [파이프라인 오케스트레이션 패턴](05-data-engineering/pipeline-orchestration-patterns.md)
 * [수집 방법 선택 가이드](05-data-engineering/choosing-ingestion-method.md)
 * [Auto Loader](05-data-engineering/auto-loader/README.md)
   * [Auto Loader란?](05-data-engineering/auto-loader/what-is-auto-loader.md)
@@ -48,6 +51,7 @@
   * [주요 옵션](05-data-engineering/auto-loader/auto-loader-options.md)
   * [Auto Loader 실습](05-data-engineering/auto-loader/auto-loader-hands-on.md)
 * [Structured Streaming](05-data-engineering/structured-streaming.md)
+  * [Streaming 심화](05-data-engineering/streaming-advanced.md)
 * [Spark Declarative Pipelines (SDP)](05-data-engineering/spark-declarative-pipelines/README.md)
   * [SDP란?](05-data-engineering/spark-declarative-pipelines/what-is-sdp.md)
   * [Streaming Tables & Materialized Views](05-data-engineering/spark-declarative-pipelines/streaming-tables-and-mvs.md)

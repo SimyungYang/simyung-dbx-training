@@ -115,26 +115,6 @@ Databricks 플랫폼은 여러 핵심 구성 요소로 이루어져 있습니다
 
 ---
 
-## Databricks가 지원하는 클라우드
-
-Databricks는 주요 3대 클라우드 플랫폼 모두에서 사용할 수 있습니다.
-
-| 클라우드 | 서비스명 | 데이터 저장소 |
-|----------|----------|-------------|
-| **AWS** | Databricks on AWS | Amazon S3 |
-| **Azure** | Azure Databricks | Azure Data Lake Storage (ADLS) |
-| **GCP** | Databricks on GCP | Google Cloud Storage (GCS) |
-
-세 클라우드에서 제공하는 Databricks의 핵심 기능은 동일합니다. 다만 인프라 관리, 네트워크 설정, 결제 방식 등에서 클라우드별 차이가 있습니다.
-
-> 💡 **클라우드 선택 팁**: 이미 사용 중인 클라우드가 있다면 해당 클라우드에서 Databricks를 사용하는 것이 가장 자연스럽습니다. 데이터가 S3에 있는데 GCP에서 Databricks를 사용하면 클라우드 간 데이터 전송 비용이 발생합니다. Azure를 주력으로 사용하는 기업은 **Azure Databricks**가 Azure Active Directory, Azure DevOps 등과 통합이 더 긴밀하다는 장점이 있습니다. 특히 한국 기업에서는 Azure Databricks와 AWS Databricks 사용이 가장 많습니다.
-
-### 멀티 클라우드 전략
-
-일부 대기업은 두 개 이상의 클라우드에서 Databricks를 운영하기도 합니다. 이 경우 **Delta Sharing**을 통해 클라우드 간 데이터를 안전하게 공유할 수 있습니다. 예를 들어, AWS의 Databricks에서 생성한 데이터를 Azure의 Databricks에서 직접 읽을 수 있습니다.
-
----
-
 ## Databricks를 사용하는 역할별 활용 방법
 
 Databricks는 데이터 팀의 다양한 역할이 하나의 플랫폼에서 협업할 수 있도록 설계되어 있습니다.
@@ -218,105 +198,6 @@ Databricks의 독특한 점 중 하나는 플랫폼의 핵심 기술들이 **오
 
 ---
 
-## Databricks vs 경쟁사 — 핵심 차이 3가지
-
-데이터 플랫폼 시장에는 Snowflake, AWS EMR, Google BigQuery 등 강력한 경쟁자들이 있습니다. Databricks와의 핵심 차이를 정리하면 다음과 같습니다.
-
-### 차이 1: 오픈소스 기반 vs 독자 포맷
-
-| 플랫폼 | 데이터 포맷 | 벤더 락인 |
-|--------|------------|-----------|
-| **Databricks** | Delta Lake (오픈소스, Parquet 기반) | 낮음 — 데이터를 S3/ADLS에 직접 소유합니다 |
-| **Snowflake** | 독자 포맷 (내부 스토리지) | 높음 — 데이터를 꺼내려면 COPY INTO로 내보내야 합니다 |
-| **BigQuery** | 독자 포맷 (Capacitor) | 높음 — 데이터가 Google 내부에 저장됩니다 |
-
-> 💡 **이것이 왜 중요한가요?** 3년 후에 플랫폼을 변경해야 할 때, Databricks는 데이터가 이미 S3/ADLS의 Parquet 파일이므로 다른 도구에서 바로 읽을 수 있습니다. 반면 Snowflake나 BigQuery에서 데이터를 옮기려면 대규모 마이그레이션 프로젝트가 필요합니다.
-
-### 차이 2: 엔지니어링 + ML/AI 통합 vs SQL 분석 특화
-
-| 플랫폼 | 강점 | 약점 |
-|--------|------|------|
-| **Databricks** | ETL, ML, AI Agent, Streaming까지 하나에서 처리 | SQL 편의성이 Snowflake보다 다소 뒤처졌으나, 최근 빠르게 개선 중입니다 |
-| **Snowflake** | SQL 분석이 매우 쉽고, 비개발자도 빠르게 적응 | Python/ML 워크로드는 최근에야 지원하기 시작했습니다 (Snowpark) |
-| **AWS EMR** | 비용이 저렴하고 세밀한 커스터마이징 가능 | 모든 것을 직접 설정해야 합니다. 관리형 서비스가 아닙니다 |
-
-### 차이 3: Spark 네이티브 성능
-
-Databricks의 Spark 런타임은 오픈소스 Spark 대비 **Photon 엔진**을 통해 SQL 워크로드에서 2~8배 빠른 성능을 제공합니다. Spark를 만든 회사이니만큼, 내부 최적화 수준이 다릅니다.
-
-| 항목 | 오픈소스 Spark (EMR 등) | Databricks Runtime |
-|------|------------------------|-------------------|
-| SQL 성능 | 기본 Catalyst 옵티마이저 | Photon (C++로 작성된 벡터화 엔진) |
-| I/O 최적화 | 기본 | Predictive I/O, Data Skipping, Z-Order |
-| 자동 튜닝 | 수동 설정 | Adaptive Query Execution 자동 적용 |
-
----
-
-## "우리 회사에 Databricks가 필요한가?" 판단 체크리스트
-
-모든 회사에 Databricks가 최선은 아닙니다. 아래 체크리스트로 판단해 보시기 바랍니다.
-
-### Databricks가 적합한 경우
-
-- [ ] 데이터 파이프라인(ETL)과 SQL 분석을 **하나의 플랫폼**에서 하고 싶다
-- [ ] **머신러닝/AI** 워크로드가 있거나 향후 계획이 있다
-- [ ] 현재 **여러 도구를 조합**하여 사용하고 있으며, 통합하고 싶다
-- [ ] 데이터 **거버넌스(누가, 어떤 데이터를, 왜 접근했는지)** 가 중요하다
-- [ ] **스트리밍**(실시간) 데이터 처리가 필요하다
-- [ ] **벤더 락인**을 최소화하고 싶다 (오픈소스 기반)
-- [ ] 데이터 팀이 **5명 이상**이며, 다양한 역할(엔지니어, 분석가, 과학자)이 협업한다
-
-### Databricks보다 다른 선택이 나을 수 있는 경우
-
-- [ ] SQL 분석만 필요하고, ML/AI 계획이 없다 → **Snowflake** 또는 **BigQuery** 검토
-- [ ] 예산이 매우 제한적이고, 자체 운영 역량이 있다 → 오픈소스(Spark + Iceberg + Trino) 검토
-- [ ] AWS 서비스에 이미 깊이 통합되어 있다 → **AWS Glue + Redshift + SageMaker** 검토
-- [ ] 데이터 팀이 1~2명이고, 데이터 규모가 작다 → PostgreSQL + dbt로 충분할 수 있습니다
-
----
-
-## 가격 모델의 현실 — DBU 이해하기
-
-Databricks 비용을 이해하려면 **DBU(Databricks Unit)** 개념을 알아야 합니다.
-
-### DBU란?
-
-> 💡 **DBU(Databricks Unit)** 는 Databricks에서 사용하는 과금 단위입니다. 클라우드 인프라 비용(VM, 스토리지)과는 별도로, Databricks 플랫폼 사용료를 DBU로 측정합니다. 1 DBU는 대략 "1시간 동안 가장 작은 컴퓨팅 리소스를 사용한 단위"라고 이해하시면 됩니다.
-
-### 비용 구조
-
-Databricks 비용은 크게 **두 가지**로 구성됩니다.
-
-| 비용 항목 | 누구에게 지불? | 설명 |
-|-----------|-------------|------|
-| **DBU 비용** | Databricks | 플랫폼 사용료. 워크로드 유형(Jobs, SQL, All-Purpose, Serverless)에 따라 DBU 단가가 다릅니다 |
-| **클라우드 인프라 비용** | AWS / Azure / GCP | VM(가상 머신), 스토리지, 네트워크 비용. Databricks가 아닌 클라우드 사업자에게 지불합니다 |
-
-### 워크로드별 DBU 단가 (AWS 기준, 2025년 참고가)
-
-| 워크로드 | DBU 단가 (대략) | 설명 |
-|----------|---------------|------|
-| **Jobs Compute** | ~$0.10/DBU | 스케줄된 ETL 작업. 가장 저렴합니다 |
-| **Jobs Compute (Serverless)** | ~$0.14/DBU | 서버리스 ETL. 인프라 비용 포함입니다 |
-| **SQL Warehouse (Serverless)** | ~$0.22/DBU | SQL 분석 워크로드 |
-| **All-Purpose Compute** | ~$0.22/DBU | 대화형 개발(노트북). 가장 비쌉니다 |
-| **Model Serving** | 별도 과금 | 추론 요청 수 기반 |
-
-> ⚠️ **현업에서의 주의사항**: 실제 단가는 클라우드, 리전, 계약 조건에 따라 다릅니다. 위 수치는 참고용이며, 정확한 단가는 Databricks 영업팀이나 [공식 가격 페이지](https://www.databricks.com/product/pricing)에서 확인하시기 바랍니다.
-
-### 예산 수립 실무 가이드
-
-| 단계 | 행동 | 팁 |
-|------|------|-----|
-| **1. 워크로드 분류** | ETL/SQL/ML/대화형 개발별로 사용량을 분리합니다 | ETL은 Jobs Compute로, 분석은 SQL Warehouse로 분리하면 비용이 30~50% 절감됩니다 |
-| **2. 현재 비용 기준선** | 기존 EMR/Redshift/SageMaker 비용을 합산합니다 | 숨겨진 비용(운영 인력, 데이터 복사, 연동 개발)도 포함해야 합니다 |
-| **3. PoC 비용 측정** | 14일 체험판에서 실제 워크로드를 돌려보고 DBU 소비량을 측정합니다 | System Table(`system.billing.usage`)에서 정확한 사용량을 확인할 수 있습니다 |
-| **4. 연간 계약** | Commit 계약(사전 약정)을 하면 DBU 단가가 크게 할인됩니다 | 보통 1년 약정 시 15~25%, 3년 약정 시 30% 이상 할인 가능합니다 |
-
-> 💡 **현업에서는 이렇게 합니다**: 가장 흔한 비용 실수는 "All-Purpose Compute(대화형 노트북)에서 ETL을 돌리는 것"입니다. All-Purpose는 DBU 단가가 Jobs Compute의 2배 이상이므로, 반복 실행되는 ETL 작업은 반드시 Jobs Compute로 전환해야 합니다. 이 한 가지만으로도 30~50%의 비용을 절감한 사례가 많습니다.
-
----
-
 ## 정리
 
 | 핵심 개념 | 설명 |
@@ -328,6 +209,15 @@ Databricks 비용은 크게 **두 가지**로 구성됩니다.
 | **Unity Catalog** | 모든 데이터 자산을 통합 관리하는 거버넌스 솔루션입니다 |
 
 Databricks는 단순한 도구가 아니라, 데이터 팀의 업무 방식 자체를 변화시키는 플랫폼입니다. 다음 문서에서는 Databricks의 **아키텍처**(Control Plane과 Data Plane)를 더 자세히 살펴보겠습니다.
+
+---
+
+## 더 알아보기
+
+| 주제 | 문서 |
+|------|------|
+| 경쟁사 비교 | [Databricks vs 경쟁사](./databricks-competitive.md) |
+| 가격 모델 | [DBU와 가격 이해](./databricks-pricing.md) |
 
 ---
 
