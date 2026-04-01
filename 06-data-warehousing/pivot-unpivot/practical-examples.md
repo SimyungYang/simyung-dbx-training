@@ -7,7 +7,7 @@
 ```sql
 -- 지역별-카테고리별 매출 크로스탭
 SELECT
-    COALESCE(region, '**전체 **') AS region,
+    COALESCE(region, '** 전체 **') AS region,
     FORMAT_NUMBER(electronics, 0) AS electronics,
     FORMAT_NUMBER(accessories, 0) AS accessories,
     FORMAT_NUMBER(furniture, 0) AS furniture,

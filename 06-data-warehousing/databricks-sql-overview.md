@@ -2,9 +2,9 @@
 
 ## Databricks SQL이란?
 
-> 💡 **Databricks SQL (DBSQL)**은 Delta Lake 위의 데이터를 **SQL로 직접 조회하고 분석**할 수 있는 Databricks의 SQL 분석 환경입니다. 별도의 데이터 복사 없이, 레이크하우스 데이터에 대해 **웨어하우스급 SQL 성능** 을 제공합니다.
+> 💡 **Databricks SQL (DBSQL)** 은 Delta Lake 위의 데이터를 **SQL로 직접 조회하고 분석** 할 수 있는 Databricks의 SQL 분석 환경입니다. 별도의 데이터 복사 없이, 레이크하우스 데이터에 대해 **웨어하우스급 SQL 성능** 을 제공합니다.
 
-전통적인 데이터 웨어하우스(Snowflake, Redshift 등)에서는 원본 데이터를 **독자 형식으로 복사**해야 했습니다. Databricks SQL은 이런 복사 과정 없이, **오픈 포맷(Delta Lake)** 데이터를 직접 쿼리합니다. 이로써 데이터 사일로(Data Silo)와 ETL 복잡성을 제거하고, 동일한 데이터에 대해 데이터 엔지니어링과 SQL 분석을 하나의 플랫폼에서 수행할 수 있습니다.
+전통적인 데이터 웨어하우스(Snowflake, Redshift 등)에서는 원본 데이터를 **독자 형식으로 복사** 해야 했습니다. Databricks SQL은 이런 복사 과정 없이, **오픈 포맷(Delta Lake)** 데이터를 직접 쿼리합니다. 이로써 데이터 사일로(Data Silo)와 ETL 복잡성을 제거하고, 동일한 데이터에 대해 데이터 엔지니어링과 SQL 분석을 하나의 플랫폼에서 수행할 수 있습니다.
 
 **전통적 방식 vs Databricks SQL 방식**
 
@@ -41,7 +41,7 @@
 
 ## SQL Warehouse 아키텍처
 
-SQL Warehouse는 DBSQL의 **컴퓨팅 엔진**입니다. Photon이라는 C++ 네이티브 실행 엔진을 탑재하여 기존 Spark SQL 대비 **최대 12배** 빠른 성능을 제공합니다.
+SQL Warehouse는 DBSQL의 **컴퓨팅 엔진** 입니다. Photon이라는 C++ 네이티브 실행 엔진을 탑재하여 기존 Spark SQL 대비 **최대 12배** 빠른 성능을 제공합니다.
 
 **SQL Warehouse 아키텍처**
 
@@ -309,7 +309,7 @@ ORDER BY total_revenue DESC;
 | **동시 사용자**| 수십~수백 명 동시 쿼리 | 제한적 |
 | **권장 사용**| 프로덕션 SQL 분석 | 개발/실험 |
 
-> 💡 **언제 무엇을 쓸까?**: SQL로 데이터를 분석하거나 BI 대시보드를 운영한다면 **SQL Warehouse**를 사용하세요. Python/Scala로 ML 모델을 학습하거나 복잡한 ETL을 개발한다면 **All-Purpose Cluster** 를 사용하세요.
+> 💡 **언제 무엇을 쓸까?**: SQL로 데이터를 분석하거나 BI 대시보드를 운영한다면 **SQL Warehouse** 를 사용하세요. Python/Scala로 ML 모델을 학습하거나 복잡한 ETL을 개발한다면 **All-Purpose Cluster** 를 사용하세요.
 
 ---
 

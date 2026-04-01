@@ -2,7 +2,7 @@
 
 ## 시나리오
 
-온라인 쇼핑몰의 **주문 데이터(JSON)**와 **고객 마스터 데이터(CDC)** 를 수집하여, Medallion 아키텍처 기반의 분석 파이프라인을 구축합니다. Bronze(원본 수집) → Silver(정제·검증) → Gold(비즈니스 집계) 3계층 파이프라인을 SDP(Spark Declarative Pipelines)로 구현합니다.
+온라인 쇼핑몰의 **주문 데이터(JSON)** 와 **고객 마스터 데이터(CDC)** 를 수집하여, Medallion 아키텍처 기반의 분석 파이프라인을 구축합니다. Bronze(원본 수집) → Silver(정제·검증) → Gold(비즈니스 집계) 3계층 파이프라인을 SDP(Spark Declarative Pipelines)로 구현합니다.
 
 | 계층 | 테이블 | 소스 | 설명 |
 |------|--------|------|------|

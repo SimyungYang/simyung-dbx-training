@@ -10,7 +10,7 @@ Auto Loader는 기본 설정만으로도 동작하지만, 프로덕션 환경에
 
 ## 파일 발견 모드
 
-Auto Loader가 새 파일을 감지하는 방식에는 **Directory Listing**과 **File Notification** 두 가지가 있습니다.
+Auto Loader가 새 파일을 감지하는 방식에는 **Directory Listing** 과 **File Notification** 두 가지가 있습니다.
 
 ### 모드 비교
 

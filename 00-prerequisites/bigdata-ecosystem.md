@@ -70,7 +70,7 @@
 | **Apache Iceberg**| Netflix → Apache | 엔진 독립적. Snowflake, Trino 등 다양한 엔진에서 지원합니다 |
 | **Apache Hudi**| Uber → Apache | 증분 처리(Incremental Processing)에 강점이 있습니다 |
 
-> 💡 세 포맷 모두 **ACID 트랜잭션**, **스키마 진화**, **타임 트래블**을 지원하며, 실제 데이터는 **Parquet**파일로 저장합니다. 업계는 점차 **Delta Lake + Iceberg** 조합(UniForm)으로 수렴하는 추세입니다.
+> 💡 세 포맷 모두 **ACID 트랜잭션**, **스키마 진화**, **타임 트래블** 을 지원하며, 실제 데이터는 **Parquet** 파일로 저장합니다. 업계는 점차 **Delta Lake + Iceberg** 조합(UniForm)으로 수렴하는 추세입니다.
 
 ---
 
@@ -102,7 +102,7 @@
 | **Synapse**| Microsoft | Azure 통합, Spark + SQL 결합 | 독자 |
 | **Microsoft Fabric**| Microsoft | OneLake 기반 통합 플랫폼 | Delta Lake |
 
-> 💡 **클라우드 데이터 플랫폼 선택의 현실**: 실무에서 플랫폼을 선택할 때, 순수 기술력보다 "**우리 팀이 가장 잘 쓸 수 있는 도구**"가 더 중요합니다. SQL 분석가가 대다수인 팀에서는 Snowflake가, ML/AI 엔지니어가 많은 팀에서는 Databricks가, Microsoft 생태계에 깊이 투자한 조직에서는 Fabric이 자연스러운 선택입니다. "어떤 플랫폼이 객관적으로 가장 좋은가?"보다 "우리 팀의 기술 스택과 역량에 가장 맞는 플랫폼은 무엇인가?"를 먼저 물어보세요.
+> 💡 **클라우드 데이터 플랫폼 선택의 현실**: 실무에서 플랫폼을 선택할 때, 순수 기술력보다 "** 우리 팀이 가장 잘 쓸 수 있는 도구**"가 더 중요합니다. SQL 분석가가 대다수인 팀에서는 Snowflake가, ML/AI 엔지니어가 많은 팀에서는 Databricks가, Microsoft 생태계에 깊이 투자한 조직에서는 Fabric이 자연스러운 선택입니다. "어떤 플랫폼이 객관적으로 가장 좋은가?"보다 "우리 팀의 기술 스택과 역량에 가장 맞는 플랫폼은 무엇인가?"를 먼저 물어보세요.
 
 ### BI 도구
 
@@ -240,7 +240,7 @@ Databricks는 "데이터 플랫폼의 스위스 아미 나이프"라고 할 수 
 | SQL 분석 중심, 사용 편의성 우선 | **Snowflake**|
 | AWS 생태계에 올인 | **Redshift + Glue + SageMaker**|
 | Google Cloud 생태계 | **BigQuery + Vertex AI**|
-| Microsoft 생태계 | **Microsoft Fabric**또는 **Azure Databricks**|
+| Microsoft 생태계 | **Microsoft Fabric** 또는 **Azure Databricks**|
 | 오픈소스 중심, 벤더 독립 | **Spark + Iceberg + Trino + MLflow**|
 | 소규모 데이터, 빠른 시작 | **PostgreSQL + dbt + Metabase**|
 
@@ -302,7 +302,7 @@ Databricks는 "데이터 플랫폼의 스위스 아미 나이프"라고 할 수 
 | **Dagster**| 오픈소스/상용 | 데이터 자산 중심의 오케스트레이션 도구입니다 |
 | **AWS Step Functions**| AWS | AWS 서버리스 워크플로우 서비스입니다 |
 
-> 💡 **현업에서의 선택**: Databricks를 주력으로 사용한다면 **Lakeflow Jobs**가 가장 자연스럽습니다. 클러스터 관리, 재시도, 알림이 통합되어 있습니다. 만약 Databricks 외의 다른 시스템(AWS Lambda, API 호출 등)도 오케스트레이션해야 한다면 **Airflow** 가 적합합니다. 둘을 함께 사용하는 경우(Airflow가 전체 워크플로우를 관리하고, 개별 Databricks 작업은 Lakeflow Jobs로 실행)도 많습니다.
+> 💡 **현업에서의 선택**: Databricks를 주력으로 사용한다면 **Lakeflow Jobs** 가 가장 자연스럽습니다. 클러스터 관리, 재시도, 알림이 통합되어 있습니다. 만약 Databricks 외의 다른 시스템(AWS Lambda, API 호출 등)도 오케스트레이션해야 한다면 **Airflow** 가 적합합니다. 둘을 함께 사용하는 경우(Airflow가 전체 워크플로우를 관리하고, 개별 Databricks 작업은 Lakeflow Jobs로 실행)도 많습니다.
 
 ---
 

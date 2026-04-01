@@ -2,7 +2,7 @@
 
 ## 개념
 
-> 💡 **Spark Declarative Pipelines (SDP)**는 데이터 변환 파이프라인을 "**무엇을(What)**" 만들지 선언하면, Databricks가 "**어떻게(How)**" 실행할지를 자동으로 관리해 주는 프레임워크입니다. 이전에는 **Delta Live Tables (DLT)** 라는 이름으로 불렸습니다.
+> 💡 **Spark Declarative Pipelines (SDP)** 는 데이터 변환 파이프라인을 "** 무엇을(What)**" 만들지 선언하면, Databricks가 "** 어떻게(How)**" 실행할지를 자동으로 관리해 주는 프레임워크입니다. 이전에는 **Delta Live Tables (DLT)** 라는 이름으로 불렸습니다.
 
 Apache Spark Structured Streaming 위에 구축된 추상화 레이어로, 배치와 스트리밍 데이터 파이프라인을 SQL 또는 Python으로 생성할 수 있습니다. 클라우드 스토리지 파일 수집, 메시지 버스 소비, 증분 배치/스트리밍 변환을 모두 지원합니다.
 
@@ -132,7 +132,7 @@ def gold_daily_revenue():
 3. Source Code: 노트북 또는 파일 경로 지정 (최대 100개 소스 파일)
 4. Destination: Unity Catalog의 카탈로그.스키마 지정
 5. Compute: **Serverless**(권장) 또는 Classic
-6. Pipeline Mode: **Triggered**또는 **Continuous**
+6. Pipeline Mode: **Triggered** 또는 **Continuous**
 7. **Start** 클릭
 
 ### Asset Bundles (IaC)
@@ -232,7 +232,7 @@ Delta Live Tables(DLT)는 2021년에 출시된 Databricks의 선언적 파이프
 
 | 비교 항목 | SDP | Apache Airflow |
 |-----------|-----|---------------|
-| **역할**| 데이터 **변환(Transformation)**프레임워크 | 워크플로 **오케스트레이션(Orchestration)** 도구 |
+| **역할**| 데이터 **변환(Transformation)** 프레임워크 | 워크플로 **오케스트레이션(Orchestration)** 도구 |
 | **추상화 수준**| "무엇을(What)" 만들지 선언 | "어떻게(How)" 실행할지 명령 |
 | **데이터 품질**| Expectations 내장 | 별도 프레임워크 필요 (Great Expectations 등) |
 | **증분 처리**| 자동 (체크포인트, 스키마 진화) | 수동 구현 (변경 감지 로직 직접 작성) |

@@ -45,7 +45,7 @@ Databricks는 2024년부터 데이터 엔지니어링 관련 제품들을 **Lake
 | **Lakeflow Jobs**| Databricks Workflows | 워크플로 오케스트레이션 | 스케줄링, 의존성 관리, 모니터링 |
 | **Auto Loader**| Auto Loader (변경 없음) | 클라우드 파일 증분 수집 | 새 파일 자동 감지, 스키마 진화 |
 
-> ⚠️ **용어 참고**: Delta Live Tables(DLT)는 현재 **Spark Declarative Pipelines(SDP)**또는 **Lakeflow Declarative Pipelines** 로 명칭이 변경되었습니다. 기존 문서나 블로그에서 DLT라는 이름이 등장하면 SDP와 동일한 것으로 이해하시면 됩니다.
+> ⚠️ **용어 참고**: Delta Live Tables(DLT)는 현재 **Spark Declarative Pipelines(SDP)** 또는 **Lakeflow Declarative Pipelines** 로 명칭이 변경되었습니다. 기존 문서나 블로그에서 DLT라는 이름이 등장하면 SDP와 동일한 것으로 이해하시면 됩니다.
 
 ---
 

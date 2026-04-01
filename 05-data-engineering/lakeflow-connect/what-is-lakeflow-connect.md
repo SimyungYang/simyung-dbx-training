@@ -12,7 +12,7 @@
 
 이 과정은 수주~수개월이 걸리며, 지속적인 유지보수도 필요합니다. **Lakeflow Connect는 이 모든 과정을 자동화하여 코드 없이 몇 번의 클릭만으로 데이터 수집 파이프라인을 구성** 할 수 있게 해줍니다.
 
-> 💡 **Lakeflow Connect**는 외부 데이터 소스(데이터베이스, SaaS 애플리케이션)에서 Databricks 레이크하우스로 데이터를 **자동으로 수집하는 관리형 커넥터** 서비스입니다. Fivetran, Airbyte 같은 데이터 통합(ELT) 도구와 유사한 역할을 하지만, Databricks 플랫폼에 네이티브로 통합되어 있습니다.
+> 💡 **Lakeflow Connect** 는 외부 데이터 소스(데이터베이스, SaaS 애플리케이션)에서 Databricks 레이크하우스로 데이터를 **자동으로 수집하는 관리형 커넥터** 서비스입니다. Fivetran, Airbyte 같은 데이터 통합(ELT) 도구와 유사한 역할을 하지만, Databricks 플랫폼에 네이티브로 통합되어 있습니다.
 
 > 💡 **CDC(Change Data Capture)** 란 소스 데이터베이스에서 발생하는 INSERT, UPDATE, DELETE 등의 변경 사항을 실시간으로 캡처하여 대상 시스템에 반영하는 기술입니다. 전체 데이터를 매번 다시 복사하는 것보다 훨씬 효율적이며, 소스 시스템에 대한 부하도 최소화합니다.
 
@@ -128,7 +128,7 @@ CDC 스트림으로 변경분만 전달:
 > id=3은 DELETE 반영으로 제거됨
 ```
 
-> 💡 **CDC의 장점**: 전체 데이터를 매번 다시 복사하는 Full Load 방식 대비, CDC는 변경분만 전달하므로 **소스 시스템의 부하가 최소화**되고, **네트워크 트래픽이 크게 줄어들며**, **수집 지연시간이 초 단위로 단축** 됩니다.
+> 💡 **CDC의 장점**: 전체 데이터를 매번 다시 복사하는 Full Load 방식 대비, CDC는 변경분만 전달하므로 **소스 시스템의 부하가 최소화** 되고, **네트워크 트래픽이 크게 줄어들며**, **수집 지연시간이 초 단위로 단축** 됩니다.
 
 ---
 
@@ -213,7 +213,7 @@ OPTIONS (
 
 ### Step 2: Ingestion Pipeline 생성 (UI)
 
-1. **Pipelines**메뉴 → **Create Pipeline** 클릭
+1. **Pipelines** 메뉴 → **Create Pipeline** 클릭
 2. **Ingestion (Lakeflow Connect)** 선택
 3. 소스 유형: **MySQL** 선택
 4. Connection: `mysql_erp` 선택

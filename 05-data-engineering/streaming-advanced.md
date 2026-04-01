@@ -115,7 +115,7 @@ df.groupBy("status").count() \
 
 ### CDF가 필요한 이유
 
-일반적인 `readStream`으로 Delta 테이블을 읽으면 **새로 추가된 행(Append)만**볼 수 있습니다. UPDATE나 DELETE는 감지할 수 없습니다. CDF를 활성화하면 **모든 변경 유형** 을 스트림으로 처리할 수 있습니다.
+일반적인 `readStream`으로 Delta 테이블을 읽으면 **새로 추가된 행(Append)만** 볼 수 있습니다. UPDATE나 DELETE는 감지할 수 없습니다. CDF를 활성화하면 **모든 변경 유형** 을 스트림으로 처리할 수 있습니다.
 
 | 시나리오 | readStream (기본) | readStream + CDF |
 |---------|------------------|------------------|
@@ -222,13 +222,13 @@ def upsert_to_scd2(batch_df, batch_id):
 | **Lakeflow Connect**| ❌ 불필요 | 소스 DB의 CDC를 직접 캡처 |
 | **Materialized View 증분**| ✅ 활용 | MV가 소스 변경을 효율적으로 감지 |
 
-> 💡 **CDF vs CDC**: CDF(Change Data Feed)는 **Delta 테이블 내부의 변경 추적**기능이고, CDC(Change Data Capture)는 **외부 DB의 변경을 캡처** 하는 기술입니다. Lakeflow Connect가 외부 CDC를 캡처하면, 그 결과를 CDF가 활성화된 Delta 테이블에 저장하여 다운스트림에 전파하는 패턴이 일반적입니다.
+> 💡 **CDF vs CDC**: CDF(Change Data Feed)는 **Delta 테이블 내부의 변경 추적** 기능이고, CDC(Change Data Capture)는 **외부 DB의 변경을 캡처** 하는 기술입니다. Lakeflow Connect가 외부 CDC를 캡처하면, 그 결과를 CDF가 활성화된 Delta 테이블에 저장하여 다운스트림에 전파하는 패턴이 일반적입니다.
 
 ---
 
 ## State Store 관리
 
-윈도우 집계, 스트림 조인 등 **상태 기반 연산**은 내부적으로 **State Store**에 중간 상태를 저장합니다. 프로덕션에서 가장 흔한 스트리밍 문제는 **State Store 크기 증가** 입니다.
+윈도우 집계, 스트림 조인 등 **상태 기반 연산** 은 내부적으로 **State Store** 에 중간 상태를 저장합니다. 프로덕션에서 가장 흔한 스트리밍 문제는 **State Store 크기 증가** 입니다.
 
 ### State Store가 커지는 원인
 

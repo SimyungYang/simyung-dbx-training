@@ -77,7 +77,7 @@ parallelism = sqrt(max_evals):  (권장 균형점)
   적절한 이전 결과 반영 + 합리적 실행 시간
 ```
 
-> 💡 **실무 권장**: `parallelism`은 **Worker 노드 수**와 **max_evals의 제곱근** 중 작은 값을 선택합니다. 예를 들어 Worker 8대, max_evals=100이면 `parallelism=8`이 적절합니다.
+> 💡 **실무 권장**: `parallelism`은 **Worker 노드 수** 와 **max_evals의 제곱근** 중 작은 값을 선택합니다. 예를 들어 Worker 8대, max_evals=100이면 `parallelism=8`이 적절합니다.
 
 ### SparkTrials 주의사항
 

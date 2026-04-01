@@ -42,7 +42,7 @@
 
 ## Inference Tables (추론 테이블)
 
-> 💡 **Inference Table**은 Model Serving 엔드포인트의 모든 요청과 응답을 **자동으로 Delta 테이블에 기록** 하는 기능입니다. 모델 성능 모니터링, 디버깅, 규정 준수 감사에 활용됩니다.
+> 💡 **Inference Table** 은 Model Serving 엔드포인트의 모든 요청과 응답을 **자동으로 Delta 테이블에 기록** 하는 기능입니다. 모델 성능 모니터링, 디버깅, 규정 준수 감사에 활용됩니다.
 
 ### 기록되는 정보
 

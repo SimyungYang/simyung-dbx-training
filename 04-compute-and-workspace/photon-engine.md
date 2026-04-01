@@ -2,7 +2,7 @@
 
 ## Photon이란?
 
-**Photon**은 Databricks가 개발한 **C++ 기반 벡터화(Vectorized) 실행 엔진**입니다. 기존 Apache Spark의 JVM(Java Virtual Machine) 기반 실행 엔진을 대체하여, SQL 및 DataFrame 워크로드의 성능을 **2배에서 최대 8배까지 향상** 시킵니다.
+**Photon** 은 Databricks가 개발한 **C++ 기반 벡터화(Vectorized) 실행 엔진** 입니다. 기존 Apache Spark의 JVM(Java Virtual Machine) 기반 실행 엔진을 대체하여, SQL 및 DataFrame 워크로드의 성능을 **2배에서 최대 8배까지 향상** 시킵니다.
 
 > 💡 **핵심 아이디어**: Spark의 기존 엔진은 Java/Scala로 구현되어 JVM의 오버헤드(GC, 메모리 관리)가 있었습니다. Photon은 C++로 작성되어 JVM 없이 **네이티브 코드 수준** 의 성능을 제공합니다.
 

@@ -4,9 +4,9 @@
 
 > 💡 **Databricks Declarative Automation Bundles**(구 Databricks Declarative Automation Bundles / DABs)는 Databricks 리소스(Jobs, Pipelines, 대시보드 등)를 **코드로 정의하고 배포** 하는 IaC(Infrastructure as Code) 도구입니다. YAML 파일로 리소스를 선언하고, `databricks bundle` CLI 명령어로 배포합니다.
 
-> 🆕 **명칭 변경**: 2025년부터 **Databricks Declarative Automation Bundles (DABs)**가 **Declarative Automation Bundles** 로 리브랜딩되었습니다. CLI 명령어(`databricks bundle`)와 설정 파일 구조는 동일합니다. 기존 문서나 블로그에서 "DABs"나 "Declarative Automation Bundles"로 언급되는 것은 같은 기능을 가리킵니다.
+> 🆕 **명칭 변경**: 2025년부터 **Databricks Declarative Automation Bundles (DABs)** 가 **Declarative Automation Bundles** 로 리브랜딩되었습니다. CLI 명령어(`databricks bundle`)와 설정 파일 구조는 동일합니다. 기존 문서나 블로그에서 "DABs"나 "Declarative Automation Bundles"로 언급되는 것은 같은 기능을 가리킵니다.
 
-> 💡 **IaC(Infrastructure as Code)란?**인프라(서버, 데이터베이스, 파이프라인 등)를 수동으로 설정하는 대신, **코드(설정 파일)로 정의** 하여 자동으로 배포하는 방식입니다. 코드이므로 Git으로 버전 관리할 수 있고, 코드 리뷰를 통해 변경 사항을 검토할 수 있으며, 여러 환경(dev, staging, prod)에 동일한 구성을 일관되게 배포할 수 있습니다.
+> 💡 **IaC(Infrastructure as Code)란?** 인프라(서버, 데이터베이스, 파이프라인 등)를 수동으로 설정하는 대신, **코드(설정 파일)로 정의** 하여 자동으로 배포하는 방식입니다. 코드이므로 Git으로 버전 관리할 수 있고, 코드 리뷰를 통해 변경 사항을 검토할 수 있으며, 여러 환경(dev, staging, prod)에 동일한 구성을 일관되게 배포할 수 있습니다.
 
 ---
 

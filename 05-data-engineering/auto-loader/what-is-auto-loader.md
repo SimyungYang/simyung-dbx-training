@@ -2,7 +2,7 @@
 
 ## 개념
 
-> 💡 **Auto Loader**는 클라우드 스토리지(S3, ADLS, GCS)에 **새로 도착한 파일을 자동으로 감지하고 수집** 하는 Databricks의 증분 파일 수집 기능입니다. Spark Structured Streaming의 `cloudFiles` 소스 형식으로 구현되어 있습니다.
+> 💡 **Auto Loader** 는 클라우드 스토리지(S3, ADLS, GCS)에 **새로 도착한 파일을 자동으로 감지하고 수집** 하는 Databricks의 증분 파일 수집 기능입니다. Spark Structured Streaming의 `cloudFiles` 소스 형식으로 구현되어 있습니다.
 
 비유하자면, 우편함을 계속 지켜보다가 새 편지가 도착하면 자동으로 꺼내서 정리해 주는 비서와 같습니다. 이미 읽은 편지는 다시 읽지 않고, 새 편지만 처리합니다.
 
@@ -131,7 +131,7 @@ df = (spark.readStream
 
 ### 스키마 진화 (Schema Evolution)
 
-새 파일에 **새로운 컬럼이 추가**되거나 **타입이 변경** 되면, Auto Loader가 이를 감지하고 대응합니다.
+새 파일에 **새로운 컬럼이 추가** 되거나 **타입이 변경** 되면, Auto Loader가 이를 감지하고 대응합니다.
 
 | 진화 모드 | 설명 |
 |-----------|------|

@@ -2,7 +2,7 @@
 
 ## 개념
 
-> 💡 **Lakebase**는 Databricks가 제공하는 **관리형 PostgreSQL 호환 OLTP 데이터베이스** 입니다. 레이크하우스 플랫폼 안에서 OLTP(트랜잭션 처리)와 OLAP(분석)를 하나로 통합하여, 데이터 복사 없이 운영 데이터를 바로 분석에 활용할 수 있게 합니다.
+> 💡 **Lakebase** 는 Databricks가 제공하는 **관리형 PostgreSQL 호환 OLTP 데이터베이스** 입니다. 레이크하우스 플랫폼 안에서 OLTP(트랜잭션 처리)와 OLAP(분석)를 하나로 통합하여, 데이터 복사 없이 운영 데이터를 바로 분석에 활용할 수 있게 합니다.
 
 > 💡 **OLTP (Online Transaction Processing)**: 주문 접수, 결제 처리, 재고 차감, 사용자 로그인 등 **건 단위의 빠른 읽기/쓰기** 에 최적화된 시스템입니다. 웹 애플리케이션의 백엔드 DB로 사용됩니다. MySQL, PostgreSQL, Oracle이 대표적입니다.
 
@@ -34,7 +34,7 @@
 
 ### PostgreSQL 호환성
 
-Lakebase는 **PostgreSQL 프로토콜과 호환**됩니다. 기존 PostgreSQL 애플리케이션, 드라이버, ORM(SQLAlchemy, Django ORM 등)을 **코드 변경 없이** 그대로 사용할 수 있습니다.
+Lakebase는 **PostgreSQL 프로토콜과 호환** 됩니다. 기존 PostgreSQL 애플리케이션, 드라이버, ORM(SQLAlchemy, Django ORM 등)을 **코드 변경 없이** 그대로 사용할 수 있습니다.
 
 ```python
 # 기존 PostgreSQL 코드가 그대로 동작합니다
@@ -51,11 +51,11 @@ conn = psycopg2.connect(
 
 ### 오토스케일링
 
-> 🆕 **Lakebase Autoscaling (GA)**: 워크로드에 따라 컴퓨팅 리소스를 **자동으로 확장/축소**합니다. 트래픽이 적은 시간에는 자동으로 축소되고, 급증 시 자동으로 확장됩니다. 최대 **8TB** 까지 스토리지가 자동 확장됩니다.
+> 🆕 **Lakebase Autoscaling (GA)**: 워크로드에 따라 컴퓨팅 리소스를 **자동으로 확장/축소** 합니다. 트래픽이 적은 시간에는 자동으로 축소되고, 급증 시 자동으로 확장됩니다. 최대 **8TB** 까지 스토리지가 자동 확장됩니다.
 
 ### Instant Branching
 
-> 💡 **브랜칭(Branching)**이란 현재 데이터베이스의 **즉시 복제본** 을 생성하는 기능입니다. Git의 브랜치처럼, 원본에 영향을 주지 않고 별도의 환경에서 작업할 수 있습니다.
+> 💡 **브랜칭(Branching)** 이란 현재 데이터베이스의 **즉시 복제본** 을 생성하는 기능입니다. Git의 브랜치처럼, 원본에 영향을 주지 않고 별도의 환경에서 작업할 수 있습니다.
 
 | 활용 | 설명 |
 |------|------|
@@ -81,7 +81,7 @@ conn = psycopg2.connect(
 
 Lakebase의 가장 차별화된 기능은 **Data Sync** 입니다.
 
-> 💡 **Data Sync**는 Lakebase의 데이터를 **자동으로 Delta Lake 테이블에 동기화** 하는 기능입니다. Lakebase에서 INSERT/UPDATE/DELETE된 데이터가 거의 실시간으로 Delta 테이블에 반영됩니다.
+> 💡 **Data Sync** 는 Lakebase의 데이터를 **자동으로 Delta Lake 테이블에 동기화** 하는 기능입니다. Lakebase에서 INSERT/UPDATE/DELETE된 데이터가 거의 실시간으로 Delta 테이블에 반영됩니다.
 
 | 구성 요소 | 역할 | 설명 |
 |-----------|------|------|
@@ -136,7 +136,7 @@ Lakebase의 가장 차별화된 기능은 **Data Sync** 입니다.
 
 분산 시스템에서 **CAP 정리**(Consistency, Availability, Partition Tolerance)는 세 가지를 동시에 만족할 수 없다는 원칙입니다. Lakebase의 일관성 모델을 정확히 이해해야 합니다.
 
-> 💡 **CAP 정리**: 네트워크 파티션(장애)이 발생했을 때, 분산 시스템은 **일관성(Consistency)**과 **가용성(Availability)** 중 하나를 선택해야 합니다. 은행 시스템은 일관성을, SNS 피드는 가용성을 우선하는 것이 일반적입니다.
+> 💡 **CAP 정리**: 네트워크 파티션(장애)이 발생했을 때, 분산 시스템은 **일관성(Consistency)** 과 **가용성(Availability)** 중 하나를 선택해야 합니다. 은행 시스템은 일관성을, SNS 피드는 가용성을 우선하는 것이 일반적입니다.
 
 | 구성 요소 | 일관성 모델 | 상세 |
 |----------|-----------|------|
@@ -336,7 +336,7 @@ OLTP-OLAP 분리로 인한 고통은 데이터 팀이라면 누구나 겪어본 
 | **이미 안정된 RDS 운영**| 전환 리스크 대비 이점이 적음 | 현재 RDS 유지 + Lakeflow Connect |
 | **Databricks를 사용하지 않는 경우**| Data Sync의 가치가 없음 | RDS, Azure DB |
 
-> ⚠️ **현업에서는 이렇게 합니다**: "기존 RDS를 무조건 Lakebase로 바꾸자"는 올바른 접근이 아닙니다. Lakebase의 핵심 가치는 **Data Sync(OLTP→OLAP 자동 동기화)**입니다. 이미 Lakeflow Connect로 RDS→Delta Lake ETL이 잘 동작하고 있다면, 전환의 이점은 크지 않습니다. 하지만 **새 프로젝트를 시작**하거나, **ETL 파이프라인 유지보수가 고통** 이라면, Lakebase가 확실한 해답입니다.
+> ⚠️ **현업에서는 이렇게 합니다**: "기존 RDS를 무조건 Lakebase로 바꾸자"는 올바른 접근이 아닙니다. Lakebase의 핵심 가치는 **Data Sync(OLTP→OLAP 자동 동기화)** 입니다. 이미 Lakeflow Connect로 RDS→Delta Lake ETL이 잘 동작하고 있다면, 전환의 이점은 크지 않습니다. 하지만 **새 프로젝트를 시작** 하거나, **ETL 파이프라인 유지보수가 고통** 이라면, Lakebase가 확실한 해답입니다.
 
 ### 마이그레이션 고려사항
 

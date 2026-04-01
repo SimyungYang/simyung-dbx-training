@@ -2,7 +2,7 @@
 
 ## 모델 레지스트리란?
 
-> 💡 **Model Registry(모델 레지스트리)**는 학습된 ML 모델의 **버전을 관리**하고, 프로덕션 승격(Promotion)을 제어하는 중앙 저장소입니다. Databricks에서는 **Unity Catalog** 와 통합되어, 모델에도 테이블과 동일한 거버넌스(권한, 리니지, 감사)가 적용됩니다.
+> 💡 **Model Registry(모델 레지스트리)** 는 학습된 ML 모델의 **버전을 관리** 하고, 프로덕션 승격(Promotion)을 제어하는 중앙 저장소입니다. Databricks에서는 **Unity Catalog** 와 통합되어, 모델에도 테이블과 동일한 거버넌스(권한, 리니지, 감사)가 적용됩니다.
 
 ---
 
@@ -74,7 +74,7 @@ mlflow.register_model(model_uri, "catalog.schema.fraud_detection")
 
 ## Alias (별칭)
 
-> 💡 **Alias**는 특정 모델 버전에 부여하는 **별칭** 입니다. "champion"은 현재 프로덕션에 배포된 버전, "challenger"는 테스트 중인 다음 버전을 의미하는 것이 일반적입니다.
+> 💡 **Alias** 는 특정 모델 버전에 부여하는 **별칭** 입니다. "champion"은 현재 프로덕션에 배포된 버전, "challenger"는 테스트 중인 다음 버전을 의미하는 것이 일반적입니다.
 
 ```python
 from mlflow import MlflowClient

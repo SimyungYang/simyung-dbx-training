@@ -2,7 +2,7 @@
 
 ## 왜 ID 관리가 중요한가요?
 
-데이터 플랫폼에서 가장 근본적인 보안 질문은 "**이 사람이 누구이며, 무엇을 할 수 있는가?**" 입니다. 아무리 강력한 암호화와 네트워크 보안을 구축해도, ID 관리가 허술하면 권한 없는 사용자가 민감 데이터에 접근하거나 퇴사자의 계정이 방치되는 보안 사고가 발생할 수 있습니다.
+데이터 플랫폼에서 가장 근본적인 보안 질문은 "** 이 사람이 누구이며, 무엇을 할 수 있는가?**" 입니다. 아무리 강력한 암호화와 네트워크 보안을 구축해도, ID 관리가 허술하면 권한 없는 사용자가 민감 데이터에 접근하거나 퇴사자의 계정이 방치되는 보안 사고가 발생할 수 있습니다.
 
 > 💡 **IAM(Identity and Access Management)** 은 "누가(Who) 무엇에(What) 어떤 권한으로(How) 접근할 수 있는가"를 체계적으로 관리하는 보안 프레임워크입니다. Databricks는 기업의 기존 ID 시스템(Okta, Azure AD/Entra ID, Google Workspace 등)과 연동하여 통합적인 ID 관리를 제공합니다.
 
@@ -26,7 +26,7 @@ Databricks의 ID 관리는 **두 가지 수준** 에서 이루어집니다.
 
 ### ID Federation (ID 연합)
 
-> 💡 **ID Federation**은 Account 수준에서 관리하는 사용자/그룹을 **별도 추가 없이** 워크스페이스에서 사용할 수 있게 해주는 기능입니다. ID Federation이 활성화되면, Account에 사용자를 추가하면 해당 사용자가 모든 연합 워크스페이스에서 인증할 수 있습니다.
+> 💡 **ID Federation** 은 Account 수준에서 관리하는 사용자/그룹을 **별도 추가 없이** 워크스페이스에서 사용할 수 있게 해주는 기능입니다. ID Federation이 활성화되면, Account에 사용자를 추가하면 해당 사용자가 모든 연합 워크스페이스에서 인증할 수 있습니다.
 
 | Account 수준 프린시펄 | 워크스페이스 A (Federation ON) | 워크스페이스 B (Federation ON) |
 |---------------------|---------------------------|---------------------------|
@@ -63,7 +63,7 @@ Databricks의 ID 관리는 **두 가지 수준** 에서 이루어집니다.
 
 ### 서비스 프린시펄 (Service Principal)
 
-> 💡 **Service Principal(서비스 프린시펄)**은 사람이 아닌 **애플리케이션/자동화 시스템** 을 위한 계정입니다. 개인 계정으로 프로덕션 파이프라인을 실행하면, 그 사람이 퇴사하면 파이프라인이 중단됩니다. Service Principal을 사용하면 이 문제를 방지할 수 있습니다.
+> 💡 **Service Principal(서비스 프린시펄)** 은 사람이 아닌 **애플리케이션/자동화 시스템** 을 위한 계정입니다. 개인 계정으로 프로덕션 파이프라인을 실행하면, 그 사람이 퇴사하면 파이프라인이 중단됩니다. Service Principal을 사용하면 이 문제를 방지할 수 있습니다.
 
 ```python
 # Service Principal로 인증 (Python SDK)
@@ -111,7 +111,7 @@ w = WorkspaceClient(
 ### SSO 설정 단계 (Okta 예시)
 
 1. **Okta 관리 콘솔** 에서 Databricks 앱을 생성합니다
-2. SAML 2.0 설정에서 **Single Sign-On URL**과 **Audience URI** 를 입력합니다
+2. SAML 2.0 설정에서 **Single Sign-On URL** 과 **Audience URI** 를 입력합니다
    - SSO URL: `https://accounts.cloud.databricks.com/login/saml`
    - Audience URI: `https://accounts.cloud.databricks.com`
 3. **Databricks Account Console**> **Settings**> **Single sign-on** 에서 SAML 설정을 입력합니다
@@ -124,7 +124,7 @@ w = WorkspaceClient(
 
 ## SCIM 프로비저닝
 
-> 💡 **SCIM(System for Cross-domain Identity Management)**은 사용자와 그룹 정보를 기업의 ID 공급자(IdP)에서 Databricks로 **자동 동기화** 하는 표준 프로토콜입니다.
+> 💡 **SCIM(System for Cross-domain Identity Management)** 은 사용자와 그룹 정보를 기업의 ID 공급자(IdP)에서 Databricks로 **자동 동기화** 하는 표준 프로토콜입니다.
 
 ### SCIM의 동작
 

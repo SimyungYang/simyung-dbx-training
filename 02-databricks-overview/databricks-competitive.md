@@ -50,7 +50,7 @@ Databricks의 Spark 런타임은 오픈소스 Spark 대비 **Photon 엔진** 을
 
 ### Databricks보다 다른 선택이 나을 수 있는 경우
 
-- [ ] SQL 분석만 필요하고, ML/AI 계획이 없다 → **Snowflake**또는 **BigQuery** 검토
+- [ ] SQL 분석만 필요하고, ML/AI 계획이 없다 → **Snowflake** 또는 **BigQuery** 검토
 - [ ] 예산이 매우 제한적이고, 자체 운영 역량이 있다 → 오픈소스(Spark + Iceberg + Trino) 검토
 - [ ] AWS 서비스에 이미 깊이 통합되어 있다 → **AWS Glue + Redshift + SageMaker** 검토
 - [ ] 데이터 팀이 1~2명이고, 데이터 규모가 작다 → PostgreSQL + dbt로 충분할 수 있습니다

@@ -2,7 +2,7 @@
 
 ## 외부 로케이션이란?
 
-Unity Catalog에서 **외부 로케이션(External Location)**은 클라우드 스토리지의 특정 경로를 Unity Catalog에 등록하여 **거버넌스 하에 관리** 할 수 있게 해주는 객체입니다. 외부 테이블(External Table)이나 외부 볼륨(External Volume)을 생성하려면, 해당 데이터가 저장된 클라우드 경로가 외부 로케이션으로 등록되어 있어야 합니다.
+Unity Catalog에서 **외부 로케이션(External Location)** 은 클라우드 스토리지의 특정 경로를 Unity Catalog에 등록하여 **거버넌스 하에 관리** 할 수 있게 해주는 객체입니다. 외부 테이블(External Table)이나 외부 볼륨(External Volume)을 생성하려면, 해당 데이터가 저장된 클라우드 경로가 외부 로케이션으로 등록되어 있어야 합니다.
 
 > 💡 **왜 필요한가요?** 기업은 이미 S3, ADLS, GCS 등 클라우드 스토리지에 대량의 데이터를 보유하고 있습니다. 이 데이터를 Unity Catalog로 이동하지 않고도, 경로를 등록하여 접근 권한과 감사를 적용할 수 있습니다.
 

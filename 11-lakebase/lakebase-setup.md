@@ -258,7 +258,7 @@ conn = psycopg2.connect(
 | **OAuth (Service Principal)**| 프로덕션 앱 | 높음 |
 | **OAuth (User-to-Machine)**| 대화형 앱 | 높음 |
 
-> ⚠️ **Personal Access Token 주의**: PAT는 만료일을 설정하더라도 유출 위험이 있습니다. 프로덕션 환경에서는 반드시 **OAuth 인증**또는 **서비스 프린시펄** 을 사용하시기 바랍니다.
+> ⚠️ **Personal Access Token 주의**: PAT는 만료일을 설정하더라도 유출 위험이 있습니다. 프로덕션 환경에서는 반드시 **OAuth 인증** 또는 **서비스 프린시펄** 을 사용하시기 바랍니다.
 
 ---
 

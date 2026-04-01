@@ -2,7 +2,7 @@
 
 ## Model Serving이란?
 
-> 💡 **Model Serving**은 학습된 ML 모델이나 AI 에이전트를 **실시간 추론 REST API 엔드포인트** 로 배포하는 Databricks의 서버리스 서비스입니다. 애플리케이션에서 HTTP 요청을 보내면, 밀리초~초 단위로 예측 결과를 반환합니다.
+> 💡 **Model Serving** 은 학습된 ML 모델이나 AI 에이전트를 **실시간 추론 REST API 엔드포인트** 로 배포하는 Databricks의 서버리스 서비스입니다. 애플리케이션에서 HTTP 요청을 보내면, 밀리초~초 단위로 예측 결과를 반환합니다.
 
 ---
 
@@ -219,7 +219,7 @@ w.serving_endpoints.update_config(
 
 ## Inference Tables (추론 로깅)
 
-> 💡 **Inference Table**은 엔드포인트의 모든 요청/응답을 **자동으로 Delta 테이블에 기록** 하는 기능입니다.
+> 💡 **Inference Table** 은 엔드포인트의 모든 요청/응답을 **자동으로 Delta 테이블에 기록** 하는 기능입니다.
 
 | 기록 항목 | 설명 |
 |-----------|------|

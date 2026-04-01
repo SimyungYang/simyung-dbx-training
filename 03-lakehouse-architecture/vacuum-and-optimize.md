@@ -7,7 +7,7 @@ Delta Lake 테이블은 시간이 지나면서 두 가지 문제가 자연스럽
 1. **소형 파일 누적**: 잦은 INSERT, 스트리밍 수집으로 인해 작은 파일이 수천~수만 개 쌓입니다
 2. **불필요한 파일 잔류**: UPDATE/DELETE 후 이전 버전의 파일이 계속 남아 스토리지 비용이 증가합니다
 
-**OPTIMIZE**는 첫 번째 문제를, **VACUUM** 은 두 번째 문제를 해결합니다. 이 두 작업은 Delta Lake 테이블을 건강하게 유지하는 핵심 유지 보수 작업입니다.
+**OPTIMIZE** 는 첫 번째 문제를, **VACUUM** 은 두 번째 문제를 해결합니다. 이 두 작업은 Delta Lake 테이블을 건강하게 유지하는 핵심 유지 보수 작업입니다.
 
 ---
 
@@ -32,7 +32,7 @@ Delta Lake 테이블은 시간이 지나면서 두 가지 문제가 자연스럽
 
 ### 동작 원리
 
-OPTIMIZE는 여러 개의 작은 파일을 읽어 **적절한 크기의 큰 파일로 병합(bin-packing)**합니다. 기본 목표 파일 크기는 약 **1GB** 입니다.
+OPTIMIZE는 여러 개의 작은 파일을 읽어 **적절한 크기의 큰 파일로 병합(bin-packing)** 합니다. 기본 목표 파일 크기는 약 **1GB** 입니다.
 
 | 상태 | 파일 구성 | 설명 |
 |------|---------|------|
@@ -83,7 +83,7 @@ SET TBLPROPERTIES ('delta.autoOptimize.optimizeWrite' = 'true');
 
 ### 동작 원리
 
-Delta Lake에서 UPDATE나 DELETE를 실행하면, 기존 파일은 즉시 삭제되지 않습니다. 타임 트래블과 진행 중인 쿼리를 위해 **이전 버전의 파일이 보존**됩니다. VACUUM은 지정된 보존 기간보다 오래된 불필요한 파일을 **영구적으로 삭제** 합니다.
+Delta Lake에서 UPDATE나 DELETE를 실행하면, 기존 파일은 즉시 삭제되지 않습니다. 타임 트래블과 진행 중인 쿼리를 위해 **이전 버전의 파일이 보존** 됩니다. VACUUM은 지정된 보존 기간보다 오래된 불필요한 파일을 **영구적으로 삭제** 합니다.
 
 ### 기본 사용법
 
@@ -133,7 +133,7 @@ SET TBLPROPERTIES ('delta.deletedFileRetentionDuration' = 'interval 30 days');
 
 ## ANALYZE TABLE (통계 수집)
 
-> 💡 **ANALYZE TABLE**은 테이블의 **컬럼 통계(statistics)** 를 수집하는 명령입니다. 쿼리 최적화기(Query Optimizer)가 이 통계를 활용하여 더 효율적인 실행 계획을 수립합니다.
+> 💡 **ANALYZE TABLE** 은 테이블의 **컬럼 통계(statistics)** 를 수집하는 명령입니다. 쿼리 최적화기(Query Optimizer)가 이 통계를 활용하여 더 효율적인 실행 계획을 수립합니다.
 
 ### 사용법
 
@@ -271,7 +271,7 @@ DESCRIBE HISTORY prod.crm.customer_master LIMIT 3;
 
 ### OPTIMIZE 주기: 실전 가이드
 
-"얼마나 자주 OPTIMIZE를 해야 하나요?"는 가장 많이 받는 질문입니다. 정답은 "**테이블의 쓰기 패턴에 따라 다르다**"입니다.
+"얼마나 자주 OPTIMIZE를 해야 하나요?"는 가장 많이 받는 질문입니다. 정답은 "** 테이블의 쓰기 패턴에 따라 다르다**"입니다.
 
 | 쓰기 패턴 | OPTIMIZE 주기 | 이유 |
 |-----------|-------------|------|

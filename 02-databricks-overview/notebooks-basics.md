@@ -2,7 +2,7 @@
 
 ## Notebook이란?
 
-> 💡 **Notebook(노트북)**은 코드, 텍스트 설명, 시각화 결과를 하나의 문서에 담을 수 있는 **대화형 개발 환경** 입니다. 마치 실험 노트처럼, 코드를 작성하고 바로 실행하여 결과를 확인하면서 작업을 진행할 수 있습니다.
+> 💡 **Notebook(노트북)** 은 코드, 텍스트 설명, 시각화 결과를 하나의 문서에 담을 수 있는 **대화형 개발 환경** 입니다. 마치 실험 노트처럼, 코드를 작성하고 바로 실행하여 결과를 확인하면서 작업을 진행할 수 있습니다.
 
 Jupyter Notebook과 유사하지만, Databricks Notebook은 다음과 같은 추가 기능을 제공합니다.
 
@@ -203,7 +203,7 @@ dbutils.library.restartPython()
 
 ### 2. "변수가 왜 사라지나?"
 
-Jupyter는 커널이 항상 살아있지만, Databricks 클러스터는 **Auto-termination**(자동 종료) 이후 재시작하면 모든 변수가 초기화됩니다. 또한 클러스터를 **Detach**했다가 다시 **Attach** 하면 상태가 초기화됩니다.
+Jupyter는 커널이 항상 살아있지만, Databricks 클러스터는 **Auto-termination**(자동 종료) 이후 재시작하면 모든 변수가 초기화됩니다. 또한 클러스터를 **Detach** 했다가 다시 **Attach** 하면 상태가 초기화됩니다.
 
 > 💡 **해결법**: 중간 결과는 Delta 테이블에 저장하세요. `df.write.saveAsTable("my_catalog.my_schema.temp_result")` 한 줄이면 됩니다. 변수가 사라져도 데이터는 남아 있습니다.
 
@@ -222,7 +222,7 @@ df = spark.read.table("my_catalog.my_schema.my_table")
 
 ### 4. "display()가 뭐지?"
 
-Databricks에는 `display()`라는 고유 함수가 있습니다. Jupyter의 `df.show()`와 달리, **인터랙티브한 테이블**과 **차트 시각화** 를 제공합니다.
+Databricks에는 `display()`라는 고유 함수가 있습니다. Jupyter의 `df.show()`와 달리, **인터랙티브한 테이블** 과 **차트 시각화** 를 제공합니다.
 
 ```python
 # df.show()는 텍스트 출력 (Jupyter 스타일)
@@ -236,7 +236,7 @@ display(df)
 
 ### 5. "노트북 출력이 저장되지 않는다?"
 
-Jupyter는 `.ipynb` 파일에 출력 결과가 함께 저장되지만, Databricks Notebook은 기본적으로 **코드만 Git에 저장**됩니다. 출력 결과를 보존하려면 **HTML로 내보내기** 하거나, Databricks의 자체 리비전 히스토리를 사용해야 합니다.
+Jupyter는 `.ipynb` 파일에 출력 결과가 함께 저장되지만, Databricks Notebook은 기본적으로 **코드만 Git에 저장** 됩니다. 출력 결과를 보존하려면 **HTML로 내보내기** 하거나, Databricks의 자체 리비전 히스토리를 사용해야 합니다.
 
 ---
 

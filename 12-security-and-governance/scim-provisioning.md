@@ -2,7 +2,7 @@
 
 ## SCIM이란?
 
-**SCIM(System for Cross-domain Identity Management)**은 기업의 ID 공급자(IdP)에서 Databricks로 사용자와 그룹 정보를 **자동 동기화** 하는 표준 프로토콜입니다.
+**SCIM(System for Cross-domain Identity Management)** 은 기업의 ID 공급자(IdP)에서 Databricks로 사용자와 그룹 정보를 **자동 동기화** 하는 표준 프로토콜입니다.
 
 > 💡 기본 개념은 [인증과 접근 제어](./identity-and-access.md)의 "SCIM 프로비저닝" 섹션에서 소개했습니다. 이 문서에서는 실제 설정 절차와 고급 구성을 다룹니다.
 
@@ -71,7 +71,7 @@ Bearer Token:  dapi_xxxxxxxxxxxxxxxxxxxxxxxxx
 ### 단계 2: Okta에서 SCIM 앱 설정
 
 1. **Okta Admin Console**> **Applications**> Databricks 앱 선택
-2. **Provisioning**탭 > **Configure API Integration** 클릭
+2. **Provisioning** 탭 > **Configure API Integration** 클릭
 3. **Enable API Integration** 체크
 
 | 항목 | 값 |

@@ -5,7 +5,7 @@
 
 ## 개념
 
-> 💡 **Databricks Connect**는 로컬 개발 환경(VS Code, PyCharm 등)에서 작성한 코드를 **원격 Databricks 클러스터에서 실행** 할 수 있게 해주는 클라이언트 라이브러리입니다. 코드는 로컬에서 작성하지만, 실제 Spark 연산은 Databricks의 클러스터에서 처리됩니다.
+> 💡 **Databricks Connect** 는 로컬 개발 환경(VS Code, PyCharm 등)에서 작성한 코드를 **원격 Databricks 클러스터에서 실행** 할 수 있게 해주는 클라이언트 라이브러리입니다. 코드는 로컬에서 작성하지만, 실제 Spark 연산은 Databricks의 클러스터에서 처리됩니다.
 
 ### 왜 Databricks Connect가 필요한가요?
 

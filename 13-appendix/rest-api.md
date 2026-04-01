@@ -2,7 +2,7 @@
 
 ## 개념
 
-> 💡 **Databricks REST API**는 Databricks 플랫폼의 거의 모든 기능을 **HTTP 요청으로 제어** 할 수 있는 프로그래밍 인터페이스입니다. 웹 UI에서 할 수 있는 대부분의 작업을 API로 자동화할 수 있습니다.
+> 💡 **Databricks REST API** 는 Databricks 플랫폼의 거의 모든 기능을 **HTTP 요청으로 제어** 할 수 있는 프로그래밍 인터페이스입니다. 웹 UI에서 할 수 있는 대부분의 작업을 API로 자동화할 수 있습니다.
 
 ### 왜 REST API가 필요한가요?
 

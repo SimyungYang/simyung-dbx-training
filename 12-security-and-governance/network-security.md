@@ -4,7 +4,7 @@
 
 데이터 플랫폼은 대량의 민감한 데이터를 다루기 때문에, 외부로부터의 무단 접근을 차단하는 **네트워크 수준의 보안** 이 필수적입니다. 아무리 강력한 인증과 권한 시스템을 갖추더라도, 네트워크 자체가 노출되어 있으면 공격 표면(Attack Surface)이 넓어집니다.
 
-> 💡 **네트워크 보안**은 데이터에 도달하기 전의 **첫 번째 방어선** 입니다. "허용된 네트워크에서만 접근 가능한가?"라는 질문에 답하는 계층입니다.
+> 💡 **네트워크 보안** 은 데이터에 도달하기 전의 **첫 번째 방어선** 입니다. "허용된 네트워크에서만 접근 가능한가?"라는 질문에 답하는 계층입니다.
 
 특히 금융, 의료, 공공 분야에서는 규제 요건(PCI-DSS, HIPAA, GDPR 등)으로 인해 네트워크 격리가 **필수** 사항입니다.
 
@@ -12,7 +12,7 @@
 
 ## Databricks 네트워크 아키텍처
 
-Databricks는 크게 **Control Plane**과 **Data Plane** 이라는 두 영역으로 나뉩니다. 이 구조를 이해하는 것이 네트워크 보안 설정의 출발점입니다.
+Databricks는 크게 **Control Plane** 과 **Data Plane** 이라는 두 영역으로 나뉩니다. 이 구조를 이해하는 것이 네트워크 보안 설정의 출발점입니다.
 
 <!-- 📌 대체 예정: Databricks 네트워크 아키텍처 공식 이미지 확보 후 교체 -->
 | 경로 | 설명 |
@@ -30,7 +30,7 @@ Databricks는 크게 **Control Plane**과 **Data Plane** 이라는 두 영역으
 | **Data Plane (Classic)**| 고객 클라우드 계정 | Spark 클러스터 실행, 데이터 처리 | 고객 (VPC/VNet) |
 | **Data Plane (Serverless)**| Databricks 관리 계정 | 서버리스 SQL/Notebook/Job 실행 | Databricks |
 
-> 💡 **Classic Data Plane**은 고객의 VPC에서 실행되므로 고객이 네트워크를 직접 제어할 수 있습니다. **Serverless Data Plane** 은 Databricks가 관리하지만, 네트워크 격리와 데이터 접근은 동일한 수준으로 보호됩니다.
+> 💡 **Classic Data Plane** 은 고객의 VPC에서 실행되므로 고객이 네트워크를 직접 제어할 수 있습니다. **Serverless Data Plane** 은 Databricks가 관리하지만, 네트워크 격리와 데이터 접근은 동일한 수준으로 보호됩니다.
 
 ---
 
@@ -106,7 +106,7 @@ curl -X POST "https://<workspace-url>/api/2.0/ip-access-lists" \
 
 ## Private Link
 
-> 💡 **Private Link**는 Databricks와의 모든 통신을 **퍼블릭 인터넷을 거치지 않고**클라우드 제공자의 백본 네트워크를 통해 수행하는 기술입니다. AWS에서는 **AWS PrivateLink**, Azure에서는 **Azure Private Link** 라고 합니다.
+> 💡 **Private Link** 는 Databricks와의 모든 통신을 **퍼블릭 인터넷을 거치지 않고** 클라우드 제공자의 백본 네트워크를 통해 수행하는 기술입니다. AWS에서는 **AWS PrivateLink**, Azure에서는 **Azure Private Link** 라고 합니다.
 
 ### Front-end vs Back-end Private Link
 
@@ -138,7 +138,7 @@ curl -X POST "https://<workspace-url>/api/2.0/ip-access-lists" \
 
 ## VPC Peering
 
-**VPC Peering**은 Databricks의 Data Plane VPC와 고객의 다른 VPC(예: 데이터베이스 VPC, 애플리케이션 VPC)를 **프라이빗하게 연결** 합니다.
+**VPC Peering** 은 Databricks의 Data Plane VPC와 고객의 다른 VPC(예: 데이터베이스 VPC, 애플리케이션 VPC)를 **프라이빗하게 연결** 합니다.
 
 | VPC | CIDR |
 |-----|------|

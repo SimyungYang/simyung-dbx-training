@@ -4,7 +4,7 @@
 
 Delta Lake에서 데이터를 삭제(DELETE)하거나 수정(UPDATE)할 때, 내부적으로는 어떤 일이 벌어질까요? 기존 방식에서는 변경 대상이 포함된 파일 전체를 **다시 작성(rewrite)** 해야 했습니다. 1GB 파일에서 단 1행만 삭제해도, 나머지 999,999행을 포함한 새 파일을 써야 했던 것입니다.
 
-> 💡 **Deletion Vectors(삭제 벡터)**는 이러한 비효율을 해결하기 위해 도입된 기술입니다. 파일을 다시 쓰지 않고, **어떤 행이 삭제되었는지를 별도의 파일에 기록** 하는 방식으로 DELETE, UPDATE, MERGE의 성능을 크게 향상시킵니다.
+> 💡 **Deletion Vectors(삭제 벡터)** 는 이러한 비효율을 해결하기 위해 도입된 기술입니다. 파일을 다시 쓰지 않고, **어떤 행이 삭제되었는지를 별도의 파일에 기록** 하는 방식으로 DELETE, UPDATE, MERGE의 성능을 크게 향상시킵니다.
 
 ---
 
@@ -124,7 +124,7 @@ SET TBLPROPERTIES ('delta.enableDeletionVectors' = false);
 
 ## OPTIMIZE와의 관계
 
-Deletion Vectors가 쌓이면 읽기 시 DV를 확인하는 오버헤드가 증가할 수 있습니다. **OPTIMIZE**를 실행하면 DV가 적용된 파일들이 새로 작성되면서, Deletion Vectors가 **물리적으로 반영(materialized)** 됩니다.
+Deletion Vectors가 쌓이면 읽기 시 DV를 확인하는 오버헤드가 증가할 수 있습니다. **OPTIMIZE** 를 실행하면 DV가 적용된 파일들이 새로 작성되면서, Deletion Vectors가 **물리적으로 반영(materialized)** 됩니다.
 
 ```sql
 -- OPTIMIZE 실행 시 DV가 적용된 파일이 정리됩니다
@@ -134,7 +134,7 @@ OPTIMIZE catalog.schema.orders;
 -- OPTIMIZE 후: 삭제된 행이 제거된 새 Parquet 파일 (물리적 삭제)
 ```
 
-> 💡 Deletion Vectors는 **쓰기 성능을 즉시 개선**하지만, DV가 많이 쌓이면 읽기 성능이 약간 저하될 수 있습니다. 정기적인 OPTIMIZE로 DV를 정리하는 것이 좋습니다. **Predictive Optimization** 이 활성화되어 있다면 이 작업도 자동으로 처리됩니다.
+> 💡 Deletion Vectors는 **쓰기 성능을 즉시 개선** 하지만, DV가 많이 쌓이면 읽기 성능이 약간 저하될 수 있습니다. 정기적인 OPTIMIZE로 DV를 정리하는 것이 좋습니다. **Predictive Optimization** 이 활성화되어 있다면 이 작업도 자동으로 처리됩니다.
 
 ---
 

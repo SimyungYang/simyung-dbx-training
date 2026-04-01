@@ -2,7 +2,7 @@
 
 ## 스토리지 자격 증명이란?
 
-**스토리지 자격 증명(Storage Credential)**은 Unity Catalog가 클라우드 스토리지(S3, ADLS, GCS)에 접근할 때 사용하는 **인증 정보 객체** 입니다. 외부 로케이션(External Location)을 생성하려면 반드시 스토리지 자격 증명이 필요합니다.
+**스토리지 자격 증명(Storage Credential)** 은 Unity Catalog가 클라우드 스토리지(S3, ADLS, GCS)에 접근할 때 사용하는 **인증 정보 객체** 입니다. 외부 로케이션(External Location)을 생성하려면 반드시 스토리지 자격 증명이 필요합니다.
 
 > 💡 **비유**: 스토리지 자격 증명은 "건물 마스터키"와 같습니다. 이 키가 있어야 외부 로케이션(건물 내 특정 사무실)에 접근할 수 있습니다. Databricks는 사용자의 클라우드 자격 증명 대신, Unity Catalog가 관리하는 자격 증명으로 스토리지에 접근합니다.
 
@@ -14,7 +14,7 @@
 
 ### AWS: IAM Role
 
-AWS 환경에서는 **IAM Role**을 사용하여 S3 버킷에 접근합니다. Databricks가 이 역할을 **Assume(위임)** 하여 스토리지에 접근합니다.
+AWS 환경에서는 **IAM Role** 을 사용하여 S3 버킷에 접근합니다. Databricks가 이 역할을 **Assume(위임)** 하여 스토리지에 접근합니다.
 
 ```json
 {
@@ -40,7 +40,7 @@ AWS 환경에서는 **IAM Role**을 사용하여 S3 버킷에 접근합니다. D
 
 ### Azure: Managed Identity / Service Principal
 
-Azure 환경에서는 **Managed Identity**또는 **Service Principal** 을 사용합니다.
+Azure 환경에서는 **Managed Identity** 또는 **Service Principal** 을 사용합니다.
 
 | 방식 | 설명 | 권장 여부 |
 |------|------|----------|
@@ -215,7 +215,7 @@ AWS에서 Storage Credential을 사용하려면, IAM Role의 **신뢰 정책(Tru
 
 ## 실전 인사이트: IAM Role을 하나만 만들어서 모든 버킷에 접근하게 한 실수
 
-초기 Databricks 도입 시 가장 흔한 실수가 "**편의를 위해 하나의 IAM Role에 모든 S3 버킷 접근 권한을 몰아주는 것**"입니다.
+초기 Databricks 도입 시 가장 흔한 실수가 "** 편의를 위해 하나의 IAM Role에 모든 S3 버킷 접근 권한을 몰아주는 것**"입니다.
 
 ### 사고 사례
 

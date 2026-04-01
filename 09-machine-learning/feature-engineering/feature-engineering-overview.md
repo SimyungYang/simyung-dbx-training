@@ -2,7 +2,7 @@
 
 ## 피처란?
 
-> 💡 **피처(Feature)**는 ML 모델의 입력으로 사용되는 **개별 데이터 속성** 입니다. 예를 들어, 사기 감지 모델에서 "거래 금액", "거래 시간", "최근 7일 거래 횟수", "해외 거래 여부" 등이 피처입니다.
+> 💡 **피처(Feature)** 는 ML 모델의 입력으로 사용되는 **개별 데이터 속성** 입니다. 예를 들어, 사기 감지 모델에서 "거래 금액", "거래 시간", "최근 7일 거래 횟수", "해외 거래 여부" 등이 피처입니다.
 
 모델의 성능은 알고리즘보다 **피처의 품질** 에 더 크게 좌우되는 경우가 많습니다. 좋은 피처를 설계하고 관리하는 것이 Feature Engineering의 핵심입니다.
 
@@ -46,7 +46,7 @@
 
 ## Feature Table
 
-> 💡 **Feature Table**은 Unity Catalog의 Delta 테이블을 **피처 저장소** 로 활용하는 것입니다. Primary Key를 기준으로 피처를 관리하며, 학습과 서빙 시 동일한 피처를 일관되게 사용할 수 있습니다.
+> 💡 **Feature Table** 은 Unity Catalog의 Delta 테이블을 **피처 저장소** 로 활용하는 것입니다. Primary Key를 기준으로 피처를 관리하며, 학습과 서빙 시 동일한 피처를 일관되게 사용할 수 있습니다.
 
 ### 피처 테이블 생성
 
@@ -121,7 +121,7 @@ training_df = training_set.load_df()
 
 ## Point-in-Time Lookup
 
-> 💡 **Point-in-Time Lookup**은 시간 기반 피처를 결합할 때, 해당 시점 기준으로만 과거 데이터를 사용하여 **미래 데이터 유출(Data Leakage)** 을 방지하는 기능입니다.
+> 💡 **Point-in-Time Lookup** 은 시간 기반 피처를 결합할 때, 해당 시점 기준으로만 과거 데이터를 사용하여 **미래 데이터 유출(Data Leakage)** 을 방지하는 기능입니다.
 
 ```python
 training_set = fe.create_training_set(

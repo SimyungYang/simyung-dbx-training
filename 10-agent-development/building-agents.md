@@ -2,13 +2,13 @@
 
 ## Databricks에서 에이전트를 구축하는 방법
 
-Databricks는 AI 에이전트를 구축하기 위한 **Mosaic AI Agent Framework**를 제공합니다. 에이전트의 표준 인터페이스인 **ChatAgent** 를 구현하면, MLflow로 추적하고, Model Serving으로 배포하고, Agent Evaluation으로 평가할 수 있습니다.
+Databricks는 AI 에이전트를 구축하기 위한 **Mosaic AI Agent Framework** 를 제공합니다. 에이전트의 표준 인터페이스인 **ChatAgent** 를 구현하면, MLflow로 추적하고, Model Serving으로 배포하고, Agent Evaluation으로 평가할 수 있습니다.
 
 ---
 
 ## ChatAgent 인터페이스
 
-> 💡 **ChatAgent**는 Databricks에서 AI 에이전트를 구축하기 위한 **표준 인터페이스** 입니다. 이 인터페이스를 구현하면 MLflow 로깅, Model Serving 배포, Review App, Agent Evaluation 등 Databricks의 모든 에이전트 도구와 자동으로 연동됩니다.
+> 💡 **ChatAgent** 는 Databricks에서 AI 에이전트를 구축하기 위한 **표준 인터페이스** 입니다. 이 인터페이스를 구현하면 MLflow 로깅, Model Serving 배포, Review App, Agent Evaluation 등 Databricks의 모든 에이전트 도구와 자동으로 연동됩니다.
 
 ```python
 from mlflow.pyfunc import ChatAgent
@@ -99,7 +99,7 @@ class CustomerSupportAgent(ChatAgent):
 
 ## Unity Catalog Functions를 Tool로 활용
 
-에이전트가 사용할 수 있는 **도구(Tool)**를 Unity Catalog의 SQL/Python 함수로 정의할 수 있습니다. 이렇게 하면 도구에 대한 **거버넌스(권한 관리, 감사)** 가 자동으로 적용됩니다.
+에이전트가 사용할 수 있는 **도구(Tool)** 를 Unity Catalog의 SQL/Python 함수로 정의할 수 있습니다. 이렇게 하면 도구에 대한 **거버넌스(권한 관리, 감사)** 가 자동으로 적용됩니다.
 
 ### SQL Function Tool 생성
 
@@ -372,7 +372,7 @@ agents.deploy(model_name="catalog.schema.my_agent", model_version=1)
 | 빠른 프로토타이핑, 비개발자도 참여 | **Agent Builder (No-Code)**| UI에서 클릭으로 에이전트 구성 |
 | 기존 LangChain/CrewAI 코드가 있음 | **기존 프레임워크 + MLflow 래핑**| 기존 투자 활용, MLflow로 통합 관리 |
 
-> 🔥 **현업에서는**: 에이전트의 80%는 "문서 검색 + Tool 1~2개 호출"로 충분합니다. 이런 경우 **LangChain을 도입하면 오히려 불필요한 복잡성만 추가**됩니다. LangGraph가 정말 필요한 경우는 "에이전트가 스스로 판단하여 여러 단계를 반복적으로 수행해야 하는 경우"뿐입니다. **단순한 것부터 시작하고, 필요할 때만 복잡성을 추가하세요.**
+> 🔥 **현업에서는**: 에이전트의 80%는 "문서 검색 + Tool 1~2개 호출"로 충분합니다. 이런 경우 **LangChain을 도입하면 오히려 불필요한 복잡성만 추가** 됩니다. LangGraph가 정말 필요한 경우는 "에이전트가 스스로 판단하여 여러 단계를 반복적으로 수행해야 하는 경우"뿐입니다. **단순한 것부터 시작하고, 필요할 때만 복잡성을 추가하세요.**
 
 ---
 
@@ -461,7 +461,7 @@ def _validate_input(self, user_message: str) -> tuple[bool, str]:
     return True, ""
 ```
 
-> 💡 **현업 팁**: 프로덕션 에이전트에서 가장 중요한 것은 "**절대 에러 페이지를 보여주지 않는 것**" 입니다. LLM이 실패하든, Vector Search가 실패하든, 사용자에게는 항상 자연어로 된 안내 메시지를 반환해야 합니다. 기술적 에러 메시지(stack trace)가 사용자에게 노출되면 신뢰를 잃습니다.
+> 💡 **현업 팁**: 프로덕션 에이전트에서 가장 중요한 것은 "** 절대 에러 페이지를 보여주지 않는 것**" 입니다. LLM이 실패하든, Vector Search가 실패하든, 사용자에게는 항상 자연어로 된 안내 메시지를 반환해야 합니다. 기술적 에러 메시지(stack trace)가 사용자에게 노출되면 신뢰를 잃습니다.
 
 ---
 

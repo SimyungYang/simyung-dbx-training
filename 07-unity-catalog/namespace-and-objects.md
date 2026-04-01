@@ -34,7 +34,7 @@ SELECT * FROM production.ecommerce.orders;
 
 ## Metastore — 최상위 컨테이너
 
-> 💡 **Metastore**는 Unity Catalog의 **최상위 컨테이너** 입니다. 하나의 클라우드 리전에 하나의 Metastore가 존재하며, 해당 리전의 모든 Workspace가 이 Metastore를 공유합니다.
+> 💡 **Metastore** 는 Unity Catalog의 **최상위 컨테이너** 입니다. 하나의 클라우드 리전에 하나의 Metastore가 존재하며, 해당 리전의 모든 Workspace가 이 Metastore를 공유합니다.
 
 Metastore는 직접 데이터를 담지 않고, 그 아래의 Catalog → Schema → Object를 **메타데이터(이름, 위치, 권한, 리니지 등)** 로 관리하는 카탈로그 역할을 합니다.
 
@@ -61,8 +61,8 @@ SELECT * FROM system.information_schema.catalogs;
 | 레벨 | 역할 | 일반적인 구성 전략 | 예시 |
 |------|------|-----------------|------|
 | **Metastore**| 최상위 컨테이너. **리전별 하나** 만 존재하며, 여러 Workspace에서 공유됩니다 | 계정 수준 관리 | US-East Metastore |
-| **Catalog**| 데이터 자산의 최상위 논리 그룹입니다. **환경별**또는 **팀별** 로 분리합니다 | `production`, `staging`, `dev`, `sandbox` | 환경별 분리 |
-| **Schema**| 관련 객체를 논리적으로 그룹화합니다. **도메인별**또는 **Medallion 계층별** 로 분리합니다 | `ecommerce`, `hr`, `finance` 또는 `bronze`, `silver`, `gold` | 도메인별 분리 |
+| **Catalog**| 데이터 자산의 최상위 논리 그룹입니다. **환경별** 또는 **팀별** 로 분리합니다 | `production`, `staging`, `dev`, `sandbox` | 환경별 분리 |
+| **Schema**| 관련 객체를 논리적으로 그룹화합니다. **도메인별** 또는 **Medallion 계층별** 로 분리합니다 | `ecommerce`, `hr`, `finance` 또는 `bronze`, `silver`, `gold` | 도메인별 분리 |
 | **Object**| 실제 데이터 자산입니다. 테이블, 뷰, 볼륨, 함수, 모델 등 10가지 유형이 있습니다 | 의미 있는 이름 사용 | `orders`, `customers` |
 
 ---

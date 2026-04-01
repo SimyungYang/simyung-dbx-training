@@ -11,7 +11,7 @@
 | 스키마 불일치 | OLTP 스키마가 변경되면 ETL이 깨지고, 수동 수정이 필요합니다 |
 | 거버넌스 분리 | OLTP와 OLAP의 접근 권한을 별도로 관리해야 합니다 |
 
-> 💡 **Data Sync**는 Lakebase의 데이터를 **자동으로 Delta Lake 테이블에 동기화** 하는 기능입니다. 별도의 ETL 파이프라인 없이, Lakebase에서 INSERT/UPDATE/DELETE된 데이터가 Delta Lake 테이블에 자동 반영됩니다.
+> 💡 **Data Sync** 는 Lakebase의 데이터를 **자동으로 Delta Lake 테이블에 동기화** 하는 기능입니다. 별도의 ETL 파이프라인 없이, Lakebase에서 INSERT/UPDATE/DELETE된 데이터가 Delta Lake 테이블에 자동 반영됩니다.
 
 > 💡 **CDC (Change Data Capture)**: 데이터베이스에서 발생하는 변경사항(삽입, 수정, 삭제)을 감지하여 다른 시스템에 전달하는 기술입니다. Data Sync는 내부적으로 CDC를 활용하여 변경분만 효율적으로 동기화합니다.
 
@@ -29,7 +29,7 @@
 | **Delta Lake (OLAP)**| Delta Table | 분석용 데이터로 저장됩니다 |
 |  | SQL/BI/ML | 분석, 대시보드, ML 학습에 활용됩니다 |
 
-Data Sync는 PostgreSQL의 **WAL(Write-Ahead Log)**을 기반으로 변경사항을 캡처합니다. 전체 데이터를 복사하는 것이 아니라, **변경분(Delta)만 증분 처리** 하므로 네트워크 비용과 처리 시간이 최소화됩니다.
+Data Sync는 PostgreSQL의 **WAL(Write-Ahead Log)** 을 기반으로 변경사항을 캡처합니다. 전체 데이터를 복사하는 것이 아니라, **변경분(Delta)만 증분 처리** 하므로 네트워크 비용과 처리 시간이 최소화됩니다.
 
 ---
 

@@ -2,9 +2,9 @@
 
 ## 왜 비즈니스 시맨틱 레이어가 필요한가요?
 
-데이터 플랫폼이 성숙해질수록 가장 큰 문제는 "**같은 지표인데 팀마다 숫자가 다르다**" 는 것입니다. 이것은 기술적 문제가 아니라 **비즈니스 신뢰의 문제** 입니다.
+데이터 플랫폼이 성숙해질수록 가장 큰 문제는 "** 같은 지표인데 팀마다 숫자가 다르다**" 는 것입니다. 이것은 기술적 문제가 아니라 **비즈니스 신뢰의 문제** 입니다.
 
-> 💡 **비즈니스 시맨틱 레이어(Business Semantic Layer)**란, "매출", "활성 사용자", "이탈률" 같은 비즈니스 지표의 **정의(Definition), 계산 로직(Logic), 차원(Dimension)을 중앙에서 한 번 정의**하고, 모든 소비 도구(대시보드, SQL, Genie, 외부 BI)에서 동일하게 사용하는 계층입니다. dbt의 Semantic Layer, Looker의 LookML, AtScale 등이 비슷한 개념이지만, Databricks의 Metric View는 **Unity Catalog에 네이티브로 통합** 되어 거버넌스(권한, 리니지, 감사)가 자동 적용되는 것이 차별점입니다.
+> 💡 **비즈니스 시맨틱 레이어(Business Semantic Layer)** 란, "매출", "활성 사용자", "이탈률" 같은 비즈니스 지표의 **정의(Definition), 계산 로직(Logic), 차원(Dimension)을 중앙에서 한 번 정의** 하고, 모든 소비 도구(대시보드, SQL, Genie, 외부 BI)에서 동일하게 사용하는 계층입니다. dbt의 Semantic Layer, Looker의 LookML, AtScale 등이 비슷한 개념이지만, Databricks의 Metric View는 **Unity Catalog에 네이티브로 통합** 되어 거버넌스(권한, 리니지, 감사)가 자동 적용되는 것이 차별점입니다.
 
 ### 시맨틱 레이어 없이 발생하는 문제
 
@@ -34,7 +34,7 @@ CFO: "지난 분기 매출이 얼마야?"
 
 ## Metric View란?
 
-> 💡 **Metric View(메트릭 뷰)**는 Databricks의 비즈니스 시맨틱 레이어 구현체입니다. Unity Catalog의 **1급 객체(First-class Object)** 로서, 테이블이나 뷰처럼 `catalog.schema.metric_view` 네임스페이스로 관리됩니다. 비즈니스 메트릭을 중앙에서 한 번 정의하면, AI/BI 대시보드, Genie, SQL 쿼리 어디서든 일관되게 사용할 수 있습니다.
+> 💡 **Metric View(메트릭 뷰)** 는 Databricks의 비즈니스 시맨틱 레이어 구현체입니다. Unity Catalog의 **1급 객체(First-class Object)** 로서, 테이블이나 뷰처럼 `catalog.schema.metric_view` 네임스페이스로 관리됩니다. 비즈니스 메트릭을 중앙에서 한 번 정의하면, AI/BI 대시보드, Genie, SQL 쿼리 어디서든 일관되게 사용할 수 있습니다.
 
 ### 왜 Metric View가 필요한가요?
 

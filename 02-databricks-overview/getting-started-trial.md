@@ -22,7 +22,7 @@ Databricks는 두 가지 무료 옵션을 제공합니다.
 | **협업 기능**| 제한적 | 전체 기능 |
 | **적합한 대상**| 개인 학습, 실습 | 팀 단위 평가, POC |
 
-학습 목적이라면 **Community Edition**으로도 충분하며, 기업 평가를 위해서는 **Full Trial** 을 권장합니다.
+학습 목적이라면 **Community Edition** 으로도 충분하며, 기업 평가를 위해서는 **Full Trial** 을 권장합니다.
 
 > 💡 **현업에서의 권장**: PoC(기술 검증)를 진행한다면, 반드시 **Full Trial** 을 사용하세요. Community Edition에서는 Unity Catalog, SQL Warehouse, Serverless 등 Databricks의 핵심 차별화 기능을 체험할 수 없습니다. Community Edition만 써보고 "Databricks는 Jupyter랑 비슷하네"라고 판단하는 것은 스마트폰의 전화 기능만 써보고 평가하는 것과 같습니다.
 

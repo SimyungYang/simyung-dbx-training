@@ -22,7 +22,7 @@ results = mlflow.genai.evaluate(
 
 ## 평가 데이터셋
 
-평가 데이터셋은 **질문(입력)**과 **기대 답변(선택)** 으로 구성됩니다.
+평가 데이터셋은 **질문(입력)** 과 **기대 답변(선택)** 으로 구성됩니다.
 
 ```python
 eval_data = [
@@ -175,7 +175,7 @@ MLflow 3.0에서 Scorer는 크게 세 가지 유형으로 나뉩니다.
 
 ### Built-in Scorer 동작 원리
 
-각 Built-in Scorer는 내부적으로 **전문화된 프롬프트 템플릿**과 **판단 기준 루브릭(Rubric)** 을 사용합니다.
+각 Built-in Scorer는 내부적으로 **전문화된 프롬프트 템플릿** 과 **판단 기준 루브릭(Rubric)** 을 사용합니다.
 
 #### Correctness (정확도)
 
