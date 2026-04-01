@@ -48,10 +48,10 @@ w.serving_endpoints.put_ai_gateway(
 
 | 유형 | 설명 |
 |------|------|
-| **Safety Filter** | 유해하거나 부적절한 콘텐츠를 자동으로 필터링합니다 |
-| **PII Detection** | 개인정보(이름, 전화번호, 주민번호 등)를 감지하고 차단합니다 |
-| **Topic Control** | 허용된 주제만 응답하고, 금지된 주제는 거부합니다 |
-| **Rate Limiting** | 사용자별/전체 요청 수를 제한하여 남용을 방지합니다 |
+| **Safety Filter**| 유해하거나 부적절한 콘텐츠를 자동으로 필터링합니다 |
+| **PII Detection**| 개인정보(이름, 전화번호, 주민번호 등)를 감지하고 차단합니다 |
+| **Topic Control**| 허용된 주제만 응답하고, 금지된 주제는 거부합니다 |
+| **Rate Limiting**| 사용자별/전체 요청 수를 제한하여 남용을 방지합니다 |
 
 ---
 
@@ -196,12 +196,12 @@ print(f"에이전트 응답: {response.choices[0].message.content}")
 
 | 핵심 포인트 | 설명 |
 |------------|------|
-| ** 배포 파이프라인** | 개발 → MLflow 로깅 → UC 등록 → Model Serving → 모니터링 |
-| **agents.deploy()** | 엔드포인트, Review App, Inference Tables를 한 번에 설정하는 가장 간편한 방법입니다 |
-| **set_model()** | 에이전트 코드를 별도 파일로 분리하고, 진입점을 지정하는 권장 패턴입니다 |
-| **Review App** | 배포 전 테스터 피드백을 수집하고, 평가 데이터셋으로 활용합니다 |
-| **Inference Tables** | 모든 요청/응답을 자동 기록하여 모니터링과 디버깅에 활용합니다 |
-| **Guardrails** | Safety, PII, Topic Control, Rate Limiting으로 안전한 운영을 보장합니다 |
+| ** 배포 파이프라인**| 개발 → MLflow 로깅 → UC 등록 → Model Serving → 모니터링 |
+| **agents.deploy()**| 엔드포인트, Review App, Inference Tables를 한 번에 설정하는 가장 간편한 방법입니다 |
+| **set_model()**| 에이전트 코드를 별도 파일로 분리하고, 진입점을 지정하는 권장 패턴입니다 |
+| **Review App**| 배포 전 테스터 피드백을 수집하고, 평가 데이터셋으로 활용합니다 |
+| **Inference Tables**| 모든 요청/응답을 자동 기록하여 모니터링과 디버깅에 활용합니다 |
+| **Guardrails**| Safety, PII, Topic Control, Rate Limiting으로 안전한 운영을 보장합니다 |
 | ** 버전 관리** | UC 앨리어스(champion/challenger)로 무중단 업데이트와 롤백이 가능합니다 |
 
 ---

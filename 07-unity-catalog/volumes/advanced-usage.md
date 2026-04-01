@@ -6,9 +6,9 @@
 
 | 파일 크기 | 접근 방법 | 설명 |
 |-----------|----------|------|
-| **< 100MB** | Python open() / pandas | 단일 파일 직접 처리 |
-| **100MB ~ 10GB** | Spark read_files() | 분산 처리로 빠르게 읽기 |
-| **> 10GB** | Auto Loader + Volume | 스트리밍 방식으로 점진적 처리 |
+| **< 100MB**| Python open() / pandas | 단일 파일 직접 처리 |
+| **100MB ~ 10GB**| Spark read_files() | 분산 처리로 빠르게 읽기 |
+| **> 10GB**| Auto Loader + Volume | 스트리밍 방식으로 점진적 처리 |
 | ** 수천 개 소규모 파일** | Auto Loader (파일 알림 모드) | 개별 파일 추적 + 배치 처리 |
 
 ### 대용량 업로드 패턴
@@ -64,7 +64,7 @@ cleanup_old_files("/Volumes/production/ecommerce/temp_files/", days_to_keep=30)
 
 ## Volume과 Auto Loader 연동
 
-Volume은 **Auto Loader의 소스 경로** 로 직접 사용할 수 있어, 파일 수집 파이프라인의 랜딩 존 역할을 합니다.
+Volume은 **Auto Loader의 소스 경로**로 직접 사용할 수 있어, 파일 수집 파이프라인의 랜딩 존 역할을 합니다.
 
 ### Auto Loader + Volume 패턴
 
@@ -90,8 +90,8 @@ df = (spark.readStream
 
 | 볼륨 유형 | 경로 | 내용 | 처리 |
 |----------|------|------|------|
-| **External Volume** (랜딩 존) | `/Volumes/prod/etl/landing/orders/` | 20250301.csv, 20250302.csv, 20250303.csv | Auto Loader → bronze_orders (Delta) |
-| **Managed Volume** (아카이브) | `/Volumes/prod/etl/archive/orders/` | 처리 완료 파일 | 처리 완료 후 이동 |
+| **External Volume**(랜딩 존) | `/Volumes/prod/etl/landing/orders/` | 20250301.csv, 20250302.csv, 20250303.csv | Auto Loader → bronze_orders (Delta) |
+| **Managed Volume**(아카이브) | `/Volumes/prod/etl/archive/orders/` | 처리 완료 파일 | 처리 완료 후 이동 |
 
 ```python
 # 처리 완료 파일을 아카이브 Volume으로 이동
@@ -182,14 +182,14 @@ parsed_docs = spark.sql(f"""
 
 | 항목 | 설명 |
 |------|------|
-| ** 스토리지 비용 (Managed)** | Databricks 관리 스토리지 가격 적용 (클라우드 스토리지보다 약간 높음) |
-| ** 스토리지 비용 (External)** | 고객 클라우드 스토리지 비용 (S3: ~$0.023/GB/월, ADLS: ~$0.018/GB/월) |
-| ** 단일 파일 크기 제한** | UI 업로드: 5GB, API: 제한 없음 (멀티파트 업로드) |
-| ** 파일 수 제한** | Volume당 파일 수에 하드 제한은 없지만, LIST 성능은 디렉토리당 10,000개 이하를 권장 |
-| ** 동시 접근** | 여러 클러스터에서 동시에 같은 Volume에 접근 가능 (파일 레벨 잠금은 없음) |
-| ** 트랜잭션** | Volume의 파일 조작은 ACID 트랜잭션을 지원하지 않습니다. Delta 테이블과 달리 원자적 쓰기가 보장되지 않습니다 |
+| ** 스토리지 비용 (Managed)**| Databricks 관리 스토리지 가격 적용 (클라우드 스토리지보다 약간 높음) |
+| ** 스토리지 비용 (External)**| 고객 클라우드 스토리지 비용 (S3: ~$0.023/GB/월, ADLS: ~$0.018/GB/월) |
+| ** 단일 파일 크기 제한**| UI 업로드: 5GB, API: 제한 없음 (멀티파트 업로드) |
+| ** 파일 수 제한**| Volume당 파일 수에 하드 제한은 없지만, LIST 성능은 디렉토리당 10,000개 이하를 권장 |
+| ** 동시 접근**| 여러 클러스터에서 동시에 같은 Volume에 접근 가능 (파일 레벨 잠금은 없음) |
+| ** 트랜잭션**| Volume의 파일 조작은 ACID 트랜잭션을 지원하지 않습니다. Delta 테이블과 달리 원자적 쓰기가 보장되지 않습니다 |
 
-> ⚠️ **Volume vs Delta Table**: 구조화된 데이터는 반드시 **Delta Table** 로 관리하세요. Volume은 비정형 파일(이미지, PDF, 모델 파일 등)이나 외부 시스템과의 파일 교환용으로 사용합니다. CSV/JSON 파일도 Volume에 저장 후 Auto Loader로 Delta Table에 적재하는 것이 모범 사례입니다.
+> ⚠️ **Volume vs Delta Table**: 구조화된 데이터는 반드시 **Delta Table**로 관리하세요. Volume은 비정형 파일(이미지, PDF, 모델 파일 등)이나 외부 시스템과의 파일 교환용으로 사용합니다. CSV/JSON 파일도 Volume에 저장 후 Auto Loader로 Delta Table에 적재하는 것이 모범 사례입니다.
 
 ---
 
@@ -197,12 +197,12 @@ parsed_docs = spark.sql(f"""
 
 | 핵심 개념 | 설명 |
 |-----------|------|
-| **Volume** | Unity Catalog에서 파일을 관리하는 저장 공간입니다 |
-| **Managed** | Databricks가 위치를 자동 관리합니다 (권장) |
-| **External** | 고객 지정 경로(S3, ADLS)를 사용합니다 |
-| ** 경로 형식** | `/Volumes/<catalog>/<schema>/<volume>/` |
-| ** 권한** | READ VOLUME / WRITE VOLUME으로 접근을 제어합니다 |
-| **Auto Loader 연동** | Volume을 랜딩 존으로 사용하여 파일 수집을 자동화합니다 |
+| **Volume**| Unity Catalog에서 파일을 관리하는 저장 공간입니다 |
+| **Managed**| Databricks가 위치를 자동 관리합니다 (권장) |
+| **External**| 고객 지정 경로(S3, ADLS)를 사용합니다 |
+| ** 경로 형식**| `/Volumes/<catalog>/<schema>/<volume>/` |
+| ** 권한**| READ VOLUME / WRITE VOLUME으로 접근을 제어합니다 |
+| **Auto Loader 연동**| Volume을 랜딩 존으로 사용하여 파일 수집을 자동화합니다 |
 | **AI/ML 활용** | 학습 데이터, 모델 아티팩트, RAG 문서를 Volume에서 관리합니다 |
 
 ---

@@ -2,7 +2,7 @@
 
 ## 리니지란?
 
-> 💡 **데이터 리니지(Data Lineage)** 란 데이터가 ** 어디서 왔고(upstream), 어디로 가는지(downstream)** 를 추적하는 기능입니다. "이 테이블의 데이터는 어떤 소스에서 왔지?", "이 컬럼을 변경하면 어디에 영향이 가지?"라는 질문에 답할 수 있습니다.
+> 💡 **데이터 리니지(Data Lineage)**란 데이터가 ** 어디서 왔고(upstream), 어디로 가는지(downstream)**를 추적하는 기능입니다. "이 테이블의 데이터는 어떤 소스에서 왔지?", "이 컬럼을 변경하면 어디에 영향이 가지?"라는 질문에 답할 수 있습니다.
 
 ---
 
@@ -10,17 +10,17 @@
 
 | 사용 사례 | 설명 |
 |-----------|------|
-| ** 영향도 분석** | 소스 테이블의 스키마를 변경할 때, 어떤 downstream 테이블과 대시보드에 영향이 있는지 확인합니다 |
-| ** 데이터 품질 추적** | Gold 테이블에 이상이 발견되면, 어느 단계(Bronze? Silver?)에서 문제가 생겼는지 역추적합니다 |
-| ** 규정 준수** | 개인정보(PII)가 어떤 경로로 흘러가는지 파악하여 GDPR, 개인정보보호법 등을 준수합니다 |
-| ** 문서화 자동화** | 수동으로 데이터 흐름을 문서화하는 대신, 자동으로 추적됩니다 |
-| ** 마이그레이션 계획** | 테이블을 변경/삭제할 때, 영향 받는 모든 객체를 사전에 파악합니다 |
+| ** 영향도 분석**| 소스 테이블의 스키마를 변경할 때, 어떤 downstream 테이블과 대시보드에 영향이 있는지 확인합니다 |
+| ** 데이터 품질 추적**| Gold 테이블에 이상이 발견되면, 어느 단계(Bronze? Silver?)에서 문제가 생겼는지 역추적합니다 |
+| ** 규정 준수**| 개인정보(PII)가 어떤 경로로 흘러가는지 파악하여 GDPR, 개인정보보호법 등을 준수합니다 |
+| ** 문서화 자동화**| 수동으로 데이터 흐름을 문서화하는 대신, 자동으로 추적됩니다 |
+| ** 마이그레이션 계획**| 테이블을 변경/삭제할 때, 영향 받는 모든 객체를 사전에 파악합니다 |
 
 ---
 
 ## 리니지의 범위
 
-Unity Catalog는 ** 테이블 수준**과 ** 컬럼 수준** 리니지를 모두 자동으로 추적합니다.
+Unity Catalog는 ** 테이블 수준**과 **컬럼 수준** 리니지를 모두 자동으로 추적합니다.
 
 ### 테이블 수준 리니지
 
@@ -61,8 +61,8 @@ gold_customer_360.lifetime_revenue
 
 ### Catalog Explorer UI
 
-1. **Catalog** → 테이블 선택
-2. **Lineage** 탭 클릭
+1. **Catalog**→ 테이블 선택
+2. **Lineage**탭 클릭
 3. Upstream(이 테이블의 소스)과 Downstream(이 테이블을 참조하는 객체)을 시각적으로 확인합니다
 
 ### 시스템 테이블로 SQL 조회
@@ -112,11 +112,11 @@ ORDER BY source_table_full_name, target_table_full_name;
 
 | 작업 유형 | 추적 여부 | 설명 |
 |-----------|----------|------|
-| **SQL 쿼리** (CTAS, INSERT, MERGE) | ✅ | SQL Warehouse, Notebook에서 실행한 쿼리 |
-| **SDP Pipeline** | ✅ | Streaming Table, Materialized View의 소스 추적 |
-| **Spark DataFrame** | ✅ | `df.write.saveAsTable()` 등 |
-| **MLflow 모델** | ✅ | 모델이 어떤 Feature Table에서 학습되었는지 |
-| **AI/BI Dashboard** | ✅ | 대시보드가 어떤 테이블을 조회하는지 |
+| **SQL 쿼리**(CTAS, INSERT, MERGE) | ✅ | SQL Warehouse, Notebook에서 실행한 쿼리 |
+| **SDP Pipeline**| ✅ | Streaming Table, Materialized View의 소스 추적 |
+| **Spark DataFrame**| ✅ | `df.write.saveAsTable()` 등 |
+| **MLflow 모델**| ✅ | 모델이 어떤 Feature Table에서 학습되었는지 |
+| **AI/BI Dashboard**| ✅ | 대시보드가 어떤 테이블을 조회하는지 |
 | ** 외부 도구 (JDBC)** | ⚠️ 부분적 | SQL Warehouse를 통한 외부 BI 도구 접근 |
 
 ---

@@ -16,11 +16,11 @@ Liquid Clustering은 기존의 파티셔닝과 Z-ORDER를 대체하는 현대적
 
 | 고려 요소 | 좋은 키 | 나쁜 키 |
 |----------|--------|--------|
-| ** 쿼리 필터 빈도** | WHERE절에 자주 등장 | 거의 필터링되지 않음 |
-| ** 카디널리티** | 중~고 (수천~수백만) | 극저 (boolean, 2-3값) 또는 극고 (UUID) |
-| ** 상관관계** | 다른 키와 독립적 | 다른 키와 높은 상관 (둘 다 선택 불필요) |
-| ** 데이터 타입** | Date, String, Integer | Array, Map, Struct |
-| ** 키 개수** | 1~4개 | 5개 이상 (최대 4개 제한) |
+| **쿼리 필터 빈도** | WHERE절에 자주 등장 | 거의 필터링되지 않음 |
+| **카디널리티** | 중~고 (수천~수백만) | 극저 (boolean, 2-3값) 또는 극고 (UUID) |
+| **상관관계** | 다른 키와 독립적 | 다른 키와 높은 상관 (둘 다 선택 불필요) |
+| **데이터 타입** | Date, String, Integer | Array, Map, Struct |
+| **키 개수** | 1~4개 | 5개 이상 (최대 4개 제한) |
 
 ```sql
 -- 사례 1: 이커머스 트랜잭션 테이블
@@ -39,7 +39,7 @@ ALTER TABLE analytics.gold.user_behavior
 CLUSTER BY AUTO;
 ```
 
-** 기존 테이블 마이그레이션 가이드**
+**기존 테이블 마이그레이션 가이드**
 
 | 현재 방식 | 마이그레이션 전략 |
 |----------|----------------|
@@ -48,16 +48,16 @@ CLUSTER BY AUTO;
 | 파티션 + Z-ORDER | `CLUSTER BY (partition_col, zorder_col)` — 둘 다 포함 |
 | 없음 (최적화 안 함) | `CLUSTER BY AUTO` — 자동 분석 후 적용 |
 
-> 💡 ** 핵심 장점**: Liquid Clustering은 키를 변경해도 ** 기존 데이터를 즉시 다시 쓸 필요가 없습니다**. 이후 OPTIMIZE 실행 시 점진적으로 새 키에 맞게 재배치됩니다.
+> 💡 **핵심 장점**: Liquid Clustering은 키를 변경해도 **기존 데이터를 즉시 다시 쓸 필요가 없습니다**. 이후 OPTIMIZE 실행 시 점진적으로 새 키에 맞게 재배치됩니다.
 
 ### 1.2 파일 사이즈 최적화
 
-Delta Lake의 최적 파일 크기는 **128MB ~ 1GB** 입니다. 이 범위를 벗어나면 성능이 저하됩니다.
+Delta Lake의 최적 파일 크기는 **128MB ~ 1GB**입니다. 이 범위를 벗어나면 성능이 저하됩니다.
 
 | 문제 | 원인 | 증상 | 해결 방법 |
 |------|------|------|----------|
-| **Small File 문제** | 잦은 스트리밍 쓰기, 작은 배치 | 파일 수 과다, 메타데이터 오버헤드 | `OPTIMIZE` 실행 |
-| **Large File 문제** | 과도한 OPTIMIZE, 큰 배치 | 프루닝 효과 감소, 메모리 압박 | 파일 크기 상한 설정 |
+| **Small File 문제**| 잦은 스트리밍 쓰기, 작은 배치 | 파일 수 과다, 메타데이터 오버헤드 | `OPTIMIZE` 실행 |
+| **Large File 문제**| 과도한 OPTIMIZE, 큰 배치 | 프루닝 효과 감소, 메모리 압박 | 파일 크기 상한 설정 |
 
 ```sql
 -- Small File 진단: 파일 수와 평균 크기 확인
@@ -101,9 +101,9 @@ SET TBLPROPERTIES('delta.dataSkippingStatsColumns' = 'event_date, user_id, regio
 
 | 기능 | 동작 방식 | 성능 효과 |
 |------|----------|----------|
-| **Min/Max 통계** | 파일별 최소/최대값 기록 | WHERE절 조건으로 파일 단위 스킵 |
-| **Null Count** | 파일별 NULL 수 기록 | IS NOT NULL 필터 최적화 |
-| **Liquid Clustering** | 관련 데이터를 같은 파일에 배치 | Data Skipping 효과 극대화 |
+| **Min/Max 통계**| 파일별 최소/최대값 기록 | WHERE절 조건으로 파일 단위 스킵 |
+| **Null Count**| 파일별 NULL 수 기록 | IS NOT NULL 필터 최적화 |
+| **Liquid Clustering**| 관련 데이터를 같은 파일에 배치 | Data Skipping 효과 극대화 |
 | **ANALYZE TABLE** | 통계 강제 재수집 | 테이블 속성 변경 후 반드시 실행 |
 
 ---

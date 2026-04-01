@@ -4,7 +4,7 @@
 
 ### MLflow UI에서 확인
 
-Experiment 페이지에서 **Traces** 탭을 클릭하면, 모든 트레이스를 시간순으로 확인할 수 있습니다. 각 트레이스를 클릭하면 Span 트리, 입출력, 메트릭을 시각적으로 볼 수 있습니다.
+Experiment 페이지에서 **Traces**탭을 클릭하면, 모든 트레이스를 시간순으로 확인할 수 있습니다. 각 트레이스를 클릭하면 Span 트리, 입출력, 메트릭을 시각적으로 볼 수 있습니다.
 
 ### Python API로 조회
 
@@ -56,16 +56,16 @@ ORDER BY day DESC;
 
 ## 프로덕션 모니터링
 
-Model Serving 엔드포인트에 배포된 에이전트는 **자동으로 모든 요청이 트레이싱** 됩니다. Inference Table과 결합하여 프로덕션 품질을 모니터링할 수 있습니다.
+Model Serving 엔드포인트에 배포된 에이전트는 **자동으로 모든 요청이 트레이싱**됩니다. Inference Table과 결합하여 프로덕션 품질을 모니터링할 수 있습니다.
 
 | 구성 요소 | 역할 | 연결 |
 |-----------|------|------|
-| **사용자 요청** | 요청을 전송합니다 | Model Serving Endpoint로 전달 |
-| **Model Serving Endpoint** | 요청을 수신합니다 | AI 에이전트에 전달 |
-| **AI 에이전트** | 요청을 처리합니다 | MLflow Trace + Inference Table에 기록 |
-| **MLflow Trace** | 실행 흐름을 자동 기록합니다 | 모니터링 대시보드에 데이터 제공 |
-| **Inference Table** | 입출력을 기록합니다 | 모니터링 대시보드에 데이터 제공 |
-| ** 모니터링 대시보드** | 종합 모니터링을 제공합니다 | Trace + Inference Table 데이터를 시각화 |
+| **사용자 요청**| 요청을 전송합니다 | Model Serving Endpoint로 전달 |
+| **Model Serving Endpoint**| 요청을 수신합니다 | AI 에이전트에 전달 |
+| **AI 에이전트**| 요청을 처리합니다 | MLflow Trace + Inference Table에 기록 |
+| **MLflow Trace**| 실행 흐름을 자동 기록합니다 | 모니터링 대시보드에 데이터 제공 |
+| **Inference Table**| 입출력을 기록합니다 | 모니터링 대시보드에 데이터 제공 |
+| ** 모니터링 대시보드**| 종합 모니터링을 제공합니다 | Trace + Inference Table 데이터를 시각화 |
 
 ---
 

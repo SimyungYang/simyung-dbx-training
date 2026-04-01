@@ -8,11 +8,11 @@ SQL Warehouse의 Query Profile에서 주목해야 할 핵심 지표입니다.
 
 | 단계 | 확인 항목 | 최적화 방향 |
 |------|----------|-----------|
-| **Scan** | 읽은 바이트 수 vs 테이블 크기 | 비율 높으면 클러스터링 부족 |
-| **Filter** | 필터 전후 행 수 비율 | 비율 높으면 프루닝 미작동 |
-| **Join** | 조인 유형 (Broadcast vs SortMerge) | 작은 테이블은 Broadcast로 |
-| **Aggregate** | 집계 전후 행 수 | Pre-aggregate 고려 |
-| **Exchange (Shuffle)** | Shuffle 데이터량 | 조인 키 최적화, 클러스터링 |
+| **Scan**| 읽은 바이트 수 vs 테이블 크기 | 비율 높으면 클러스터링 부족 |
+| **Filter**| 필터 전후 행 수 비율 | 비율 높으면 프루닝 미작동 |
+| **Join**| 조인 유형 (Broadcast vs SortMerge) | 작은 테이블은 Broadcast로 |
+| **Aggregate**| 집계 전후 행 수 | Pre-aggregate 고려 |
+| **Exchange (Shuffle)**| Shuffle 데이터량 | 조인 키 최적화, 클러스터링 |
 | **Spill** | Disk Spill 발생 여부 | Warehouse 사이즈 업 |
 
 ### 3.2 인덱스 없이 성능 높이기
@@ -52,8 +52,8 @@ GROUP BY order_date, region;
 
 | 캐시 유형 | 유효 기간 | 무효화 조건 | 설정 방법 |
 |----------|----------|-----------|----------|
-| **Result Cache** | 기본 활성화 | 테이블 데이터 변경 시 자동 무효화 | 자동 (수동 비활성화 가능) |
-| **Disk Cache** | Warehouse 재시작까지 | Warehouse 재시작 또는 만료 | Storage-optimized 인스턴스 자동 |
+| **Result Cache**| 기본 활성화 | 테이블 데이터 변경 시 자동 무효화 | 자동 (수동 비활성화 가능) |
+| **Disk Cache**| Warehouse 재시작까지 | Warehouse 재시작 또는 만료 | Storage-optimized 인스턴스 자동 |
 
 ```sql
 -- Result Cache 확인: 동일 쿼리 재실행 시 Query Profile에서
@@ -95,16 +95,16 @@ def silver_events():
 
 | 설정 | 기본값 | 성능 팁 |
 |------|-------|--------|
-| **pipelines.trigger.interval** | `"once"` 또는 연속 | 배치: `"once"`, 실시간: `"5 seconds"` |
-| **Serverless 스케일링** | 자동 | Enhanced Autoscaling이 워크로드에 맞게 자동 조절 |
-| ** 테이블 속성** | 기본값 | Liquid Clustering 적용 시 읽기 성능 대폭 향상 |
+| **pipelines.trigger.interval**| `"once"` 또는 연속 | 배치: `"once"`, 실시간: `"5 seconds"` |
+| **Serverless 스케일링**| 자동 | Enhanced Autoscaling이 워크로드에 맞게 자동 조절 |
+| ** 테이블 속성**| 기본값 | Liquid Clustering 적용 시 읽기 성능 대폭 향상 |
 
 ### 4.2 Auto Loader 파일 감지 모드 선택
 
 | 모드 | 동작 방식 | 장점 | 단점 | 적합한 상황 |
 |------|----------|------|------|-----------|
-| **Directory Listing** | 주기적 디렉토리 스캔 | 설정 간단, 추가 인프라 불필요 | 파일 수 증가 시 스캔 비용 증가 | 파일 수 < 100만, 간단한 구조 |
-| **File Notification** | SNS/SQS 이벤트 기반 | 즉시 감지, 대규모에 효율적 | 클라우드 리소스 설정 필요 | 파일 수 > 100만, 실시간 요구 |
+| **Directory Listing**| 주기적 디렉토리 스캔 | 설정 간단, 추가 인프라 불필요 | 파일 수 증가 시 스캔 비용 증가 | 파일 수 < 100만, 간단한 구조 |
+| **File Notification**| SNS/SQS 이벤트 기반 | 즉시 감지, 대규모에 효율적 | 클라우드 리소스 설정 필요 | 파일 수 > 100만, 실시간 요구 |
 
 ```python
 # Directory Listing 모드 (기본, 간단한 설정)
@@ -129,9 +129,9 @@ df = (spark.readStream
 
 | 지연시간 목표 | 트리거 설정 | 적합한 워크로드 |
 |-------------|-----------|---------------|
-| **< 1초** | `trigger(processingTime="0 seconds")` | 실시간 대시보드, 알림 |
-| **1~10초** | `trigger(processingTime="5 seconds")` | 준실시간 분석 |
-| **10초~5분** | `trigger(processingTime="1 minute")` | 마이크로 배치 ETL |
+| **< 1초**| `trigger(processingTime="0 seconds")` | 실시간 대시보드, 알림 |
+| **1~10초**| `trigger(processingTime="5 seconds")` | 준실시간 분석 |
+| **10초~5분**| `trigger(processingTime="1 minute")` | 마이크로 배치 ETL |
 | **5분+** | `trigger(availableNow=True)` | 스케줄 기반 배치 |
 
 ```python

@@ -44,8 +44,8 @@ SET spark.sql.autoBroadcastJoinThreshold = 100m;  -- 100MB까지 자동 Broadcas
 
 | 조인 전략 | 적용 조건 | Shuffle | 성능 |
 |----------|----------|---------|------|
-| **Broadcast Hash Join** | 한쪽 < 100MB | 없음 | ★★★★★ |
-| **Sort Merge Join** | 양쪽 모두 대용량 | 양쪽 Shuffle | ★★★☆☆ |
+| **Broadcast Hash Join**| 한쪽 < 100MB | 없음 | ★★★★★ |
+| **Sort Merge Join**| 양쪽 모두 대용량 | 양쪽 Shuffle | ★★★☆☆ |
 | **Shuffle Hash Join** | 한쪽 중간 크기 | 한쪽 Shuffle | ★★★★☆ |
 
 ```python
@@ -144,6 +144,6 @@ SELECT current_catalog(), current_schema();
 -- 클러스터 설정에서 runtime_engine = PHOTON 확인
 ```
 
-> 💡 **비용 대비 효과**: Photon 인스턴스는 DBU 단가가 약 2배이지만, 실행 시간이 3~5배 빨라져서 ** 총 비용이 오히려 40~60% 절감**되는 경우가 많습니다.
+> 💡 **비용 대비 효과**: Photon 인스턴스는 DBU 단가가 약 2배이지만, 실행 시간이 3~5배 빨라져서 **총 비용이 오히려 40~60% 절감**되는 경우가 많습니다.
 
 ---

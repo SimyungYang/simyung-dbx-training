@@ -2,9 +2,9 @@
 
 ## 왜 에이전트 배포가 중요한가?
 
-노트북에서 프로토타입으로 동작하는 에이전트와, 실제 사용자가 접근할 수 있는 프로덕션 에이전트는 전혀 다릅니다. 프로덕션 배포에는 **확장성, 모니터링, 보안, 버전 관리** 가 필요합니다.
+노트북에서 프로토타입으로 동작하는 에이전트와, 실제 사용자가 접근할 수 있는 프로덕션 에이전트는 전혀 다릅니다. 프로덕션 배포에는 **확장성, 모니터링, 보안, 버전 관리**가 필요합니다.
 
-> 💡 Databricks에서 AI 에이전트를 배포한다는 것은, 에이전트를 **Model Serving Endpoint** 로 호스팅하여 REST API로 접근할 수 있게 만드는 것입니다. 배포된 에이전트는 웹 앱, 슬랙 봇, 내부 도구 등 다양한 채널에서 호출할 수 있습니다.
+> 💡 Databricks에서 AI 에이전트를 배포한다는 것은, 에이전트를 **Model Serving Endpoint**로 호스팅하여 REST API로 접근할 수 있게 만드는 것입니다. 배포된 에이전트는 웹 앱, 슬랙 봇, 내부 도구 등 다양한 채널에서 호출할 수 있습니다.
 
 | 단계 | 작업 | 설명 |
 |------|------|------|
@@ -19,27 +19,27 @@
 
 ## 배포 아키텍처 개요
 
-Databricks의 에이전트 배포는 **MLflow + Unity Catalog + Model Serving** 의 통합 구조로 동작합니다.
+Databricks의 에이전트 배포는 **MLflow + Unity Catalog + Model Serving**의 통합 구조로 동작합니다.
 
 | 구성 요소 | 역할 |
 |----------|------|
-| **MLflow** | 에이전트를 모델로 패키징하고, 의존성/설정을 함께 로깅합니다 |
-| **Unity Catalog** | 모델을 카탈로그에 등록하여 버전 관리와 거버넌스를 적용합니다 |
-| **Model Serving** | 등록된 모델을 REST API 엔드포인트로 호스팅합니다 |
-| **Review App** | 배포 전 테스터들이 에이전트를 사용해보고 피드백을 남기는 UI입니다 |
-| **Inference Tables** | 모든 요청/응답을 자동으로 기록하여 모니터링에 활용합니다 |
+| **MLflow**| 에이전트를 모델로 패키징하고, 의존성/설정을 함께 로깅합니다 |
+| **Unity Catalog**| 모델을 카탈로그에 등록하여 버전 관리와 거버넌스를 적용합니다 |
+| **Model Serving**| 등록된 모델을 REST API 엔드포인트로 호스팅합니다 |
+| **Review App**| 배포 전 테스터들이 에이전트를 사용해보고 피드백을 남기는 UI입니다 |
+| **Inference Tables**| 모든 요청/응답을 자동으로 기록하여 모니터링에 활용합니다 |
 
 ---
 
 ## Step 1: 에이전트 모델 로깅
 
-배포의 첫 단계는 에이전트를 **MLflow 모델** 로 로깅하는 것입니다. 이때 에이전트 코드, 의존성, 설정이 모두 함께 패키징됩니다.
+배포의 첫 단계는 에이전트를 **MLflow 모델**로 로깅하는 것입니다. 이때 에이전트 코드, 의존성, 설정이 모두 함께 패키징됩니다.
 
 ### mlflow.models.set_model() 사용법
 
 에이전트 코드를 별도 Python 파일로 분리한 뒤, `set_model()`로 진입점을 지정합니다. 이 방식이 Databricks에서 권장하는 표준 패턴입니다.
 
-**agent.py** (에이전트 코드):
+**agent.py**(에이전트 코드):
 
 ```python
 import mlflow
@@ -65,7 +65,7 @@ class CustomerSupportAgent(mlflow.pyfunc.PythonModel):
 mlflow.models.set_model(CustomerSupportAgent())
 ```
 
-** 로깅 노트북** (모델 등록):
+** 로깅 노트북**(모델 등록):
 
 ```python
 import mlflow
@@ -99,10 +99,10 @@ with mlflow.start_run():
 
 | 의존성 유형 | 지정 방법 | 예시 |
 |-----------|----------|------|
-| **Python 패키지** | `pip_requirements` | `["langchain>=0.3.0", "tiktoken"]` |
-| ** 환경 변수** | 엔드포인트 설정 시 지정 | `VECTOR_SEARCH_ENDPOINT`, `API_KEY` |
-| ** 리소스 의존성** | `resources` 파라미터 | Vector Search Index, Serving Endpoint |
-| ** 추가 파일** | `code_paths` 또는 `artifacts` | 프롬프트 템플릿, 설정 파일 |
+| **Python 패키지**| `pip_requirements` | `["langchain>=0.3.0", "tiktoken"]` |
+| ** 환경 변수**| 엔드포인트 설정 시 지정 | `VECTOR_SEARCH_ENDPOINT`, `API_KEY` |
+| ** 리소스 의존성**| `resources` 파라미터 | Vector Search Index, Serving Endpoint |
+| ** 추가 파일**| `code_paths` 또는 `artifacts` | 프롬프트 템플릿, 설정 파일 |
 
 ```python
 # 리소스 의존성 명시 (배포 시 자동으로 권한 설정)
@@ -135,8 +135,8 @@ with mlflow.start_run():
 
 | 개념 | 설명 |
 |------|------|
-| ** 모델 이름** | `catalog.schema.model_name` 형식의 3단계 네임스페이스 |
-| ** 버전** | 로깅할 때마다 자동으로 버전 번호가 증가합니다 (v1, v2, v3...) |
+| ** 모델 이름**| `catalog.schema.model_name` 형식의 3단계 네임스페이스 |
+| ** 버전**| 로깅할 때마다 자동으로 버전 번호가 증가합니다 (v1, v2, v3...) |
 | ** 앨리어스** | `champion`, `challenger` 같은 이름으로 특정 버전을 지칭할 수 있습니다 |
 
 ```python

@@ -53,10 +53,10 @@ ORDER BY idx_scan DESC;
 
 | 최적화 항목 | 방법 | 효과 |
 |-------------|------|------|
-| **쿼리 캐싱** | Streamlit `@cache_data`, Redis | DB 부하 50~90% 감소 |
-| ** 인덱스** | 쿼리 패턴에 맞는 B-tree/GIN 인덱스 | 조회 속도 10~100배 향상 |
-| ** 페이지네이션** | LIMIT/OFFSET 또는 커서 기반 | 대용량 데이터 안정적 조회 |
-| ** 커넥션 풀링** | psycopg2 pool, SQLAlchemy pool | 연결 오버헤드 제거 |
+| **쿼리 캐싱**| Streamlit `@cache_data`, Redis | DB 부하 50~90% 감소 |
+| ** 인덱스**| 쿼리 패턴에 맞는 B-tree/GIN 인덱스 | 조회 속도 10~100배 향상 |
+| ** 페이지네이션**| LIMIT/OFFSET 또는 커서 기반 | 대용량 데이터 안정적 조회 |
+| ** 커넥션 풀링**| psycopg2 pool, SQLAlchemy pool | 연결 오버헤드 제거 |
 | ** 배치 INSERT** | executemany, COPY | 대량 삽입 속도 10배 향상 |
 
 ---

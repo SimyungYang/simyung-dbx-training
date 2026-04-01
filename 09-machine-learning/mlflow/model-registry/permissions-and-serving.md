@@ -42,18 +42,18 @@ w.serving_endpoints.create(
 
 ### 비교
 
-Databricks에는 두 가지 Model Registry가 존재합니다. 현재 **UC Model Registry** 가 표준이며, Workspace Registry는 레거시로 분류됩니다.
+Databricks에는 두 가지 Model Registry가 존재합니다. 현재 **UC Model Registry**가 표준이며, Workspace Registry는 레거시로 분류됩니다.
 
 | 항목 | Workspace Registry (레거시) | UC Model Registry (현재 표준) |
 |------|---------------------------|-------------------------------|
-| **네임스페이스** | `model_name` (flat) | `catalog.schema.model_name` (3-Level) |
-| ** 접근 제어** | Workspace ACL (제한적) | UC GRANT/REVOKE (세밀한 권한) |
-| ** 크로스 워크스페이스** | 불가 | 가능 (UC 공유) |
-| ** 리니지** | 제한적 | 자동 리니지 (소스 데이터 → 모델) |
-| ** 감사 로그** | Workspace 로그 | UC 시스템 테이블 (system.access.audit) |
-| **Stage** | Staging/Production/Archived | Alias (자유 정의) |
-| **Delta Sharing** | 불가 | 모델을 외부와 공유 가능 |
-| **Serverless Model Serving** | 지원 | 지원 |
+| **네임스페이스**| `model_name` (flat) | `catalog.schema.model_name` (3-Level) |
+| ** 접근 제어**| Workspace ACL (제한적) | UC GRANT/REVOKE (세밀한 권한) |
+| ** 크로스 워크스페이스**| 불가 | 가능 (UC 공유) |
+| ** 리니지**| 제한적 | 자동 리니지 (소스 데이터 → 모델) |
+| ** 감사 로그**| Workspace 로그 | UC 시스템 테이블 (system.access.audit) |
+| **Stage**| Staging/Production/Archived | Alias (자유 정의) |
+| **Delta Sharing**| 불가 | 모델을 외부와 공유 가능 |
+| **Serverless Model Serving**| 지원 | 지원 |
 
 ### 마이그레이션 방법
 

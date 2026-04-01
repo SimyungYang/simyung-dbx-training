@@ -2,7 +2,7 @@
 
 ## Unity Catalog의 권한 모델
 
-Unity Catalog는 **ANSI SQL 표준** 의 GRANT/REVOKE 문을 사용하여 데이터 접근 권한을 관리합니다. 모든 보안 가능한 객체(Securable Object)에 대해 세밀한 권한 제어가 가능합니다.
+Unity Catalog는 **ANSI SQL 표준**의 GRANT/REVOKE 문을 사용하여 데이터 접근 권한을 관리합니다. 모든 보안 가능한 객체(Securable Object)에 대해 세밀한 권한 제어가 가능합니다.
 
 ---
 
@@ -10,19 +10,19 @@ Unity Catalog는 **ANSI SQL 표준** 의 GRANT/REVOKE 문을 사용하여 데이
 
 | 계층 | 오브젝트 | 상위 계층 |
 |------|---------|-----------|
-| **Metastore** | 최상위 컨테이너 | - |
-| **Catalog** | 카탈로그 | Metastore |
-| **Schema** | 스키마 | Catalog |
-| **Table** | 테이블 | Schema |
-| **View** | 뷰 | Schema |
-| **Volume** | 볼륨 | Schema |
-| **Function** | 함수 | Schema |
-| **Model** | 모델 | Schema |
-| **Connection** | 연결 | Catalog |
-| **External Location** | 외부 위치 | Metastore |
-| **Storage Credential** | 스토리지 자격 증명 | Metastore |
+| **Metastore**| 최상위 컨테이너 | - |
+| **Catalog**| 카탈로그 | Metastore |
+| **Schema**| 스키마 | Catalog |
+| **Table**| 테이블 | Schema |
+| **View**| 뷰 | Schema |
+| **Volume**| 볼륨 | Schema |
+| **Function**| 함수 | Schema |
+| **Model**| 모델 | Schema |
+| **Connection**| 연결 | Catalog |
+| **External Location**| 외부 위치 | Metastore |
+| **Storage Credential**| 스토리지 자격 증명 | Metastore |
 
-> 💡 ** 권한 상속**: 상위 객체에 부여된 권한은 하위 객체에 ** 자동으로 상속**됩니다. 예를 들어, Catalog에 `SELECT`를 부여하면 해당 Catalog 아래의 모든 Schema, Table에 SELECT 권한이 적용됩니다.
+> 💡 ** 권한 상속**: 상위 객체에 부여된 권한은 하위 객체에 **자동으로 상속**됩니다. 예를 들어, Catalog에 `SELECT`를 부여하면 해당 Catalog 아래의 모든 Schema, Table에 SELECT 권한이 적용됩니다.
 
 ---
 
@@ -32,30 +32,30 @@ Unity Catalog는 **ANSI SQL 표준** 의 GRANT/REVOKE 문을 사용하여 데이
 
 | 권한 | 대상 객체 | 설명 |
 |------|----------|------|
-| **SELECT** | Table, View, MV, Streaming Table | 데이터를 읽을 수 있습니다 |
-| **MODIFY** | Table, MV, Streaming Table | 데이터를 INSERT, UPDATE, DELETE할 수 있습니다 |
-| **CREATE TABLE** | Schema | 스키마 안에 테이블을 생성할 수 있습니다 |
-| **CREATE VIEW** | Schema | 뷰를 생성할 수 있습니다 |
-| **CREATE MATERIALIZED VIEW** | Schema | Materialized View를 생성할 수 있습니다 |
-| **CREATE VOLUME** | Schema | Volume을 생성할 수 있습니다 |
-| **CREATE FUNCTION** | Schema | 함수를 생성할 수 있습니다 |
-| **CREATE MODEL** | Schema | ML 모델을 등록할 수 있습니다 |
-| **CREATE SCHEMA** | Catalog | 카탈로그 안에 스키마를 생성할 수 있습니다 |
-| **CREATE CATALOG** | Metastore | 카탈로그를 생성할 수 있습니다 |
-| **USE CATALOG** | Catalog | 카탈로그에 접근할 수 있습니다 (하위 객체 접근의 전제 조건) |
-| **USE SCHEMA** | Schema | 스키마에 접근할 수 있습니다 (하위 객체 접근의 전제 조건) |
-| **READ VOLUME** | Volume | Volume의 파일을 읽을 수 있습니다 |
-| **WRITE VOLUME** | Volume | Volume에 파일을 쓸 수 있습니다 |
-| **EXECUTE** | Function | 함수를 실행할 수 있습니다 |
-| **APPLY TAG** | Table, Schema, Catalog | 거버넌스 태그를 적용할 수 있습니다 |
-| **ALL PRIVILEGES** | 모든 객체 | 해당 객체에 대한 모든 권한을 부여합니다 |
+| **SELECT**| Table, View, MV, Streaming Table | 데이터를 읽을 수 있습니다 |
+| **MODIFY**| Table, MV, Streaming Table | 데이터를 INSERT, UPDATE, DELETE할 수 있습니다 |
+| **CREATE TABLE**| Schema | 스키마 안에 테이블을 생성할 수 있습니다 |
+| **CREATE VIEW**| Schema | 뷰를 생성할 수 있습니다 |
+| **CREATE MATERIALIZED VIEW**| Schema | Materialized View를 생성할 수 있습니다 |
+| **CREATE VOLUME**| Schema | Volume을 생성할 수 있습니다 |
+| **CREATE FUNCTION**| Schema | 함수를 생성할 수 있습니다 |
+| **CREATE MODEL**| Schema | ML 모델을 등록할 수 있습니다 |
+| **CREATE SCHEMA**| Catalog | 카탈로그 안에 스키마를 생성할 수 있습니다 |
+| **CREATE CATALOG**| Metastore | 카탈로그를 생성할 수 있습니다 |
+| **USE CATALOG**| Catalog | 카탈로그에 접근할 수 있습니다 (하위 객체 접근의 전제 조건) |
+| **USE SCHEMA**| Schema | 스키마에 접근할 수 있습니다 (하위 객체 접근의 전제 조건) |
+| **READ VOLUME**| Volume | Volume의 파일을 읽을 수 있습니다 |
+| **WRITE VOLUME**| Volume | Volume에 파일을 쓸 수 있습니다 |
+| **EXECUTE**| Function | 함수를 실행할 수 있습니다 |
+| **APPLY TAG**| Table, Schema, Catalog | 거버넌스 태그를 적용할 수 있습니다 |
+| **ALL PRIVILEGES**| 모든 객체 | 해당 객체에 대한 모든 권한을 부여합니다 |
 
 ### 관리 권한
 
 | 권한 | 설명 |
 |------|------|
-| **OWNERSHIP** | 객체의 소유자. 모든 권한을 가지며, 다른 사용자에게 권한을 부여할 수 있습니다 |
-| **MANAGE** | External Location, Storage Credential의 관리 권한입니다 |
+| **OWNERSHIP**| 객체의 소유자. 모든 권한을 가지며, 다른 사용자에게 권한을 부여할 수 있습니다 |
+| **MANAGE**| External Location, Storage Credential의 관리 권한입니다 |
 
 ---
 
@@ -79,9 +79,9 @@ SHOW GRANTS TO <principal>;
 
 | 유형 | 문법 | 설명 |
 |------|------|------|
-| ** 사용자** | `` `user@company.com` `` | 개별 사용자 (백틱으로 감쌈) |
-| ** 그룹** | `` `data_analysts` `` | 사용자 그룹 |
-| ** 서비스 프린시팔** | `` `sp-etl-pipeline` `` | 서비스 계정 |
+| ** 사용자**| `` `user@company.com` `` | 개별 사용자 (백틱으로 감쌈) |
+| ** 그룹**| `` `data_analysts` `` | 사용자 그룹 |
+| ** 서비스 프린시팔**| `` `sp-etl-pipeline` `` | 서비스 계정 |
 
 ### 실전 예시
 
@@ -120,7 +120,7 @@ SHOW GRANTS TO `analysts`;
 
 ## 행 수준 보안 (Row-Level Security)
 
-> 💡 ** 행 필터(Row Filter)** 를 사용하면, 사용자마다 ** 보이는 행을 다르게** 설정할 수 있습니다. 예를 들어, 서울 지역 담당자에게는 서울 데이터만 보이도록 할 수 있습니다.
+> 💡 ** 행 필터(Row Filter)**를 사용하면, 사용자마다 ** 보이는 행을 다르게** 설정할 수 있습니다. 예를 들어, 서울 지역 담당자에게는 서울 데이터만 보이도록 할 수 있습니다.
 
 ### 설정 방법
 
@@ -156,7 +156,7 @@ ALTER TABLE production.ecommerce.orders DROP ROW FILTER;
 
 ## 열 수준 보안 (Column Masking)
 
-> 💡 **컬럼 마스킹(Column Mask)** 을 사용하면, 민감한 컬럼의 값을 사용자 권한에 따라 ** 마스킹(가림) 처리**할 수 있습니다. 원본 데이터를 변경하지 않고, 조회 시 동적으로 적용됩니다.
+> 💡 **컬럼 마스킹(Column Mask)**을 사용하면, 민감한 컬럼의 값을 사용자 권한에 따라 ** 마스킹(가림) 처리**할 수 있습니다. 원본 데이터를 변경하지 않고, 조회 시 동적으로 적용됩니다.
 
 ### 설정 방법
 
@@ -201,14 +201,14 @@ ALTER COLUMN email DROP MASK;
   email: cs***@company.com     phone: 010-****-5678
 
 일반 사용자:
-  email: ***@***.***            phone: 010-****-5678
+  email: ***@***.***           phone: 010-****-5678
 ```
 
 ---
 
 ## 태그 기반 접근 제어 (ABAC)
 
-> 🆕 **ABAC(Attribute-Based Access Control)** 는 거버넌스 태그를 기반으로 접근 정책을 정의하는 기능입니다 (Public Preview). 개별 테이블/컬럼마다 권한을 설정하는 대신, ** 태그가 붙은 모든 객체에 일괄 적용**할 수 있습니다.
+> 🆕 **ABAC(Attribute-Based Access Control)**는 거버넌스 태그를 기반으로 접근 정책을 정의하는 기능입니다 (Public Preview). 개별 테이블/컬럼마다 권한을 설정하는 대신, ** 태그가 붙은 모든 객체에 일괄 적용**할 수 있습니다.
 
 ### 태그 기반 정책 예시
 
@@ -229,12 +229,12 @@ ALTER TABLE employees ALTER COLUMN salary SET TAGS ('confidential' = 'true');
 
 | 원칙 | 설명 |
 |------|------|
-| ** 최소 권한 원칙** | 필요한 최소한의 권한만 부여합니다. `ALL PRIVILEGES`는 가급적 사용하지 않습니다 |
-| ** 그룹 기반 관리** | 개별 사용자가 아닌 ** 그룹**에 권한을 부여합니다. 사용자는 그룹에 추가/제거합니다 |
-| ** 서비스 프린시팔 사용** | 프로덕션 파이프라인은 개인 계정이 아닌 ** 서비스 프린시팔**로 실행합니다 |
-| ** 환경별 카탈로그 분리** | `dev`, `staging`, `production` 카탈로그를 분리하여 권한을 다르게 설정합니다 |
-| **USE 권한 필수** | `SELECT` 만으로는 부족합니다. `USE CATALOG` + `USE SCHEMA` + `SELECT` 모두 필요합니다 |
-| ** 정기 감사** | `SHOW GRANTS`와 시스템 테이블(`system.access.audit`)로 정기적으로 권한을 점검합니다 |
+| **최소 권한 원칙** | 필요한 최소한의 권한만 부여합니다. `ALL PRIVILEGES`는 가급적 사용하지 않습니다 |
+| **그룹 기반 관리** | 개별 사용자가 아닌 **그룹**에 권한을 부여합니다. 사용자는 그룹에 추가/제거합니다 |
+| **서비스 프린시팔 사용** | 프로덕션 파이프라인은 개인 계정이 아닌 **서비스 프린시팔**로 실행합니다 |
+| **환경별 카탈로그 분리** | `dev`, `staging`, `production` 카탈로그를 분리하여 권한을 다르게 설정합니다 |
+| **USE 권한 필수**| `SELECT` 만으로는 부족합니다. `USE CATALOG` + `USE SCHEMA` + `SELECT` 모두 필요합니다 |
+| ** 정기 감사**| `SHOW GRANTS`와 시스템 테이블(`system.access.audit`)로 정기적으로 권한을 점검합니다 |
 
 ### 일반적인 역할별 권한 설정
 
@@ -301,7 +301,7 @@ GRANT CREATE CATALOG ON METASTORE TO `platform_admins`;
 
 ## 그룹 기반 권한 설계 패턴 (역할별 3~5개 그룹)
 
-현업에서 가장 효과적인 권한 관리 방법은 ** 역할(Role) 기반의 그룹**을 설계하는 것입니다. 개인에게는 절대 직접 GRANT하지 않고, 그룹 멤버십만 관리합니다.
+현업에서 가장 효과적인 권한 관리 방법은 **역할(Role) 기반의 그룹**을 설계하는 것입니다. 개인에게는 절대 직접 GRANT하지 않고, 그룹 멤버십만 관리합니다.
 
 ### 권장 그룹 설계 (5개 기본 그룹)
 
@@ -357,7 +357,7 @@ GRANT CREATE CATALOG ON METASTORE TO `platform_admins`;
   → data_analysts에서 제거 + data_engineers에 추가 (2분)
 ```
 
-> 💡 ** 현업 팁**: 그룹은 **IdP(Azure AD, Okta 등)에서 관리하고 SCIM으로 동기화** 하는 것이 가장 좋습니다. 사람이 퇴사하면 HR 시스템 → IdP → Databricks로 자동 연쇄 삭제됩니다. 수동으로 Databricks 그룹을 관리하면 반드시 빠뜨리는 사람이 생깁니다.
+> 💡 **현업 팁**: 그룹은 **IdP(Azure AD, Okta 등)에서 관리하고 SCIM으로 동기화**하는 것이 가장 좋습니다. 사람이 퇴사하면 HR 시스템 → IdP → Databricks로 자동 연쇄 삭제됩니다. 수동으로 Databricks 그룹을 관리하면 반드시 빠뜨리는 사람이 생깁니다.
 
 ---
 
@@ -442,7 +442,7 @@ ORDER BY event_date DESC
 LIMIT 100;
 ```
 
-> 💡 ** 현업 팁**: 분기에 한 번 "이 사람이 정말 이 권한이 필요한가?"를 검토하는 ** 권한 리뷰(Access Review)** 를 하세요. 프로젝트가 끝났는데 권한이 남아있는 경우가 전체의 30% 이상입니다. 이것을 안 하면 시간이 지날수록 ** 권한이 비대해지는(Privilege Creep)** 현상이 발생합니다.
+> 💡 **현업 팁**: 분기에 한 번 "이 사람이 정말 이 권한이 필요한가?"를 검토하는 **권한 리뷰(Access Review)** 를 하세요. 프로젝트가 끝났는데 권한이 남아있는 경우가 전체의 30% 이상입니다. 이것을 안 하면 시간이 지날수록 **권한이 비대해지는(Privilege Creep)** 현상이 발생합니다.
 
 ---
 
@@ -450,11 +450,11 @@ LIMIT 100;
 
 | 기능 | 설명 |
 |------|------|
-| **GRANT/REVOKE** | SQL 표준 문법으로 권한을 부여/회수합니다 |
-| ** 권한 상속** | 상위 객체의 권한이 하위 객체에 자동 적용됩니다 |
-| **Row Filter** | 사용자별로 보이는 행을 제한합니다 |
-| **Column Mask** | 민감한 컬럼의 값을 동적으로 마스킹합니다 |
-| **ABAC** | 태그 기반으로 접근 정책을 일괄 적용합니다 (Preview) |
+| **GRANT/REVOKE**| SQL 표준 문법으로 권한을 부여/회수합니다 |
+| ** 권한 상속**| 상위 객체의 권한이 하위 객체에 자동 적용됩니다 |
+| **Row Filter**| 사용자별로 보이는 행을 제한합니다 |
+| **Column Mask**| 민감한 컬럼의 값을 동적으로 마스킹합니다 |
+| **ABAC**| 태그 기반으로 접근 정책을 일괄 적용합니다 (Preview) |
 | **USE 권한** | 카탈로그/스키마 접근의 전제 조건입니다 |
 
 ---

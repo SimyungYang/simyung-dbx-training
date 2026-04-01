@@ -2,9 +2,9 @@
 
 ## 왜 Tracing이 필요한가요?
 
-GenAI 애플리케이션(RAG 챗봇, AI 에이전트 등)은 전통적인 소프트웨어와 달리, LLM 호출, 문서 검색, Tool 실행 등 **여러 단계가 체인으로 연결** 되어 동작합니다. 사용자에게 잘못된 답변이 반환되었을 때, "어느 단계에서 문제가 생겼는지" 파악하기 어렵습니다.
+GenAI 애플리케이션(RAG 챗봇, AI 에이전트 등)은 전통적인 소프트웨어와 달리, LLM 호출, 문서 검색, Tool 실행 등 **여러 단계가 체인으로 연결**되어 동작합니다. 사용자에게 잘못된 답변이 반환되었을 때, "어느 단계에서 문제가 생겼는지" 파악하기 어렵습니다.
 
-> 💡 **MLflow Tracing** 은 GenAI 앱의 **실행 흐름을 단계별로 추적** 하는 기능입니다. 각 단계(Span)의 입력, 출력, 지연 시간, 토큰 사용량을 기록하여, 디버깅과 성능 최적화를 가능하게 합니다.
+> 💡 **MLflow Tracing**은 GenAI 앱의 **실행 흐름을 단계별로 추적**하는 기능입니다. 각 단계(Span)의 입력, 출력, 지연 시간, 토큰 사용량을 기록하여, 디버깅과 성능 최적화를 가능하게 합니다.
 
 **Trace 예시: 사용자 질문 → 답변**
 
@@ -18,18 +18,18 @@ GenAI 애플리케이션(RAG 챗봇, AI 에이전트 등)은 전통적인 소프
 
 ## Span 유형
 
-각 Trace는 여러 개의 **Span(구간)** 으로 구성됩니다. Span은 중첩(Nested)될 수 있어, 호출 트리를 형성합니다.
+각 Trace는 여러 개의 **Span(구간)**으로 구성됩니다. Span은 중첩(Nested)될 수 있어, 호출 트리를 형성합니다.
 
 | Span Type | 설명 | 예시 |
 |-----------|------|------|
-| **LLM** | LLM API 호출 | OpenAI, Claude, Llama 호출 |
-| **RETRIEVER** | 문서/데이터 검색 | Vector Search, SQL 쿼리 |
-| **TOOL** | 도구 실행 | UC Function, API 호출 |
-| **CHAIN** | 여러 단계의 연쇄 | LangChain Chain, 파이프라인 |
-| **AGENT** | 에이전트의 추론 루프 | Tool 선택 → 실행 → 결과 분석 루프 |
-| **EMBEDDING** | 임베딩 변환 | 텍스트 → 벡터 변환 |
-| **PARSER** | 응답 파싱 | JSON 파싱, 구조화 |
-| **RERANKER** | 검색 결과 재순위화 | Reranker 모델 호출 |
+| **LLM**| LLM API 호출 | OpenAI, Claude, Llama 호출 |
+| **RETRIEVER**| 문서/데이터 검색 | Vector Search, SQL 쿼리 |
+| **TOOL**| 도구 실행 | UC Function, API 호출 |
+| **CHAIN**| 여러 단계의 연쇄 | LangChain Chain, 파이프라인 |
+| **AGENT**| 에이전트의 추론 루프 | Tool 선택 → 실행 → 결과 분석 루프 |
+| **EMBEDDING**| 임베딩 변환 | 텍스트 → 벡터 변환 |
+| **PARSER**| 응답 파싱 | JSON 파싱, 구조화 |
+| **RERANKER**| 검색 결과 재순위화 | Reranker 모델 호출 |
 
 ---
 
@@ -41,15 +41,15 @@ MLflow는 주요 GenAI 프레임워크에 대해 ** 코드 한 줄로 자동 트
 
 | 프레임워크 | 활성화 코드 | 설명 |
 |-----------|-----------|------|
-| **OpenAI** | `mlflow.openai.autolog()` | ChatCompletion, Embedding 호출 추적 |
-| **LangChain** | `mlflow.langchain.autolog()` | Chain, Agent, Tool 호출 추적 |
-| **LangGraph** | `mlflow.langchain.autolog()` | 그래프 기반 에이전트 추적 |
-| **LlamaIndex** | `mlflow.llama_index.autolog()` | 인덱스 조회, LLM 호출 추적 |
-| **DSPy** | `mlflow.dspy.autolog()` | 프로그래밍 방식 LLM 활용 추적 |
-| **Anthropic** | `mlflow.anthropic.autolog()` | Claude API 호출 추적 |
-| **CrewAI** | `mlflow.crewai.autolog()` | 멀티 에이전트 추적 |
-| **AutoGen** | `mlflow.autogen.autolog()` | 멀티 에이전트 대화 추적 |
-| **Databricks SDK** | 자동 | Foundation Model API 호출 자동 추적 |
+| **OpenAI**| `mlflow.openai.autolog()` | ChatCompletion, Embedding 호출 추적 |
+| **LangChain**| `mlflow.langchain.autolog()` | Chain, Agent, Tool 호출 추적 |
+| **LangGraph**| `mlflow.langchain.autolog()` | 그래프 기반 에이전트 추적 |
+| **LlamaIndex**| `mlflow.llama_index.autolog()` | 인덱스 조회, LLM 호출 추적 |
+| **DSPy**| `mlflow.dspy.autolog()` | 프로그래밍 방식 LLM 활용 추적 |
+| **Anthropic**| `mlflow.anthropic.autolog()` | Claude API 호출 추적 |
+| **CrewAI**| `mlflow.crewai.autolog()` | 멀티 에이전트 추적 |
+| **AutoGen**| `mlflow.autogen.autolog()` | 멀티 에이전트 대화 추적 |
+| **Databricks SDK**| 자동 | Foundation Model API 호출 자동 추적 |
 
 ### 사용 예시
 

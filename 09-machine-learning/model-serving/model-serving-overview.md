@@ -2,7 +2,7 @@
 
 ## Model Serving이란?
 
-> 💡 **Model Serving** 은 학습된 ML 모델이나 AI 에이전트를 **실시간 추론 REST API 엔드포인트** 로 배포하는 Databricks의 서버리스 서비스입니다. 애플리케이션에서 HTTP 요청을 보내면, 밀리초~초 단위로 예측 결과를 반환합니다.
+> 💡 **Model Serving**은 학습된 ML 모델이나 AI 에이전트를 **실시간 추론 REST API 엔드포인트**로 배포하는 Databricks의 서버리스 서비스입니다. 애플리케이션에서 HTTP 요청을 보내면, 밀리초~초 단위로 예측 결과를 반환합니다.
 
 ---
 
@@ -12,16 +12,16 @@ Databricks Model Serving은 세 가지 유형의 엔드포인트를 제공합니
 
 | 유형 | 설명 | 적합한 사용 |
 |------|------|-----------|
-| **Foundation Model API** | Databricks가 호스팅하는 LLM (Llama, DBRX, Claude 등) | LLM 활용, GenAI 앱, 빠른 프로토타이핑 |
-| **External Model Endpoint** | OpenAI, Anthropic, Google 등 ** 외부 LLM API를 프록시**하여 통합 관리 | 외부 모델을 거버넌스 하에 관리, 비용 추적, Rate Limiting |
-| **Custom Model Endpoint** | MLflow로 등록한 ** 사용자 커스텀 모델**(scikit-learn, PyTorch, ChatAgent 등) 배포 | 자체 ML 모델, AI 에이전트 배포 |
+| **Foundation Model API**| Databricks가 호스팅하는 LLM (Llama, DBRX, Claude 등) | LLM 활용, GenAI 앱, 빠른 프로토타이핑 |
+| **External Model Endpoint**| OpenAI, Anthropic, Google 등 ** 외부 LLM API를 프록시**하여 통합 관리 | 외부 모델을 거버넌스 하에 관리, 비용 추적, Rate Limiting |
+| **Custom Model Endpoint**| MLflow로 등록한 ** 사용자 커스텀 모델**(scikit-learn, PyTorch, ChatAgent 등) 배포 | 자체 ML 모델, AI 에이전트 배포 |
 
 | 구성 요소 | 역할 | 설명 |
 |-----------|------|------|
-| ** 애플리케이션** | 클라이언트 | REST API로 Model Serving에 요청합니다 |
-| **Foundation Model API** | 기본 LLM | Llama, DBRX, Claude 등을 제공합니다 |
-| **External Model** | 외부 LLM 프록시 | OpenAI, Anthropic 등 외부 모델을 프록시합니다 |
-| **Custom Model** | 사용자 모델 | MLflow 모델, Agent 등을 배포합니다 |
+| **애플리케이션** | 클라이언트 | REST API로 Model Serving에 요청합니다 |
+| **Foundation Model API**| 기본 LLM | Llama, DBRX, Claude 등을 제공합니다 |
+| **External Model**| 외부 LLM 프록시 | OpenAI, Anthropic 등 외부 모델을 프록시합니다 |
+| **Custom Model**| 사용자 모델 | MLflow 모델, Agent 등을 배포합니다 |
 
 ---
 
@@ -31,19 +31,19 @@ Databricks Model Serving은 세 가지 유형의 엔드포인트를 제공합니
 
 | 과금 모델 | 설명 | 적합한 사용 |
 |-----------|------|-----------|
-| **Pay-per-token** | 사용한 토큰 수만큼 과금. 별도 프로비저닝 불필요 | 개발, 프로토타이핑, 불규칙한 사용 |
-| **Provisioned Throughput** | 예약된 처리량을 보장. 시간당 고정 과금 | 프로덕션, 안정적 처리량 필요, 대량 처리 |
+| **Pay-per-token**| 사용한 토큰 수만큼 과금. 별도 프로비저닝 불필요 | 개발, 프로토타이핑, 불규칙한 사용 |
+| **Provisioned Throughput**| 예약된 처리량을 보장. 시간당 고정 과금 | 프로덕션, 안정적 처리량 필요, 대량 처리 |
 
 ### 사용 가능한 모델
 
 | 제공사 | 모델 | 용도 |
 |--------|------|------|
-| **Meta** | Llama 3.3 70B Instruct | 범용 대화, 코드 생성 |
-| **Databricks** | DBRX Instruct | 범용 대화 |
-| **Databricks** | GTE Large / BGE Large | 텍스트 임베딩 |
-| **OpenAI** | GPT-5.x 시리즈 | 고성능 대화, 코드, 분석 |
-| **Anthropic** | Claude 4.x 시리즈 | 고성능 대화, 분석, 코딩 |
-| **Google** | Gemini 3.x 시리즈 | 멀티모달, 대화 |
+| **Meta**| Llama 3.3 70B Instruct | 범용 대화, 코드 생성 |
+| **Databricks**| DBRX Instruct | 범용 대화 |
+| **Databricks**| GTE Large / BGE Large | 텍스트 임베딩 |
+| **OpenAI**| GPT-5.x 시리즈 | 고성능 대화, 코드, 분석 |
+| **Anthropic**| Claude 4.x 시리즈 | 고성능 대화, 분석, 코딩 |
+| **Google**| Gemini 3.x 시리즈 | 멀티모달, 대화 |
 
 ```python
 # Pay-per-token 사용 예시
@@ -73,11 +73,11 @@ print(response["choices"][0]["message"]["content"])
 
 | 장점 | 설명 |
 |------|------|
-| ** 통합 인증** | Databricks 토큰으로 인증. 외부 API 키를 클라이언트에 노출하지 않습니다 |
-| ** 비용 추적** | Inference Table로 모든 호출의 토큰 사용량을 추적합니다 |
-| **Rate Limiting** | 팀별/사용자별 호출량을 제한할 수 있습니다 |
-| ** 모델 전환** | 프록시 뒤의 모델을 변경해도 클라이언트 코드는 변경 불필요합니다 |
-| ** 거버넌스** | MLflow Tracing으로 모든 호출을 추적합니다 |
+| **통합 인증** | Databricks 토큰으로 인증. 외부 API 키를 클라이언트에 노출하지 않습니다 |
+| **비용 추적** | Inference Table로 모든 호출의 토큰 사용량을 추적합니다 |
+| **Rate Limiting**| 팀별/사용자별 호출량을 제한할 수 있습니다 |
+| ** 모델 전환**| 프록시 뒤의 모델을 변경해도 클라이언트 코드는 변경 불필요합니다 |
+| ** 거버넌스**| MLflow Tracing으로 모든 호출을 추적합니다 |
 
 ```python
 # External Model 엔드포인트 생성 (OpenAI 프록시)
@@ -146,10 +146,10 @@ w.serving_endpoints.create(
 
 | 사이즈 | 사양 | 적합한 모델 |
 |--------|------|-----------|
-| **Small** | 4 vCPU, 16 GB RAM | 경량 모델 (scikit-learn, XGBoost) |
-| **Medium** | 8 vCPU, 32 GB RAM | 중간 모델, AI 에이전트 |
-| **Large** | 16 vCPU, 64 GB RAM | 대형 모델 |
-| **GPU (Small~Large)** | T4/A10/A100 GPU | 딥러닝, LLM 파인튜닝 모델 |
+| **Small**| 4 vCPU, 16 GB RAM | 경량 모델 (scikit-learn, XGBoost) |
+| **Medium**| 8 vCPU, 32 GB RAM | 중간 모델, AI 에이전트 |
+| **Large**| 16 vCPU, 64 GB RAM | 대형 모델 |
+| **GPU (Small~Large)**| T4/A10/A100 GPU | 딥러닝, LLM 파인튜닝 모델 |
 
 ### 엔드포인트 호출
 
@@ -219,7 +219,7 @@ w.serving_endpoints.update_config(
 
 ## Inference Tables (추론 로깅)
 
-> 💡 **Inference Table** 은 엔드포인트의 모든 요청/응답을 **자동으로 Delta 테이블에 기록** 하는 기능입니다.
+> 💡 **Inference Table**은 엔드포인트의 모든 요청/응답을 **자동으로 Delta 테이블에 기록** 하는 기능입니다.
 
 | 기록 항목 | 설명 |
 |-----------|------|
@@ -254,23 +254,23 @@ ORDER BY day DESC;
 
 | 메트릭 | Pay-per-token | Provisioned Throughput |
 |--------|---------------|----------------------|
-| **p50 지연시간** | 200~500ms (짧은 응답) | 100~300ms |
-| **p99 지연시간** | 1~5초 | 500ms~2초 |
-| **TTFT (Time to First Token)** | 100~300ms | 50~150ms |
-| ** 처리량** | 공유 풀, 변동 가능 | 예약 처리량 보장 |
-| ** 콜드스타트** | 없음 (항상 가동) | 없음 (항상 가동) |
+| **p50 지연시간**| 200~500ms (짧은 응답) | 100~300ms |
+| **p99 지연시간**| 1~5초 | 500ms~2초 |
+| **TTFT (Time to First Token)**| 100~300ms | 50~150ms |
+| ** 처리량**| 공유 풀, 변동 가능 | 예약 처리량 보장 |
+| ** 콜드스타트**| 없음 (항상 가동) | 없음 (항상 가동) |
 
-> 💡 **TTFT(Time to First Token)** 란 요청 후 첫 번째 토큰이 생성되기까지의 시간입니다. Streaming 응답에서 사용자 체감 속도에 직접 영향을 줍니다.
+> 💡 **TTFT(Time to First Token)**란 요청 후 첫 번째 토큰이 생성되기까지의 시간입니다. Streaming 응답에서 사용자 체감 속도에 직접 영향을 줍니다.
 
 #### Custom Model Endpoint
 
 | 상태 | 지연시간 | 설명 |
 |------|---------|------|
-| **Warm (Scale > 0)** | p50: 10~100ms, p99: 200~500ms | 인스턴스가 가동 중 |
-| **Cold Start (Scale-to-Zero)** | **30초~3분** | 컨테이너 시작 + 모델 로딩 + 헬스체크 |
-| **GPU Cold Start** | **1~5분** | GPU 할당 + CUDA 초기화 + 대형 모델 로딩 |
+| **Warm (Scale > 0)**| p50: 10~100ms, p99: 200~500ms | 인스턴스가 가동 중 |
+| **Cold Start (Scale-to-Zero)**| **30초~3분**| 컨테이너 시작 + 모델 로딩 + 헬스체크 |
+| **GPU Cold Start**| **1~5분**| GPU 할당 + CUDA 초기화 + 대형 모델 로딩 |
 
-> ⚠️ **Gotcha — Scale-to-Zero 콜드스타트**: Scale-to-Zero를 활성화하면 유휴 시 비용을 절약할 수 있지만, 첫 요청 시 30초~수 분의 콜드스타트가 발생합니다. ** 프로덕션 실시간 서빙에서는 Scale-to-Zero를 비활성화**하는 것이 일반적입니다. 개발/스테이징 환경에서만 활성화하세요.
+> ⚠️ **Gotcha — Scale-to-Zero 콜드스타트**: Scale-to-Zero를 활성화하면 유휴 시 비용을 절약할 수 있지만, 첫 요청 시 30초~수 분의 콜드스타트가 발생합니다. **프로덕션 실시간 서빙에서는 Scale-to-Zero를 비활성화**하는 것이 일반적입니다. 개발/스테이징 환경에서만 활성화하세요.
 
 > ⚠️ **Gotcha — 모델 크기와 콜드스타트**: 모델 아티팩트가 클수록(예: PyTorch 모델 5GB+) 콜드스타트 시간이 길어집니다. MLflow 로깅 시 모델을 최적화(ONNX 변환, 양자화)하면 로딩 시간을 단축할 수 있습니다.
 
@@ -323,10 +323,10 @@ w.serving_endpoints.create(
 
 | 최적화 전략 | 절감 효과 | 트레이드오프 |
 |------------|----------|------------|
-| **Scale-to-Zero** (dev/staging) | 유휴 시 100% 절감 | 콜드스타트 30초~3분 |
-| **CPU 사용** (전통 ML) | GPU 대비 70~90% 절감 | 딥러닝 모델은 추론 속도 저하 |
-| **Small 사이즈** | Large 대비 ~75% 절감 | 동시 요청 처리량 감소 |
-| ** 배치 추론 활용** | 서빙 대비 50~80% 절감 | 실시간 응답 불가 |
+| **Scale-to-Zero**(dev/staging) | 유휴 시 100% 절감 | 콜드스타트 30초~3분 |
+| **CPU 사용**(전통 ML) | GPU 대비 70~90% 절감 | 딥러닝 모델은 추론 속도 저하 |
+| **Small 사이즈**| Large 대비 ~75% 절감 | 동시 요청 처리량 감소 |
+| ** 배치 추론 활용**| 서빙 대비 50~80% 절감 | 실시간 응답 불가 |
 
 > ⚠️ **Gotcha — GPU 선택**: Custom Model에 GPU를 선택하면 비용이 10배 이상 증가합니다. scikit-learn, XGBoost, LightGBM 등 전통 ML 모델은 CPU로 충분합니다. GPU는 PyTorch/TensorFlow 딥러닝 모델이나 Fine-tuned LLM에만 사용하세요.
 
@@ -336,7 +336,7 @@ w.serving_endpoints.create(
 
 #### Canary 배포 단계별 가이드
 
-Canary 배포는 새 모델 버전을 ** 소량의 트래픽으로 먼저 검증**한 후, 점진적으로 트래픽을 늘리는 전략입니다.
+Canary 배포는 새 모델 버전을 **소량의 트래픽으로 먼저 검증**한 후, 점진적으로 트래픽을 늘리는 전략입니다.
 
 ```python
 # Step 1: Canary 시작 — 새 버전에 5% 트래픽 할당
@@ -363,10 +363,10 @@ w.serving_endpoints.update_config(
 
 | 메트릭 | 정상 범위 | 롤백 기준 |
 |--------|----------|----------|
-| **p99 지연시간** | 기존 버전 대비 ±20% | 50% 이상 증가 |
-| ** 에러율** | < 0.1% | 0.5% 초과 |
-| ** 모델 정확도** | 기존 버전 대비 ±2% | 5% 이상 하락 |
-| ** 메모리 사용량** | 안정적 (증가 추세 없음) | 지속적 증가 (메모리 누수) |
+| **p99 지연시간**| 기존 버전 대비 ±20% | 50% 이상 증가 |
+| ** 에러율**| < 0.1% | 0.5% 초과 |
+| ** 모델 정확도**| 기존 버전 대비 ±2% | 5% 이상 하락 |
+| ** 메모리 사용량**| 안정적 (증가 추세 없음) | 지속적 증가 (메모리 누수) |
 
 #### 롤백 전략
 
@@ -385,7 +385,7 @@ w.serving_endpoints.update_config(
 # 롤백 소요시간: 트래픽 설정 변경은 ~30초 이내 반영
 ```
 
-> ⚠️ **Gotcha — 블루/그린 배포**: 블루/그린 방식으로 완전히 새로운 엔드포인트를 생성하여 전환하는 것도 가능하지만, ** 엔드포인트 URL이 변경**되므로 클라이언트 측 수정이 필요합니다. Traffic Split 방식의 Canary 배포가 더 실용적입니다.
+> ⚠️ **Gotcha — 블루/그린 배포**: 블루/그린 방식으로 완전히 새로운 엔드포인트를 생성하여 전환하는 것도 가능하지만, **엔드포인트 URL이 변경**되므로 클라이언트 측 수정이 필요합니다. Traffic Split 방식의 Canary 배포가 더 실용적입니다.
 
 ---
 
@@ -393,12 +393,12 @@ w.serving_endpoints.update_config(
 
 #### AI Gateway Prompt Caching
 
-Foundation Model API와 External Model Endpoint에서 ** 동일한 프롬프트에 대한 응답을 캐싱**하여 비용과 지연시간을 줄일 수 있습니다.
+Foundation Model API와 External Model Endpoint에서 **동일한 프롬프트에 대한 응답을 캐싱**하여 비용과 지연시간을 줄일 수 있습니다.
 
 | 캐싱 유형 | 설명 | 효과 |
 |-----------|------|------|
-| **Exact Match Cache** | 완전히 동일한 요청에 대해 캐시된 응답 반환 | 지연시간 ~10ms, 토큰 비용 0 |
-| **KV Cache (Provisioned)** | 긴 시스템 프롬프트의 KV Cache를 재사용 | TTFT 50~80% 감소 |
+| **Exact Match Cache**| 완전히 동일한 요청에 대해 캐시된 응답 반환 | 지연시간 ~10ms, 토큰 비용 0 |
+| **KV Cache (Provisioned)**| 긴 시스템 프롬프트의 KV Cache를 재사용 | TTFT 50~80% 감소 |
 
 ```python
 # 캐싱 활성화 (AI Gateway 설정)
@@ -459,12 +459,12 @@ def predict_with_failover(payload, headers):
 
 | 고려 사항 | 설명 |
 |-----------|------|
-| ** 모델 동기화** | 양쪽 리전에 동일 버전의 모델이 배포되어야 합니다 |
-| ** 데이터 일관성** | Feature Store 데이터가 리전 간 동기화되어야 합니다 |
-| ** 비용** | 두 리전 모두 엔드포인트를 유지하므로 비용이 2배 |
-| **Inference Table** | 각 리전별로 별도 Inference Table이 생성됩니다 |
+| **모델 동기화** | 양쪽 리전에 동일 버전의 모델이 배포되어야 합니다 |
+| **데이터 일관성** | Feature Store 데이터가 리전 간 동기화되어야 합니다 |
+| **비용** | 두 리전 모두 엔드포인트를 유지하므로 비용이 2배 |
+| **Inference Table**| 각 리전별로 별도 Inference Table이 생성됩니다 |
 
-> ⚠️ **Gotcha**: Databricks의 Model Serving은 ** 단일 워크스페이스 내에서만** 서빙됩니다. 멀티 리전 구성을 위해서는 각 리전에 별도 워크스페이스와 엔드포인트를 구성해야 하며, 모델 배포 파이프라인도 멀티 리전을 지원하도록 설계해야 합니다.
+> ⚠️ **Gotcha**: Databricks의 Model Serving은 **단일 워크스페이스 내에서만** 서빙됩니다. 멀티 리전 구성을 위해서는 각 리전에 별도 워크스페이스와 엔드포인트를 구성해야 하며, 모델 배포 파이프라인도 멀티 리전을 지원하도록 설계해야 합니다.
 
 ---
 
@@ -472,8 +472,8 @@ def predict_with_failover(payload, headers):
 
 | 엔드포인트 유형 | 용도 | 과금 |
 |----------------|------|------|
-| **Foundation Model API** | Databricks 호스팅 LLM 사용 | Pay-per-token 또는 Provisioned |
-| **External Model** | 외부 LLM (OpenAI 등) 프록시 | 외부 API 비용 + DBU |
+| **Foundation Model API**| Databricks 호스팅 LLM 사용 | Pay-per-token 또는 Provisioned |
+| **External Model**| 외부 LLM (OpenAI 등) 프록시 | 외부 API 비용 + DBU |
 | **Custom Model** | 자체 ML 모델/에이전트 배포 | 엔드포인트 실행 시간 기준 |
 
 ---
