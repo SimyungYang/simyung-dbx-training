@@ -263,23 +263,12 @@ cluster = w.clusters.create(
 
 20년간의 경험을 바탕으로, 고객에게 항상 추천하는 의사결정 흐름입니다.
 
-```
-질문 1: SQL만 사용하시나요?
-  ├─ Yes → Serverless SQL Warehouse (끝. 더 고민할 필요 없음)
-  └─ No → 질문 2
-
-질문 2: 프로덕션 스케줄 작업인가요?
-  ├─ Yes → 질문 3
-  └─ No (개발/탐색) → 질문 4
-
-질문 3: 특수 라이브러리나 GPU가 필요한가요?
-  ├─ Yes → Job Cluster (Classic)
-  └─ No → Serverless Job (비용 최적, 시작 빠름)
-
-질문 4: 팀 공유가 필요한가요?
-  ├─ Yes → Shared All-Purpose Cluster (비용 분담)
-  └─ No → Serverless Notebook (개인 작업, 관리 제로)
-```
+| 질문 | Yes | No |
+|------|-----|-----|
+| **질문 1**: SQL만 사용하시나요? | Serverless SQL Warehouse (끝) | 질문 2로 |
+| **질문 2**: 프로덕션 스케줄 작업인가요? | 질문 3으로 | 질문 4로 (개발/탐색) |
+| **질문 3**: 특수 라이브러리나 GPU가 필요한가요? | Job Cluster (Classic) | Serverless Job (비용 최적, 시작 빠름) |
+| **질문 4**: 팀 공유가 필요한가요? | Shared All-Purpose Cluster (비용 분담) | Serverless Notebook (개인 작업, 관리 제로) |
 
 ### 각 클러스터 유형별 실전 비용 비교
 

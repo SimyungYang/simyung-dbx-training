@@ -136,28 +136,13 @@ index = vsc.create_delta_sync_index(
     embedding_dimension=1024,              # 벡터 차원 수
     pipeline_type="TRIGGERED"
 )
-```
-
-> 💡 **Managed vs Self-Managed 선택 기준**: Databricks 내장 임베딩 모델(gte-large-en, bge-large-en)로 충분하면 **Managed**를, 커스텀 모델이 필요하면 **Self-Managed**를 사용하세요. 한국어 RAG의 경우 multilingual-e5-large 같은 다국어 모델을 Self-Managed로 사용하면 검색 품질이 향상됩니다.
-
----
-
-### 3. Direct Vector Access Index
-
-Delta 테이블과 **동기화하지 않고**, REST API를 통해 벡터를 직접 삽입/수정/삭제하는 방식입니다. 외부 시스템에서 생성된 임베딩을 실시간으로 인덱싱하거나, Delta 테이블 없이 벡터 검색만 필요한 경우에 사용합니다.
-
-**동작 원리:**
-1. 인덱스를 스키마와 함께 생성합니다
-2. `upsert()` API로 벡터를 직접 삽입/업데이트합니다
-3. `delete()` API로 벡터를 삭제합니다
-4. Delta 테이블과는 연동되지 않으므로 데이터 관리를 직접 해야 합니다
-
-**적합한 경우:**
-- 외부 애플리케이션에서 실시간으로 벡터를 추가/삭제해야 할 때
-- Delta 테이블 없이 빠른 프로토타이핑이 필요할 때
-- 스트리밍 데이터를 즉시 인덱싱해야 할 때
-
-```python
+| 단계 | 처리 | 결과 |
+|------|------|------|
+| 1 | 벡터 검색 | 의미적으로 유사한 Top-20 |
+| 2 | 키워드 검색 (BM25) | 키워드 매칭 Top-20 |
+| 3 | 결과 병합 (RRF) | 중복 제거, 점수 융합 → Top-20 |
+| 4 | Reranker | LLM 기반 재순위화 → Top-5 |
+| 5 | LLM 답변 생성 | 최종 응답 |python
 # Direct Access 인덱스 생성
 index = vsc.create_direct_access_index(
     endpoint_name="vs-endpoint-prod",
@@ -349,11 +334,13 @@ print(f"마지막 동기화: {status.get('last_sync_time')}")
 
 ```
 [사용자 질문]
-   ├─ [벡터 검색] → 의미적으로 유사한 Top-20
-   ├─ [키워드 검색 (BM25)] → 키워드 매칭 Top-20
-   └─ [결과 병합 (RRF)] → 중복 제거, 점수 융합 → Top-20
-         └─ [Reranker] → LLM 기반 재순위화 → Top-5
-               └─ [LLM 답변 생성]
+| 단계 | 처리 | 결과 |
+|------|------|------|
+| 1 | 벡터 검색 | 의미적 유사 Top-20 |
+| 2 | 키워드 검색 (BM25) | 키워드 매칭 Top-20 |
+| 3 | 결과 병합 (RRF) | 중복 제거, 점수 융합 → Top-20 |
+| 4 | Reranker | LLM 기반 재순위화 → Top-5 |
+| 5 | LLM 답변 생성 | 최종 응답 |
 ```
 
 ```python

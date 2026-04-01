@@ -296,29 +296,12 @@ connection_config = {
 
 ### 권장 Scope 구조
 
-```
-Secret Scopes 구조:
-├─ dev-db-secrets          ← 개발 환경 DB 접속 정보
-│  ├─ mysql-host
-│  ├─ mysql-user
-│  └─ mysql-password
-├─ prod-db-secrets         ← 프로덕션 환경 DB 접속 정보
-│  ├─ mysql-host
-│  ├─ mysql-user
-│  └─ mysql-password
-├─ prod-api-secrets        ← 프로덕션 외부 API 키
-│  ├─ openai-api-key
-│  ├─ slack-webhook-url
-│  └─ salesforce-token
-├─ prod-sp-secrets         ← 프로덕션 SP OAuth Secret
-│  ├─ etl-sp-client-id
-│  ├─ etl-sp-client-secret
-│  └─ ml-sp-client-secret
-└─ infra-secrets           ← 인프라 관련 (클라우드 키 등)
-   ├─ aws-access-key
-   ├─ aws-secret-key
-   └─ storage-account-key
-```
+| Scope | Key | 설명 |
+|-------|-----|------|
+| **dev-db-secrets** | mysql-host, mysql-user, mysql-password | 개발 환경 DB 접속 정보 |
+| **prod-db-secrets** | mysql-host, mysql-user, mysql-password | 프로덕션 환경 DB 접속 정보 |
+| **api-keys** | openai-key, slack-webhook | 외부 API 키 |
+| **cloud-credentials** | aws-access-key, aws-secret-key | 클라우드 접근 정보 |
 
 ### 설계 원칙
 

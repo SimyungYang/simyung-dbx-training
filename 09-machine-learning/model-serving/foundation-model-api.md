@@ -278,25 +278,15 @@ def call_with_retry(endpoint, inputs, max_retries=5):
 
 ### 비용 역전점 분석
 
-```
-[Pay-per-token 비용 계산]
-Llama 3.3 70B 기준 (예시 단가):
-- 입력: $0.001 / 1K 토큰
-- 출력: $0.002 / 1K 토큰
-- 평균 요청: 입력 500토큰, 출력 200토큰
-- 1건당 비용: $0.0005 + $0.0004 = $0.0009
+| 월간 요청 수 | 예상 비용 | 권장 |
+|------------|---------|------|
+| 1만 건 | $9 | Pay-per-token 압승 |
+| 10만 건 | $90 | Pay-per-token 유리 |
+| 50만 건 | $450 | 비슷한 구간 (역전점) |
+| 100만 건 | $900 | Provisioned Throughput 유리 |
+| 500만 건 | $4,500 | Provisioned Throughput 압승 |
 
-월 요청량별 비용:
-├── 1만 건/월:   $9       → Pay-per-token 압승
-├── 10만 건/월:  $90      → Pay-per-token 유리
-├── 50만 건/월:  $450     → 비슷한 구간 (역전점)
-├── 100만 건/월: $900     → Provisioned Throughput 유리
-└── 500만 건/월: $4,500   → Provisioned Throughput 압승
-
-[Provisioned Throughput 비용 계산]
-- 예시: 50 DBU/시간 × 730시간/월 × $0.07/DBU = ~$2,555/월
-- 이 비용에서 무제한 요청 가능 (처리량 범위 내)
-```
+> Llama 3.3 70B 기준 예시 단가: 입력 $0.001/1K 토큰, 출력 $0.002/1K 토큰, 평균 요청당 입력 500 + 출력 200 토큰
 
 > 💡 **현업에서는 이렇게 합니다**: **월 50만 건 이상**의 요청이 예상되면 Provisioned Throughput을 검토합니다. 단, 단순 비용 외에 **응답 지연시간(Latency)** 도 고려하세요. Pay-per-token은 공유 인프라이므로 피크 시간에 지연이 길어질 수 있습니다. 실시간 챗봇처럼 P95 응답 시간이 중요한 경우, 비용이 더 들더라도 Provisioned Throughput을 선택합니다.
 

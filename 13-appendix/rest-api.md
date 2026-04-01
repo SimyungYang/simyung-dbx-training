@@ -78,13 +78,14 @@ curl -s -X POST \
 
 ### API URL 구조
 
-```
-https://<workspace-url>/api/<version>/<service>/<action>
-                              │          │         │
-                              │          │         └── 세부 작업
-                              │          └── 서비스 영역
-                              └── API 버전 (2.0 또는 2.1)
-```
+**API URL 구조**: `https://<workspace-url>/api/<version>/<service>/<action>`
+
+| 구성 요소 | 설명 |
+|----------|------|
+| `<workspace-url>` | Workspace URL |
+| `<version>` | API 버전 (2.0 또는 2.1) |
+| `<service>` | 서비스 영역 |
+| `<action>` | 세부 작업 |
 
 ### 주요 서비스 목록
 

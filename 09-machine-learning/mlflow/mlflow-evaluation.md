@@ -250,19 +250,17 @@ mlflow.genai.scorers.Guidelines(
 
 LLM Judge Scorer는 내부적으로 다음과 같은 과정으로 동작합니다.
 
-```
-1. 프롬프트 구성
-   ├─ System Prompt: Judge 역할 정의 + 루브릭 (판단 기준)
-   ├─ User Input: 평가 대상 (질문, 응답, context, expected 등)
-   └─ Output Format: JSON 형태의 판단 결과 요청
+| 단계 | 설명 |
+|------|------|
+| **1. 프롬프트 구성** | System Prompt(Judge 역할 + 루브릭), User Input(질문, 응답, context, expected 등), Output Format(JSON 판단 결과) |
 
 2. LLM 호출
-   └─ Databricks의 Foundation Model (기본: databricks-meta-llama-3-3-70b-instruct)
+| **2. Judge LLM 호출** | Databricks Foundation Model (기본: databricks-meta-llama-3-3-70b-instruct) |
       또는 사용자 지정 모델
 
 3. 결과 파싱
-   ├─ score: yes/no 또는 0.0~1.0
-   └─ justification: 판단 근거 (자연어)
+| **3. 결과 파싱** | score: yes/no 또는 0.0~1.0 |
+| | justification: 판단 근거 (자연어) |
 ```
 
 > 💡 **Judge 모델 커스터마이징**: 기본 Judge 모델 대신 GPT-4o나 자체 파인튜닝된 모델을 사용할 수도 있습니다. 평가의 도메인 특화 정확도를 높이려면 Judge 모델 선택이 중요합니다.

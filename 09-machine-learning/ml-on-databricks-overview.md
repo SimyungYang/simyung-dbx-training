@@ -143,24 +143,14 @@ mlflow.register_model(
 
 아래는 실제 프로덕션 환경에서 Databricks ML을 활용하는 전체 흐름을 보여주는 예시입니다. 이탈 예측 모델을 데이터 준비부터 배포, 모니터링까지 자동화하는 시나리오입니다.
 
-```
-[매일 자정] Lakeflow Jobs 트리거
-    │
-    ├─ Task 1: Feature Engineering
-    │     └─ Spark로 customer_features 테이블 갱신
-    │
-    ├─ Task 2: Model Training
-    │     └─ 최신 피처로 모델 재학습 + MLflow 자동 로깅
-    │
-    ├─ Task 3: Model Evaluation
-    │     └─ 테스트 셋으로 성능 검증 (정확도 > 0.85?)
-    │
-    ├─ Task 4 (성공 시): Model Registration
-    │     └─ UC에 새 버전 등록 + champion Alias 부여
-    │
-    └─ Task 5: Model Serving 갱신
-          └─ 엔드포인트가 자동으로 새 모델 버전을 서빙
-```
+| 태스크 | 작업 | 상세 |
+|--------|------|------|
+| **트리거** | 매일 자정 Lakeflow Jobs | - |
+| Task 1 | Feature Engineering | Spark로 customer_features 테이블 갱신 |
+| Task 2 | Model Training | 최신 피처로 모델 재학습 + MLflow 자동 로깅 |
+| Task 3 | Model Evaluation | 테스트 셋으로 성능 검증 (정확도 > 0.85?) |
+| Task 4 (성공 시) | Model Registration | UC에 새 버전 등록 + champion Alias 부여 |
+| Task 5 | Model Serving 갱신 | 엔드포인트가 자동으로 새 모델 버전을 서빙 |
 
 이처럼 Databricks에서는 데이터 파이프라인과 ML 파이프라인이 동일한 플랫폼에서 동작하므로, Lakeflow Jobs로 전체 흐름을 하나의 워크플로우로 관리할 수 있습니다.
 

@@ -278,19 +278,14 @@ SparkTrials는 Spark 클러스터의 Worker 노드를 활용하여 여러 하이
 
 ### 내부 아키텍처
 
-```
-Driver Node (Hyperopt 컨트롤러)
-├── TPE 알고리즘 실행 (다음 시행할 파라미터 선택)
-├── Trial 큐 관리 (대기 → 실행 → 완료)
-└── MLflow 결과 로깅
-
-Worker Node 1: Trial #1 (max_depth=5, lr=0.01) → F1=0.85
-Worker Node 2: Trial #2 (max_depth=7, lr=0.03) → F1=0.87
-Worker Node 3: Trial #3 (max_depth=3, lr=0.1)  → F1=0.82
-Worker Node 4: Trial #4 (max_depth=9, lr=0.05) → F1=0.86
-    ...
-Worker Node N: Trial #N 동시 실행
-```
+| 노드 | 역할 | 예시 |
+|------|------|------|
+| **Driver Node** (Hyperopt 컨트롤러) | TPE 알고리즘 실행, Trial 큐 관리, MLflow 결과 로깅 | 다음 시행할 파라미터 선택 |
+| Worker Node 1 | Trial #1 | max_depth=5, lr=0.01 → F1=0.85 |
+| Worker Node 2 | Trial #2 | max_depth=7, lr=0.03 → F1=0.87 |
+| Worker Node 3 | Trial #3 | max_depth=3, lr=0.1 → F1=0.82 |
+| Worker Node 4 | Trial #4 | max_depth=9, lr=0.05 → F1=0.86 |
+| Worker Node N | Trial #N | 동시 실행 |
 
 ### parallelism과 Bayesian Optimization의 트레이드오프
 

@@ -233,15 +233,14 @@ GROUP BY DATE(order_date), product_category;
 
 국내 대형 금융사의 데이터 팀이 운영하던 환경은 다음과 같았습니다:
 
-```
-[기존 ETL 환경]
-├── Informatica PowerCenter 서버 3대 (라이선스: 연 5억 원)
-├── Oracle DW (Exadata: 연 유지보수 8억 원)
-├── ETL 매핑 2,300개 (10년간 누적)
-├── ETL 개발자 4명 (Informatica 전문가, 희소 인력)
-├── 일일 ETL 처리 시간: 12시간 (새벽 1시~오후 1시)
-└── 신규 데이터 소스 추가: 평균 3주 (매핑 설계 → 개발 → 테스트 → 배포)
-```
+| 항목 | 기존 ETL 환경 |
+|------|-------------|
+| 인프라 | Informatica PowerCenter 서버 3대 (라이선스: 연 5억 원) |
+| DW | Oracle DW (Exadata: 연 유지보수 8억 원) |
+| ETL 매핑 | 2,300개 (10년간 누적) |
+| 인력 | ETL 개발자 4명 (Informatica 전문가, 희소 인력) |
+| 처리 시간 | 일일 12시간 (새벽 1시~오후 1시) |
+| 소스 추가 | 평균 3주 (매핑 설계 → 개발 → 테스트 → 배포) |
 
 ### 전환 동기 — "비용"만이 아니었습니다
 
@@ -255,15 +254,14 @@ GROUP BY DATE(order_date), product_category;
 
 ### ELT 전환 후 결과 (18개월 후)
 
-```
-[전환 후 ELT 환경]
-├── Databricks Lakehouse (Lakeflow Jobs + SDP)
-├── Delta Lake on S3
-├── ELT 파이프라인 1,500개 (불필요한 700개 정리)
-├── 데이터 엔지니어 4명 (SQL + Python, 채용 용이)
-├── 일일 처리 시간: 2시간 (서버리스 클러스터 자동 확장)
-└── 신규 데이터 소스 추가: 평균 3일
-```
+| 항목 | 전환 후 ELT 환경 |
+|------|---------------|
+| 인프라 | Databricks Lakehouse (Lakeflow Jobs + SDP) |
+| 스토리지 | Delta Lake on S3 |
+| 파이프라인 | 1,500개 (불필요한 700개 정리) |
+| 인력 | 데이터 엔지니어 4명 (SQL + Python, 채용 용이) |
+| 처리 시간 | 일일 2시간 (서버리스 클러스터 자동 확장) |
+| 소스 추가 | 평균 3일 |
 
 | 지표 | Before | After | 개선 |
 |------|--------|-------|------|

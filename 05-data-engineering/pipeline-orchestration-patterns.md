@@ -4,27 +4,16 @@
 
 Lakeflow Jobs는 **여러 종류의 태스크를 DAG(방향성 비순환 그래프)로 조합** 하여 전체 파이프라인을 하나의 워크플로로 관리합니다. 수집 → 변환 → 품질 검증 → 서빙까지 하나의 Job으로 구성할 수 있습니다.
 
-```
-[Job: daily-data-pipeline]
-│
-├─ Task 1: 수집 (SDP Pipeline — Lakeflow Connect CDC)
-│   └─ Bronze 테이블에 원본 데이터 적재
-│
-├─ Task 2: 변환 (SDP Pipeline — Bronze → Silver → Gold)
-│   ├─ Silver: 정제, 중복 제거, SCD Type 1/2
-│   └─ Gold: 비즈니스 집계
-│
-├─ Task 3: 품질 검증 (SQL Task)
-│   └─ Gold 테이블의 행 수, NULL 비율, 전일 대비 변화량 체크
-│
-├─ Task 4-A: 성공 시 → ML 피처 갱신 (Notebook Task)
-│   └─ Feature Table 업데이트 → Online Table 동기화
-│
-├─ Task 4-B: 성공 시 → 대시보드 새로고침 (SQL Task)
-│   └─ REFRESH MATERIALIZED VIEW gold_daily_kpi
-│
-└─ Task 5: 실패 시 → Slack 알림 (Webhook)
-```
+**Job: daily-data-pipeline**
+
+| 태스크 | 유형 | 설명 |
+|--------|------|------|
+| **Task 1: 수집** | SDP Pipeline (Lakeflow Connect CDC) | Bronze 테이블에 원본 데이터 적재 |
+| **Task 2: 변환** | SDP Pipeline (Bronze → Silver → Gold) | Silver: 정제, 중복 제거, SCD Type 1/2. Gold: 비즈니스 집계 |
+| **Task 3: 품질 검증** | SQL Task | Gold 테이블의 행 수, NULL 비율, 전일 대비 변화량 체크 |
+| **Task 4-A: 성공 시** | Notebook Task | Feature Table 업데이트 → Online Table 동기화 |
+| **Task 4-B: 성공 시** | SQL Task | `REFRESH MATERIALIZED VIEW gold_daily_kpi` |
+| **Task 5: 실패 시** | Webhook | Slack 알림 |
 
 ```python
 # Lakeflow Jobs SDK로 위 파이프라인 생성
@@ -193,19 +182,14 @@ WHERE city = '서울'
 
 외부 DB의 CDC를 수집하고, Delta CDF(Change Data Feed)로 다운스트림에 전파하는 전체 흐름입니다.
 
-```
-[외부 MySQL]
-    │ Lakeflow Connect (CDC — binlog)
-    ▼
-[Bronze: bronze_customers]  ← 원본 CDC 이벤트 보존
-    │ SDP: APPLY CHANGES INTO
-    ▼
-[Silver: silver_customers]  ← SCD Type 1 (CDF 활성화)
-    │ Delta CDF (readChangeFeed)
-    ├──▶ [Online Table] ← 실시간 Feature Serving
-    ├──▶ [Gold: gold_customer_360] ← MV 증분 갱신
-    └──▶ [외부 시스템] ← Reverse ETL (foreachBatch)
-```
+| 단계 | 구성 요소 | 처리 방식 | 설명 |
+|------|----------|---------|------|
+| 1 | 외부 MySQL | Lakeflow Connect (CDC - binlog) | 소스 시스템 |
+| 2 | Bronze: bronze_customers | CDC 수집 | 원본 CDC 이벤트 보존 |
+| 3 | Silver: silver_customers | SDP: APPLY CHANGES INTO | SCD Type 1 (CDF 활성화) |
+| 4a | Online Table | Delta CDF (readChangeFeed) | 실시간 Feature Serving |
+| 4b | Gold: gold_customer_360 | Delta CDF (readChangeFeed) | MV 증분 갱신 |
+| 4c | 외부 시스템 | Delta CDF (readChangeFeed) | Reverse ETL (foreachBatch) |
 
 ```sql
 -- Silver 테이블에 CDF 활성화 (다운스트림 전파용)

@@ -12,14 +12,10 @@ Unity Catalog에서 **외부 로케이션(External Location)** 은 클라우드 
 
 외부 로케이션은 단독으로 동작하지 않습니다. 클라우드 스토리지에 접근하려면 **인증 정보(Storage Credential)** 가 필요합니다.
 
-```
-Storage Credential (인증 정보)
-  └── External Location A (s3://my-bucket/data/)
-        ├── External Table 1
-        └── External Volume 1
-  └── External Location B (s3://my-bucket/logs/)
-        └── External Table 2
-```
+| Storage Credential | External Location | 오브젝트 |
+|-------------------|------------------|---------|
+| 인증 정보 | A (`s3://my-bucket/data/`) | External Table 1, External Volume 1 |
+| | B (`s3://my-bucket/logs/`) | External Table 2 |
 
 | 구성 요소 | 역할 | 비유 |
 |-----------|------|------|
@@ -190,26 +186,17 @@ VALIDATE EXTERNAL LOCATION production_data;
 
 ### 권장 설계 패턴
 
-```
-Storage Credential: aws_prod_credential (IAM Role)
-  ├── External Location: prod_finance
-  │     URL: s3://datalake/production/finance/
-  │     → GRANT: finance_team (CREATE EXTERNAL TABLE, READ FILES)
-  │
-  ├── External Location: prod_marketing
-  │     URL: s3://datalake/production/marketing/
-  │     → GRANT: marketing_team (CREATE EXTERNAL TABLE, READ FILES)
-  │
-  ├── External Location: prod_shared
-  │     URL: s3://datalake/production/shared/
-  │     → GRANT: all_data_engineers (READ FILES)
-  │
-  └── External Location: staging_all
+| Storage Credential | External Location | URL | GRANT |
+|-------------------|------------------|-----|-------|
+| **aws_prod_credential** (IAM Role) | prod_finance | `s3://datalake/production/finance/` | finance_team (CREATE EXTERNAL TABLE, READ FILES) |
+| | prod_marketing | `s3://datalake/production/marketing/` | marketing_team (CREATE EXTERNAL TABLE, READ FILES) |
+| | prod_shared | `s3://datalake/production/shared/` | all_data_engineers (READ FILES) |
+| | staging_all
         URL: s3://datalake/staging/
         → GRANT: data_engineers (ALL PRIVILEGES)
 
 Storage Credential: aws_dev_credential (별도 IAM Role)
-  └── External Location: dev_sandbox
+| | dev_sandbox |
         URL: s3://datalake-dev/
         → GRANT: all_developers (ALL PRIVILEGES)
 ```
@@ -258,23 +245,14 @@ CREATE TABLE t3 LOCATION 's3://bucket/data/marketing/';
 
 ### 아키텍처
 
-```
-Databricks 계정 (Account A)
-  └── Unity Catalog Metastore
-        └── Storage Credential: cross_account_role
-              IAM Role: arn:aws:iam::ACCOUNT_A:role/uc-access-role
-              └── Trust Policy: Databricks Control Plane이 AssumeRole 가능
-
-              이 Role의 Policy:
-              - sts:AssumeRole → arn:aws:iam::ACCOUNT_B:role/data-reader-role
-
-데이터 계정 (Account B)
-  └── S3 버킷: s3://account-b-datalake/
-        └── Bucket Policy: ACCOUNT_B의 data-reader-role만 접근 가능
-
-  └── IAM Role: data-reader-role
-        └── Trust Policy: ACCOUNT_A의 uc-access-role이 AssumeRole 가능
-```
+| 계정 | 구성 요소 | 역할/정책 |
+|------|----------|---------|
+| **Account A** (Databricks) | Unity Catalog Metastore | - |
+| | Storage Credential: cross_account_role | IAM Role: `arn:aws:iam::ACCOUNT_A:role/uc-access-role` |
+| | Trust Policy | Databricks Control Plane이 AssumeRole 가능 |
+| | Role Policy | `sts:AssumeRole → arn:aws:iam::ACCOUNT_B:role/data-reader-role` |
+| **Account B** (데이터) | S3 버킷: `s3://account-b-datalake/` | Bucket Policy: data-reader-role만 접근 |
+| | IAM Role: data-reader-role | Trust Policy: ACCOUNT_A의 uc-access-role이 AssumeRole 가능 |
 
 ### 설정 절차
 

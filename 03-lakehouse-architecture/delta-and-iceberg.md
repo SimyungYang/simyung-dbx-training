@@ -177,18 +177,15 @@ SELECT * FROM catalog.schema.external_iceberg_table;
 
 Unity Catalog가 Iceberg REST Catalog로 동작할 때의 내부 흐름을 이해하면, 외부 엔진 연동 시 트러블슈팅에 도움이 됩니다.
 
-```
-외부 엔진 (Snowflake/Trino)
-    │
-    ├─ 1. GET /v1/config          → UC: 카탈로그 설정 반환
-    ├─ 2. GET /v1/namespaces      → UC: 스키마 목록 반환
-    ├─ 3. GET /v1/tables/{table}  → UC: 테이블 메타데이터 반환
-    │       └─ metadata_location, snapshot 정보
-    ├─ 4. Credential Vending      → UC: 임시 클라우드 자격증명 발급
-    │       └─ S3 STS Token / Azure SAS Token
-    └─ 5. 데이터 파일 직접 읽기     → 클라우드 스토리지 (S3/ADLS)
-            └─ Parquet 파일 직접 접근
-```
+| 단계 | API 호출 | 응답 |
+|------|---------|------|
+| 1 | `GET /v1/config` | UC: 카탈로그 설정 반환 |
+| 2 | `GET /v1/namespaces` | UC: 스키마 목록 반환 |
+| 3 | `GET /v1/tables/{table}` | UC: 테이블 메타데이터 반환 (metadata_location, snapshot 정보) |
+| 4 | Credential Vending | UC: 임시 클라우드 자격증명 발급 (S3 STS Token / Azure SAS Token) |
+| 5 | 데이터 파일 직접 읽기 | 클라우드 스토리지 (S3/ADLS) — Parquet 파일 직접 접근 |
+
+> 외부 엔진 (Snowflake/Trino)이 위 순서로 Iceberg REST Catalog API를 호출합니다.
 
 ### Credential Vending (자격증명 발급)
 

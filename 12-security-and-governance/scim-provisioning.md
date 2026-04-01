@@ -354,22 +354,16 @@ curl -X PATCH \
 
 ### 그룹 설계 모범 사례
 
-```
-# 권장하지 않는 패턴 (중첩 의존)
-Engineering (IdP)
-├── Data Engineering (IdP)
-│   ├── DE - Bronze Team
-│   └── DE - Gold Team
-└── ML Engineering (IdP)
-    ├── MLE - Training Team
-    └── MLE - Serving Team
+**권장하지 않는 패턴** (중첩 의존):
 
-# 권장 패턴 (평면 구조)
-dbx-data-engineers        → Databricks Account 그룹
-dbx-ml-engineers          → Databricks Account 그룹
-dbx-data-analysts         → Databricks Account 그룹
-dbx-workspace-admins      → Databricks Account 그룹
-```
+| IdP 그룹 | 하위 그룹 | 문제 |
+|----------|---------|------|
+| Engineering | Data Engineering | 중첩 그룹은 SCIM 동기화 시 문제 발생 가능 |
+| | - DE Bronze Team | - |
+| | - DE Gold Team | - |
+| | ML Engineering | - |
+| | - MLE Training Team | - |
+| | - MLE Serving Team | - |
 
 > 💡 **실무 권장**: IdP의 조직 구조(부서별 중첩 그룹)와 Databricks의 접근 제어 그룹을 **분리하여 설계**하세요. IdP에서 `dbx-` 접두사가 붙은 평면 그룹을 별도로 생성하고, 이 그룹만 SCIM으로 동기화하면 중첩 문제를 회피할 수 있습니다.
 

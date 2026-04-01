@@ -447,20 +447,16 @@ Metric View는 기존 **dbt Semantic Layer(MetricFlow)** 와 유사한 개념을
 
 ### 도메인별 Metric View 설계 패턴
 
-```
-catalog.analytics (분석 전용 카탈로그)
-  ├── finance (재무 스키마)
-  │    ├── revenue_metrics         -- 매출 메트릭
-  │    ├── cost_metrics            -- 비용 메트릭
-  │    └── profitability_metrics   -- 수익성 메트릭
-  ├── marketing (마케팅 스키마)
-  │    ├── campaign_metrics        -- 캠페인 성과 메트릭
-  │    ├── acquisition_metrics     -- 고객 획득 메트릭
-  │    └── retention_metrics       -- 고객 유지 메트릭
-  └── operations (운영 스키마)
-       ├── fulfillment_metrics     -- 배송/물류 메트릭
-       └── quality_metrics         -- 서비스 품질 메트릭
-```
+| 카탈로그 | 스키마 | Metric View | 설명 |
+|---------|--------|------------|------|
+| **catalog.analytics** | finance (재무) | revenue_metrics | 매출 메트릭 |
+| | | cost_metrics | 비용 메트릭 |
+| | | profitability_metrics | 수익성 메트릭 |
+| | marketing (마케팅) | campaign_metrics | 캠페인 성과 메트릭 |
+| | | acquisition_metrics | 고객 획득 메트릭 |
+| | | retention_metrics | 고객 유지 메트릭 |
+| | operations (운영) | fulfillment_metrics | 배송/물류 메트릭 |
+| | | quality_metrics | 서비스 품질 메트릭 |
 
 ### 메트릭 변경 관리 프로세스
 

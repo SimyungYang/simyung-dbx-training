@@ -1,4 +1,7 @@
-# Databricks Connect — 로컬 IDE에서 원격 Spark 실행
+| 로컬 개발 환경 | | 원격 클러스터 |
+|-------------|---|-----------|
+| VS Code, PyCharm, IntelliJ | → Spark 명령 → | 원격 클러스터 (또는 Serverless) |
+| | ← 결과 반환 ← | 데이터 처리 실행 |# Databricks Connect — 로컬 IDE에서 원격 Spark 실행
 
 ## 개념
 
@@ -16,18 +19,10 @@ Databricks 노트북은 편리하지만, 전문 개발자에게는 익숙한 로
 
 Databricks Connect를 사용하면 다음과 같은 워크플로가 가능합니다.
 
-```
-로컬 개발 환경                        Databricks 클러스터
-┌────────────────┐                  ┌────────────────────┐
-│  VS Code       │   Spark 명령    │  원격 클러스터       │
-│  PyCharm       │ ──────────────> │  (또는 Serverless)  │
-│  IntelliJ      │                 │                    │
-│                │   결과 반환      │  데이터 처리 실행    │
-│  코드 작성      │ <────────────── │  Unity Catalog 접근 │
-│  디버깅         │                 │                    │
-│  단위 테스트    │                 │                    │
-└────────────────┘                  └────────────────────┘
-```
+| 로컬 개발 환경 | 통신 | Databricks 클러스터 |
+|-------------|---|-----------|
+| VS Code, PyCharm, IntelliJ | → Spark 명령 → | 원격 클러스터 (또는 Serverless) |
+| 코드 작성, 디버깅, 단위 테스트 | ← 결과 반환 ← | 데이터 처리 실행, Unity Catalog 접근 |
 
 ---
 

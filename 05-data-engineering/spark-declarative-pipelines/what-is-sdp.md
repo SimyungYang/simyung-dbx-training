@@ -268,13 +268,12 @@ SDP는 일반 Spark 클러스터의 오토스케일링과 다른 **Enhanced Auto
 
 ### Enhanced Autoscaling의 핵심 동작
 
-```
-파이프라인 시작
-  ├── Phase 1: Bronze 테이블 처리 (데이터 양 분석 → Worker 10대 할당)
-  ├── Phase 2: Silver 테이블 처리 (의존성 충족 대기 → Worker 5대로 축소)
-  ├── Phase 3: Gold 테이블 처리 (집계 중심 → Worker 3대로 축소)
-  └── 완료: 모든 Worker 해제
-```
+| Phase | 처리 내용 | Worker 할당 |
+|-------|----------|------------|
+| Phase 1 | Bronze 테이블 처리 | 데이터 양 분석 → 10대 할당 |
+| Phase 2 | Silver 테이블 처리 | 의존성 충족 대기 → 5대로 축소 |
+| Phase 3 | Gold 테이블 처리 | 집계 중심 → 3대로 축소 |
+| 완료 | - | 모든 Worker 해제 |
 
 Enhanced Autoscaling은 각 Flow의 **데이터 볼륨과 처리 복잡도를 사전 분석**하여 필요한 만큼만 Worker를 할당합니다. 일반 오토스케일링처럼 "느린 반응 → 과다 할당 → 느린 축소" 패턴이 발생하지 않습니다.
 

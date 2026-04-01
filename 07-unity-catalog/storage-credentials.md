@@ -263,15 +263,14 @@ Storage Credential 3: prod-raw-cred
 
 ### 크로스 계정 구성 단계
 
-```
-[Account A: Databricks 워크스페이스]
-  └── Unity Catalog Master Role
-       └── AssumeRole → Storage Credential IAM Role (Account A)
-            └── AssumeRole → Data Access Role (Account B)
-                 └── S3 버킷 접근
+| 단계 | 역할 | 대상 |
+|------|------|------|
+| 1 | Unity Catalog Master Role | Account A: Databricks 워크스페이스 |
+| 2 | AssumeRole → Storage Credential IAM Role | Account A |
+| 3 | AssumeRole → Data Access Role | Account B |
+| 4 | S3 버킷 접근 | 최종 데이터 접근 |
 
-역할 체인: UC Master Role → Credential Role → Data Role
-```
+> **역할 체인**: UC Master Role → Credential Role → Data Role
 
 ```json
 // Account B의 Data Access Role 신뢰 정책

@@ -187,28 +187,14 @@ fe = FeatureEngineeringClient()  # ✅ 권장
 
 ### Databricks의 Skew 방지 아키텍처
 
-```text
-[학습 시]
-  labels_df (customer_id, is_churned)
-       │
-       ▼
-  FeatureLookup ──── Feature Table (Delta) ──── 동일한 피처 정의
-       │                                              │
-       ▼                                              │
-  training_df → 모델 학습                               │
-       │                                              │
-       ▼                                              │
-  모델 등록 (피처 의존성 자동 기록)                          │
-                                                      │
-[서빙 시]                                              │
-  추론 요청 (customer_id)                               │
-       │                                              │
-       ▼                                              │
-  Model Serving → Online Table ◄─── 동기화 ──── Feature Table (Delta)
-       │              │
-       ▼              │  동일한 데이터 소스에서 동일한 피처를 제공
-  추론 결과 반환 ◄──────┘
-```
+| 단계 | 학습 시 | 서빙 시 |
+|------|--------|--------|
+| 입력 | labels_df (customer_id, is_churned) | 추론 요청 (customer_id) |
+| 피처 조회 | FeatureLookup → Feature Table (Delta) | 동일한 피처 정의 자동 적용 |
+| 결과 | training_df → 모델 학습 → 모델 등록 (피처 의존성 자동 기록) | Online Table에서 피처 조회 → 모델 추론 → 예측 결과 반환 |
+
+> **핵심**: 학습과 서빙에서 **동일한 Feature Table 정의**를 사용하므로 Training-Serving Skew가 방지됩니다.
+
 
 | 방지 메커니즘 | 설명 |
 |-------------|------|

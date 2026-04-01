@@ -44,17 +44,18 @@ mlflow.register_model(model_uri, "catalog.schema.fraud_detection")
 
 ### 등록된 모델의 위치
 
-```
-Unity Catalog:
-  catalog
-    └── schema
-         ├── tables (테이블)
-         ├── volumes (파일)
-         └── models (ML 모델)  ← 여기에 등록됩니다
-              └── fraud_detection
-                   ├── Version 1 (2025-01-15)
-                   ├── Version 2 (2025-02-20)
-                   └── Version 3 (2025-03-10) ← champion
+| Unity Catalog 위치 | 오브젝트 | 설명 |
+|-------------------|---------|------|
+| catalog > schema | tables | 테이블 |
+| | volumes | 파일 |
+| | **models** | ML 모델 (여기에 등록) |
+| | └ fraud_detection | 모델 예시 |
+
+| Version | Date | Status |
+|---------|------|--------|
+| v1 | 2025-01-15 | - |
+| v2 | 2025-02-20 | - |
+| v3 | 2025-03-10 | champion |
 ```
 
 ---
@@ -398,17 +399,11 @@ def reject_model(model_name, version, reviewer, reason):
 
 ### 환경별 카탈로그 패턴
 
-```
-dev_catalog.ml.fraud_detection      ← 개발 환경 (데이터 사이언티스트 자유 실험)
-  └── v1, v2, v3... (실험 버전)
-
-staging_catalog.ml.fraud_detection  ← 스테이징 (자동 테스트)
-  └── v1 @challenger (검증 중)
-
-prod_catalog.ml.fraud_detection     ← 프로덕션 (승인된 모델만)
-  └── v1 @champion (서빙 중)
-  └── v0 @rollback (롤백용)
-```
+| 환경 | 모델 경로 | 설명 |
+|------|---------|------|
+| **개발** | dev_catalog.ml.fraud_detection | 데이터 사이언티스트 자유 실험 (v1, v2, v3...) |
+| **스테이징** | staging_catalog.ml.fraud_detection | 통합 테스트 (검증된 버전만 프로모션) |
+| **프로덕션** | prod_catalog.ml.fraud_detection | 실서비스 (v1: champion, v2: challenger - A/B 테스트) |
 
 ### 환경 간 모델 프로모션
 
@@ -465,27 +460,14 @@ Unity Catalog는 모델의 **전체 생애주기 리니지**를 자동으로 추
 
 ### 리니지가 추적하는 정보
 
-```
-소스 데이터 (upstream)
-  ├─ catalog.ecommerce.gold_orders (학습 데이터)
-  ├─ catalog.ml.customer_features (Feature Table)
-  └─ catalog.ml.product_features (Feature Table)
-       │
-       ▼
-MLflow Experiment Run
-  ├─ 하이퍼파라미터: max_depth=10, n_estimators=200
-  ├─ 메트릭: accuracy=0.95, f1=0.93
-  └─ 아티팩트: model.pkl, requirements.txt
-       │
-       ▼
-Model Registry (catalog.ml.fraud_detection/v3 @champion)
-       │
-       ▼
-Model Serving Endpoint (fraud-detection)
-       │
-       ▼
-Inference Table (catalog.ml.fraud_detection_inference_logs)
-```
+| 방향 | 구성 요소 | 설명 |
+|------|----------|------|
+| **소스 (upstream)** | catalog.ecommerce.gold_orders | 학습 데이터 |
+| | catalog.ml.customer_features | 피처 테이블 |
+| | catalog.ml.fraud_detection | 모델 (v1: deprecated, v2: champion, v3: challenger) |
+| **소비자 (downstream)** | Serving Endpoint: fraud-detection-endpoint | 모델 서빙 |
+| | Dashboard: fraud_monitoring_daily | 모니터링 대시보드 |
+| | Job: daily_fraud_scoring_pipeline | 일일 스코어링 파이프라인 |
 
 ### 리니지 SQL 조회
 

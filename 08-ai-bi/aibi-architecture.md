@@ -19,39 +19,15 @@ Databricks AI/BI는 단일 LLM이 아니라, 여러 AI 컴포넌트가 협력하
 
 Genie가 사용자의 질문을 SQL로 변환하는 과정을 단계별로 살펴보겠습니다.
 
-```
-사용자: "지난 달 서울 매출 상위 5개 제품을 알려줘"
+**사용자**: "지난 달 서울 매출 상위 5개 제품을 알려줘"
 
-1단계: NLU (의도 분석)
-  ├─ 시간 필터: "지난 달" → DATEADD(month, -1, CURRENT_DATE()) ~ CURRENT_DATE()
-  ├─ 공간 필터: "서울" → region = '서울'
-  ├─ 측정값: "매출" → SUM(order_amount) 또는 Metric View의 total_revenue
-  ├─ 차원: "제품" → product_name 또는 product_category
-  └─ 수량 제한: "상위 5개" → ORDER BY ... DESC LIMIT 5
+| 단계 | 처리 | 상세 |
+|------|------|------|
+| **1단계: NLU (의도 분석)** | 자연어 → 구조화 | 시간 필터: "지난 달" → DATEADD, 공간 필터: "서울" → region = '서울', 측정값: "매출" → SUM(order_amount), 차원: "제품" → product_name, 수량 제한: "상위 5개" → LIMIT 5 |
+| **2단계: Schema Matching** | 테이블 매핑 | 테이블: gold_orders, 컬럼 매핑: 매출 → order_amount, 제품 → product_name, Metric View 존재 시 정의를 우선 사용 |
+| **3단계: SQL Generation** | SQL 생성 | 안전한 SELECT 문만 생성 (INSERT/UPDATE/DELETE 불가) |
+| **4단계: Execution** | SQL 실행 | SQL Warehouse에서 실행, 결과를 자연어와 차트로 변환 |
 
-2단계: Schema Matching
-  ├─ 테이블: gold_orders (COMMENT: "주문 집계 테이블")
-  ├─ 컬럼 매핑: 매출 → order_amount, 제품 → product_name
-  └─ Metric View 존재 시: revenue_metrics의 정의를 우선 사용
-
-3단계: SQL Generation
-  SELECT product_name, SUM(order_amount) AS total_revenue
-  FROM catalog.schema.gold_orders
-  WHERE region = '서울'
-    AND order_date >= DATE_TRUNC('month', DATEADD(month, -1, CURRENT_DATE()))
-    AND order_date < DATE_TRUNC('month', CURRENT_DATE())
-  GROUP BY product_name
-  ORDER BY total_revenue DESC
-  LIMIT 5
-
-4단계: Validation
-  ├─ 문법 검증: ✅ 유효한 SQL
-  ├─ 권한 검증: ✅ 사용자가 gold_orders에 SELECT 권한 있음
-  └─ 성능 검증: ✅ 예상 스캔 행 수 적절
-
-5단계: 실행 & 포맷팅
-  └─ SQL Warehouse에서 실행 → 결과를 표 + 자연어로 반환
-```
 
 ---
 

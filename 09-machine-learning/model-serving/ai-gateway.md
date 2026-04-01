@@ -131,29 +131,13 @@ w.serving_endpoints.update_ai_gateway(
 
 #### 가드레일 동작 흐름
 
-```
-사용자 요청
-    │
-    ▼
-┌─────────────────┐
-│ 입력 가드레일    │ ← Safety Filter + Topic Filter + Keyword Filter
-│ (차단 시 거부)   │
-└────────┬────────┘
-         │ 통과
-         ▼
-┌─────────────────┐
-│ LLM 추론 실행    │ ← Foundation Model / External Model / Custom Model
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│ 출력 가드레일    │ ← Safety Filter + PII Detection + Keyword Filter
-│ (차단/마스킹)    │
-└────────┬────────┘
-         │ 통과
-         ▼
-    사용자 응답
-```
+| 단계 | 구성 요소 | 설명 |
+|------|----------|------|
+| 1 | 사용자 요청 | 입력 |
+| 2 | **입력 가드레일** | Safety Filter + Topic Filter + Keyword Filter (차단 시 거부) |
+| 3 | **LLM 호출** | Foundation Model / External Model (Rate Limit + Fallback 적용) |
+| 4 | **출력 가드레일** | PII Filter + Safety Filter + Custom Validator (부적절 시 필터링) |
+| 5 | 응답 반환 | 로깅 (Inference Table에 전수 기록) |
 
 > ⚠️ **가드레일은 100% 완벽하지 않습니다.** LLM 기반 필터링이므로 엣지 케이스가 존재할 수 있습니다. 민감한 애플리케이션에서는 가드레일과 함께 **추론 테이블 모니터링** 을 병행하여, 사후 검토도 수행하는 것을 권장합니다.
 

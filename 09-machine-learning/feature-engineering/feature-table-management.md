@@ -120,15 +120,13 @@ fe.create_table(
 
 ### 카탈로그 구조
 
-```
-catalog
-└── ml_features (스키마)
-    ├── customer_features           -- 고객 정적 피처
-    ├── customer_hourly_features    -- 고객 시간대별 피처
-    ├── product_features            -- 상품 피처
-    ├── merchant_features           -- 가맹점 피처
-    └── customer_product_features   -- 고객-상품 교차 피처
-```
+| 카탈로그/스키마 | Feature Table | 설명 |
+|-------------|--------------|------|
+| catalog > ml_features | customer_features | 고객 정적 피처 |
+| | customer_hourly_features | 고객 시간대별 피처 |
+| | product_features | 상품 피처 |
+| | merchant_features | 가맹점 피처 |
+| | customer_product_features | 고객-상품 교차 피처 |
 
 > 💡 **피처 검색**: Unity Catalog에 등록된 피처 테이블은 Databricks UI의 **Feature** 탭에서 검색하고 메타데이터(설명, 태그, 리니지)를 확인할 수 있습니다. 팀 간 피처 공유에 매우 유용합니다.
 

@@ -91,15 +91,13 @@ Lakeflow Connect의 수집은 크게 두 단계로 이루어집니다.
 
 처음 파이프라인을 시작하면, 소스 테이블의 **전체 데이터를 한 번 복사**합니다.
 
-```
-소스 테이블 (MySQL)              대상 테이블 (Delta)
-┌──────────────────┐           ┌──────────────────┐
-│ id │ name │ city │    →→→    │ id │ name │ city │
-│  1 │ Kim  │ Seoul│  전체복사  │  1 │ Kim  │ Seoul│
-│  2 │ Lee  │ Busan│           │  2 │ Lee  │ Busan│
-│  3 │ Park │ Daegu│           │  3 │ Park │ Daegu│
-└──────────────────┘           └──────────────────┘
-```
+**Snapshot (전체 복사)**: 소스 테이블 (MySQL) →→→ 대상 테이블 (Delta)
+
+| id | name | city |
+|----|------|------|
+| 1 | Kim | Seoul |
+| 2 | Lee | Busan |
+| 3 | Park | Daegu |
 
 ### 2단계: CDC 증분 수집 (Incremental CDC)
 
@@ -112,20 +110,22 @@ Lakeflow Connect의 수집은 크게 두 단계로 이루어집니다.
   - DELETE: id=3 (삭제)
 
 CDC 스트림으로 변경분만 전달:
-┌──────────────────────────────────┐
-│ op   │ id │ name │ city    │ ts  │
-│ INSERT│  4 │ Park │ Incheon │ ... │
-│ UPDATE│  2 │ Lee  │ Seoul   │ ... │
-│ DELETE│  3 │      │         │ ... │
-└──────────────────────────────────┘
+
+| op | id | name | city | ts |
+|----|----|------|------|----|
+| INSERT | 4 | Park | Incheon | ... |
+| UPDATE | 2 | Lee | Seoul | ... |
+| DELETE | 3 | | | ... |
 
 대상 테이블에 반영:
-┌──────────────────┐
-│ id │ name │ city   │
-│  1 │ Kim  │ Seoul  │ (변경 없음)
-│  2 │ Lee  │ Seoul  │ (UPDATE 반영)
-│  4 │ Park │ Incheon│ (INSERT 반영)
-└──────────────────┘  (id=3 DELETE 반영)
+
+| id | name | city | 상태 |
+|----|------|------|------|
+| 1 | Kim | Seoul | 변경 없음 |
+| 2 | Lee | Seoul | UPDATE 반영 |
+| 4 | Park | Incheon | INSERT 반영 |
+
+> id=3은 DELETE 반영으로 제거됨
 ```
 
 > 💡 **CDC의 장점**: 전체 데이터를 매번 다시 복사하는 Full Load 방식 대비, CDC는 변경분만 전달하므로 **소스 시스템의 부하가 최소화**되고, **네트워크 트래픽이 크게 줄어들며**, **수집 지연시간이 초 단위로 단축**됩니다.

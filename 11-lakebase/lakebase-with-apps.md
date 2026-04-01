@@ -38,77 +38,14 @@
 
 Streamlit은 데이터 앱을 가장 빠르게 만들 수 있는 프레임워크입니다. Lakebase와의 연결이 매우 간단합니다.
 
-```python
-# app.py — Streamlit + Lakebase 기본 연결
-import streamlit as st
-import psycopg2
-import pandas as pd
+**프로젝트 구조**:
 
-st.set_page_config(page_title="주문 관리", layout="wide")
-st.title("📦 주문 관리 시스템")
-
-# 커넥션 풀링 (앱 전체에서 재사용)
-@st.cache_resource
-def get_connection():
-    """Lakebase 연결을 생성하고 캐싱합니다."""
-    return psycopg2.connect(
-        host=st.secrets["lakebase"]["host"],
-        port=5432,
-        dbname=st.secrets["lakebase"]["dbname"],
-        user=st.secrets["lakebase"]["user"],
-        password=st.secrets["lakebase"]["password"],
-        sslmode="require"
-    )
-
-conn = get_connection()
-
-# --- 데이터 조회 ---
-st.header("최근 주문")
-df = pd.read_sql("""
-    SELECT o.id, c.name AS customer, o.product, 
-           o.amount, o.status, o.created_at
-    FROM orders o
-    JOIN customers c ON o.customer_id = c.id
-    ORDER BY o.created_at DESC
-    LIMIT 50
-""", conn)
-st.dataframe(df, use_container_width=True)
-
-# --- 주문 등록 폼 ---
-st.header("새 주문 등록")
-with st.form("order_form"):
-    col1, col2 = st.columns(2)
-    with col1:
-        customer_id = st.number_input("고객 ID", min_value=1, step=1)
-        product = st.text_input("상품명")
-    with col2:
-        amount = st.number_input("금액 (원)", min_value=0, step=1000)
-        status = st.selectbox("상태", ["pending", "confirmed", "shipped"])
-    
-    submitted = st.form_submit_button("주문 등록", type="primary")
-    if submitted and product:
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO orders (customer_id, product, amount, status) "
-            "VALUES (%s, %s, %s, %s)",
-            (customer_id, product, amount, status)
-        )
-        conn.commit()
-        st.success(f"✅ 주문이 등록되었습니다: {product} (₩{amount:,.0f})")
-        st.rerun()  # 페이지 새로고침으로 최신 데이터 표시
-
-# --- 매출 요약 ---
-st.header("📊 매출 요약")
-summary = pd.read_sql("""
-    SELECT 
-        status,
-        COUNT(*) AS order_count,
-        SUM(amount) AS total_amount
-    FROM orders
-    GROUP BY status
-""", conn)
-st.bar_chart(summary.set_index("status")["total_amount"])
-```
+| 파일 | 설명 |
+|------|------|
+| `app.py` | 메인 앱 코드 |
+| `requirements.txt` | Python 의존성 |
+| `app.yaml` | Databricks Apps 설정 |
+| `.streamlit/secrets.toml` | 시크릿 (로컬 개발용) |
 
 **Streamlit secrets 설정** (`secrets.toml`):
 
@@ -679,11 +616,12 @@ with tab_edit:
 ```bash
 # 프로젝트 구조
 my-app/
-├── app.py              # 메인 앱 코드
-├── requirements.txt    # Python 의존성
-├── app.yaml           # Databricks Apps 설정
-└── .streamlit/
-    └── secrets.toml   # 시크릿 (로컬 개발용)
+| 파일 | 설명 |
+|------|------|
+| `app.py` | 메인 앱 코드 |
+| `requirements.txt` | Python 의존성 |
+| `app.yaml` | Databricks Apps 설정 |
+| `.streamlit/secrets.toml` | 시크릿 (로컬 개발용) |
 ```
 
 **app.yaml 설정**:

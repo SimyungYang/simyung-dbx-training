@@ -97,14 +97,13 @@ REFRESH TABLE silver_orders;  -- Materialized View 새로고침
 
 하나의 Silver 테이블에서 **목적이 다른 여러 Gold 테이블** 을 생성할 수 있습니다.
 
-```
-silver_orders (정제된 주문 데이터)
-    ├─→ gold_daily_revenue          (경영진 대시보드용)
-    ├─→ gold_customer_lifetime_value (마케팅 CRM용)
-    ├─→ gold_product_performance     (상품팀 분석용)
-    ├─→ ml_features_purchase_history (ML 추천 모델용)
-    └─→ gold_regional_sales          (영업팀 리포트용)
-```
+| 소스 | Gold 테이블 | 소비자 |
+|------|-----------|--------|
+| silver_orders (정제된 주문 데이터) | gold_daily_revenue | 경영진 대시보드 |
+| | gold_customer_lifetime_value | 마케팅 CRM |
+| | gold_product_performance | 상품팀 분석 |
+| | ml_features_purchase_history | ML 추천 모델 |
+| | gold_regional_sales | 영업팀 리포트 |
 
 **Silver 정제 로직은 한 번만 작성하고, Gold는 소비자별로 다양하게 만듭니다.** 이렇게 하면 정제 로직의 중복을 방지하면서도 각 팀의 요구를 독립적으로 충족할 수 있습니다.
 

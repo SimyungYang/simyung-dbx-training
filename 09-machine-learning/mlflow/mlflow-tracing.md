@@ -233,18 +233,19 @@ Model Serving 엔드포인트에 배포된 에이전트는 **자동으로 모든
 
 하나의 Trace는 **트리(Tree) 구조의 Span 계층**으로 구성됩니다. 루트 Span은 전체 요청을 나타내고, 하위 Span은 각 처리 단계를 나타냅니다.
 
-```
-Trace (trace_id: "abc-123")
-├── Root Span: "rag_agent" (type: AGENT, 총 1,350ms)
-│   ├── Span: "query_rewrite" (type: CHAIN, 15ms)
-│   │   └── Span: "llm_rewrite" (type: LLM, 12ms)
-│   ├── Span: "document_retrieval" (type: RETRIEVER, 85ms)
-│   │   ├── Span: "embedding" (type: EMBEDDING, 25ms)
-│   │   └── Span: "vector_search" (type: RETRIEVER, 55ms)
-│   ├── Span: "reranking" (type: RERANKER, 30ms)
-│   └── Span: "answer_generation" (type: LLM, 1,200ms)
-│       └── Span: "response_parse" (type: PARSER, 5ms)
-```
+| Span | Type | Duration |
+|------|------|----------|
+| **Root: rag_agent** | AGENT | 1,350ms |
+| - query_rewrite | CHAIN | 15ms |
+|   - llm_rewrite | LLM | 12ms |
+| - document_retrieval | RETRIEVER | 85ms |
+|   - embedding | EMBEDDING | 25ms |
+|   - vector_search | RETRIEVER | 55ms |
+| - reranking | RERANKER | 30ms |
+| - answer_generation | LLM | 1,200ms |
+|   - response_parse | PARSER | 5ms |
+
+> Trace ID: "abc-123" 
 
 ### Span의 핵심 속성
 

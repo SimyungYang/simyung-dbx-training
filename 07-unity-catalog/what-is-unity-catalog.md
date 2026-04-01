@@ -88,15 +88,15 @@ Unity Catalog의 전체 아키텍처는 **Account → Metastore → Catalog → 
 
 Unity Catalog는 모든 데이터 자산을 **`catalog.schema.object`** 3-Level 네임스페이스로 참조합니다.
 
-```
-Catalog (카탈로그)
-  └── Schema (스키마)
-       ├── Table (테이블)
-       ├── View (뷰)
-       ├── Volume (볼륨 - 파일)
-       ├── Function (함수)
-       └── Model (ML 모델)
-```
+| 수준 | 오브젝트 | 설명 |
+|------|---------|------|
+| **Catalog** | 카탈로그 | 최상위 컨테이너 |
+| └ **Schema** | 스키마 | 논리적 그룹 |
+|   - | Table | 테이블 |
+|   - | View | 뷰 |
+|   - | Volume | 볼륨 (파일) |
+|   - | Function | 함수 |
+|   - | Model | ML 모델 |
 
 ```sql
 -- 완전한 3-Level 네임스페이스로 테이블 참조
@@ -350,16 +350,11 @@ SHOW GRANTS ON SCHEMA dev_ecommerce.orders;
 
 Unity Catalog의 Metastore는 **리전 단위**로 생성됩니다. 각 리전의 Workspace는 해당 리전의 Metastore에 연결됩니다.
 
-```
-Databricks Account
-├── Metastore (us-east-1)
-│   ├── Workspace A (프로덕션)
-│   └── Workspace B (개발)
-├── Metastore (eu-west-1)
-│   └── Workspace C (EU 데이터)
-└── Metastore (ap-northeast-2)
-    └── Workspace D (한국)
-```
+| Account | Metastore | Workspace |
+|---------|-----------|-----------|
+| Databricks Account | us-east-1 | Workspace A (프로덕션), Workspace B (개발) |
+| | eu-west-1 | Workspace C (EU 데이터) |
+| | ap-northeast-2 | Workspace D (한국) |
 
 ### 멀티 리전 통합 전략
 

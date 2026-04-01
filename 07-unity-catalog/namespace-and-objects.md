@@ -6,18 +6,18 @@
 
 전통적인 데이터베이스에서 `database.table` 형식으로 2단계 네임스페이스를 사용하는 것과 달리, Unity Catalog는 **Catalog**라는 최상위 계층을 추가하여 3단계로 확장했습니다. 이를 통해 환경별(production/staging/dev), 팀별, 도메인별 데이터를 명확하게 분리하고 독립적으로 권한을 관리할 수 있습니다.
 
-```
-metastore (최상위 - 리전당 1개)
-  ├── catalog_1 (카탈로그)
-  │     ├── schema_a (스키마)
-  │     │     ├── table_1 (테이블)
-  │     │     ├── view_1 (뷰)
-  │     │     ├── volume_1 (볼륨 - 파일)
-  │     │     ├── function_1 (함수)
-  │     │     └── model_1 (ML 모델)
-  │     └── schema_b
-  └── catalog_2
-```
+| 수준 | 이름 | 유형 |
+|------|------|------|
+| Metastore | (최상위 - 리전당 1개) | 컨테이너 |
+| └ Catalog | catalog_1 | 카탈로그 |
+|   └ Schema | schema_a | 스키마 |
+|     - | table_1 | 테이블 |
+|     - | view_1 | 뷰 |
+|     - | volume_1 | 볼륨 (파일) |
+|     - | function_1 | 함수 |
+|     - | model_1 | ML 모델 |
+|   └ Schema | schema_b | 스키마 |
+| └ Catalog | catalog_2 | 카탈로그 |
 
 ### 완전한 이름 (Fully Qualified Name)
 
@@ -223,56 +223,39 @@ OPTIONS (
 
 가장 널리 사용되는 패턴입니다. 환경(production/staging/dev)을 카탈로그로 분리하고, 각 환경 내에서 비즈니스 도메인으로 스키마를 나눕니다. 환경별 접근 권한을 카탈로그 수준에서 쉽게 관리할 수 있다는 것이 장점입니다.
 
-```
-production
-  ├── ecommerce (주문, 고객, 상품)
-  ├── hr (직원, 급여)
-  └── finance (매출, 비용)
-
-staging
-  ├── ecommerce
-  └── hr
-
-dev
-  ├── ecommerce
-  └── sandbox (개인 실험용)
-```
+| 카탈로그 | 스키마 | 설명 |
+|---------|--------|------|
+| **production** | ecommerce | 주문, 고객, 상품 |
+| | hr | 직원, 급여 |
+| | finance | 매출, 비용 |
+| **staging** | ecommerce | - |
+| | hr | - |
+| **dev** | ecommerce | - |
+| | sandbox | 개인 실험용 |
 
 ### 전략 2: 환경별 카탈로그 + Medallion별 스키마
 
 데이터 엔지니어링 관점에서 데이터의 처리 단계를 중심으로 스키마를 구성하는 패턴입니다. ETL 파이프라인의 흐름이 스키마 구조에 자연스럽게 반영됩니다.
 
-```
-production
-  ├── bronze (원본 데이터)
-  ├── silver (정제된 데이터)
-  └── gold (비즈니스 집계)
-
-dev
-  ├── bronze
-  ├── silver
-  └── gold
-```
+| 카탈로그 | 스키마 | 설명 |
+|---------|--------|------|
+| **production** | bronze | 원본 데이터 |
+| | silver | 정제된 데이터 |
+| | gold | 비즈니스 집계 |
+| **dev** | bronze | - |
+| | silver | - |
+| | gold | - |
 
 ### 전략 3: 팀별 카탈로그 (대규모 조직)
 
 대규모 조직에서 팀 간 데이터 독립성을 최대화할 때 사용합니다. 각 팀이 자체 카탈로그를 소유하고, 공유 데이터는 별도의 shared 카탈로그에 공개합니다.
 
-```
-data_engineering
-  ├── bronze
-  ├── silver
-  └── gold
-
-data_science
-  ├── features
-  ├── models
-  └── experiments
-
-shared
-  ├── reference_data (코드 테이블 등)
-  └── cross_team (팀 간 공유 데이터)
-```
+| 카탈로그 | 스키마 | 설명 |
+|---------|--------|------|
+| **data_engineering** | bronze, silver, gold | 데이터 파이프라인 |
+| **data_science** | features, models, experiments | ML/AI |
+| **shared** | reference_data | 코드 테이블 등 |
+| | cross_team | 팀 간 공유 데이터 |
 
 > 💡 **권장**: 대부분의 조직에서는 **전략 1 (환경별 카탈로그 + 도메인별 스키마)** 로 시작하는 것을 권장합니다. 조직이 커지고 요구사항이 복잡해지면 전략 3으로 확장할 수 있습니다.
 

@@ -10,17 +10,14 @@
 
 ## Volume의 위치
 
-```
-catalog
-  └── schema
-       ├── tables (테이블 — 행/열 데이터)
-       ├── views (뷰)
-       └── volumes (볼륨 — 파일 데이터)
-            └── my_volume
-                 ├── reports/report_2025.pdf
-                 ├── images/product_001.jpg
-                 └── raw_data/orders_20250315.csv
-```
+| 수준 | 오브젝트 | 설명 |
+|------|---------|------|
+| catalog > schema | tables | 행/열 데이터 |
+| | views | 뷰 |
+| | volumes | 파일 데이터 |
+|   └ my_volume | `reports/report_2025.pdf` | PDF 파일 |
+| | `images/product_001.jpg` | 이미지 파일 |
+| | `raw_data/orders_20250315.csv` | CSV 원시 데이터 |
 
 ### 파일 경로 형식
 
@@ -390,14 +387,10 @@ df = (spark.readStream
 
 ### 파일 수집 → 처리 → 아카이브 파이프라인
 
-```
-External Volume (랜딩 존)        Managed Volume (아카이브)
-/Volumes/prod/etl/landing/      /Volumes/prod/etl/archive/
-  └── orders/                     └── orders/
-       ├── 20250301.csv  ──Auto Loader──> bronze_orders (Delta)
-       ├── 20250302.csv              │
-       └── 20250303.csv              └──> 처리 완료 파일 이동
-```
+| 볼륨 유형 | 경로 | 내용 | 처리 |
+|----------|------|------|------|
+| **External Volume** (랜딩 존) | `/Volumes/prod/etl/landing/orders/` | 20250301.csv, 20250302.csv, 20250303.csv | Auto Loader → bronze_orders (Delta) |
+| **Managed Volume** (아카이브) | `/Volumes/prod/etl/archive/orders/` | 처리 완료 파일 | 처리 완료 후 이동 |
 
 ```python
 # 처리 완료 파일을 아카이브 Volume으로 이동

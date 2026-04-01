@@ -35,27 +35,15 @@
 
 ## 프로젝트 구조
 
-```
-my-data-project/
-├── databricks.yml              # 메인 설정 파일 (프로젝트 루트)
-├── resources/
-│   ├── jobs.yml                # Job 정의
-│   ├── pipelines.yml           # Pipeline 정의
-│   └── dashboards.yml          # 대시보드 정의
-├── src/
-│   ├── notebooks/
-│   │   ├── bronze_ingestion.py
-│   │   ├── silver_transform.sql
-│   │   └── gold_aggregation.sql
-│   └── pipelines/
-│       └── medallion_pipeline.sql
-├── tests/
-│   └── test_transforms.py
-└── environments/
-    ├── dev.yml                 # 개발 환경 오버라이드
-    ├── staging.yml             # 스테이징 환경 오버라이드
-    └── prod.yml                # 프로덕션 환경 오버라이드
-```
+| 파일/디렉토리 | 설명 |
+|-------------|------|
+| `databricks.yml` | 메인 설정 파일 (프로젝트 루트) |
+| `resources/jobs.yml` | Job 정의 |
+| `resources/pipelines.yml` | Pipeline 정의 |
+| `resources/dashboards.yml` | 대시보드 정의 |
+| `src/` | 소스 코드 (노트북, Python, SQL) |
+| `tests/` | 테스트 코드 |
+| `fixtures/` | 테스트 데이터 |
 
 ---
 

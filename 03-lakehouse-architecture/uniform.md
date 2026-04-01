@@ -14,20 +14,13 @@
 
 UniForm의 핵심은 **데이터 파일은 하나**, **메타데이터만 두 가지**라는 점입니다.
 
-```
-Delta 테이블 디렉토리:
-├── _delta_log/                  ← Delta 프로토콜 메타데이터
-│   ├── 00000000000000000000.json
-│   ├── 00000000000000000001.json
-│   └── ...
-├── metadata/                    ← Iceberg 프로토콜 메타데이터 (UniForm이 자동 생성)
-│   ├── v1.metadata.json
-│   ├── snap-xxxxx.avro
-│   └── ...
-├── part-00001.parquet          ← 실제 데이터 (공유)
-├── part-00002.parquet
-└── ...
-```
+**Delta 테이블 디렉토리 구조 (UniForm 활성화 시)**:
+
+| 경로 | 설명 |
+|------|------|
+| `_delta_log/*.json` | Delta 프로토콜 메타데이터 |
+| `metadata/*.metadata.json`, `snap-*.avro` | Iceberg 프로토콜 메타데이터 (UniForm이 자동 생성) |
+| `part-*.parquet` | 실제 데이터 파일 (Delta와 Iceberg가 공유) |
 
 - **Databricks/Spark**는 `_delta_log/`를 읽어 Delta 프로토콜로 데이터에 접근합니다
 - **Snowflake/Trino/Flink**는 `metadata/`를 읽어 Iceberg 프로토콜로 동일한 데이터에 접근합니다

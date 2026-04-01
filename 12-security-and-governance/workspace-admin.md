@@ -25,22 +25,13 @@ Databricks는 **2계층 관리 구조**를 사용합니다. 이 구조를 이해
 | **Workspace Admin** | 개별 Workspace | 클러스터 정책, 기능 활성화, 워크스페이스 내 권한 관리 |
 | **Metastore Admin** | Unity Catalog 메타스토어 | 카탈로그 생성, 데이터 거버넌스, Delta Sharing |
 
-```text
-Databricks Account
-├── Account Admin (전사 관리)
-├── Workspace A (개발)
-│   ├── Workspace Admin
-│   ├── 개발팀 사용자들
-│   └── 클러스터, 노트북, Job
-├── Workspace B (스테이징)
-│   ├── Workspace Admin
-│   └── QA팀 사용자들
-├── Workspace C (프로덕션)
-│   ├── Workspace Admin
-│   └── 운영팀 + 서비스 프린시펄
-└── Unity Catalog Metastore (공유)
-    └── Metastore Admin
-```
+| 수준 | 역할/구성 |
+|------|---------|
+| **Databricks Account** | Account Admin (전사 관리) |
+| **Workspace A** (개발) | Workspace Admin, 개발팀 사용자들, 클러스터/노트북/Job |
+| **Workspace B** (스테이징) | Workspace Admin, QA팀 사용자들 |
+| **Workspace C** (프로덕션) | Workspace Admin, 운영팀 + 서비스 프린시펄 |
+| **Unity Catalog Metastore** (공유) | Metastore Admin |
 
 ---
 
@@ -50,14 +41,12 @@ Databricks Account
 
 Account Admin이 Account Console에서 워크스페이스를 생성합니다.
 
-```text
-Workspace 생성 시 필요한 정보:
-├── Workspace 이름: my-company-dev
-├── 클라우드 리전: ap-northeast-2 (서울)
-├── 가격 티어: Premium (Unity Catalog 사용 시 필수)
-├── 네트워크 설정: Customer-Managed VPC (선택)
-└── 스토리지 설정: S3 버킷 (DBFS Root)
-```
+| 항목 | 예시 |
+|------|------|
+| Workspace 이름 | my-company-dev |
+| 클라우드 리전 | ap-northeast-2 (서울) |
+| 네트워크 설정 | VPC ID, Subnet ID (선택) |
+| Unity Catalog | Metastore 연결 (필수 권장) |
 
 ### 권장 워크스페이스 분리 전략
 
@@ -181,56 +170,13 @@ databricks cluster-policies create --json '{
   "name": "analyst-small",
   "definition": "{\"node_type_id\":{\"type\":\"allowlist\",\"values\":[\"i3.xlarge\"]},\"autoscale.max_workers\":{\"type\":\"range\",\"minValue\":1,\"maxValue\":4}}"
 }'
-```
-
----
-
-## 기능 활성화/비활성화
-
-Workspace Admin은 워크스페이스의 기능을 세밀하게 제어할 수 있습니다.
-
-### 주요 기능 설정
-
-| 기능 | 기본값 | 설명 | 설정 위치 |
-|------|--------|------|-----------|
-| **Repos (Git 연동)** | 활성화 | Git 저장소 연동 허용 | Admin Settings > Workspace |
-| **DBFS 브라우저** | 활성화 | DBFS 파일 탐색 허용 | Admin Settings > Workspace |
-| **노트북 결과 다운로드** | 활성화 | 쿼리 결과를 CSV로 다운로드 | Admin Settings > Workspace |
-| **파일 업로드** | 활성화 | UI에서 파일 업로드 허용 | Admin Settings > Workspace |
-| **Web Terminal** | 비활성화 | 클러스터에 터미널 접속 | Admin Settings > Workspace |
-| **PyPI/CRAN 패키지** | 활성화 | 외부 라이브러리 설치 허용 | Admin Settings > Workspace |
-
-> ⚠️ **보안 팁**: 프로덕션 워크스페이스에서는 **노트북 결과 다운로드**, **Web Terminal**, **DBFS 브라우저** 등을 비활성화하여 데이터 유출 경로를 최소화하는 것이 좋습니다.
-
----
-
-## 빌링 및 비용 관리
-
-### DBU(Databricks Unit) 이해
-
-> 💡 **DBU**는 Databricks의 과금 단위입니다. 클러스터 유형, 인스턴스 크기, 워크로드 종류에 따라 시간당 소모되는 DBU가 달라집니다.
-
-| 워크로드 유형 | DBU 소비 | 설명 |
-|--------------|---------|------|
-| **All-Purpose Compute** | 높음 | 대화형 분석, 노트북 실행 |
-| **Jobs Compute** | 중간 | 자동화된 Job 실행 (All-Purpose 대비 약 50% 절감) |
-| **SQL Warehouse** | 중간 | BI 쿼리, SQL 분석 |
-| **Serverless** | 변동 | 서버리스 컴퓨팅 (초 단위 과금) |
-| **Model Serving** | 변동 | ML 모델 추론 |
-
-### 예산 설정
-
-Account Console에서 워크스페이스별, 태그별 예산을 설정할 수 있습니다.
-
-```text
-예산 설정 예시:
-├── 전사 월 예산: $50,000
-├── Workspace별 예산:
-│   ├── dev-workspace: $10,000/월
-│   ├── staging-workspace: $5,000/월
-│   └── prod-workspace: $35,000/월
-└── 알림 임계값: 50%, 80%, 100%
-```
+| 예산 범위 | 금액 |
+|----------|------|
+| 전사 월 예산 | $50,000 |
+| dev-workspace | $10,000/월 |
+| staging-workspace | $5,000/월 |
+| prod-workspace | $35,000/월 |
+| 알림 임계값 | 50%, 80%, 100% |
 
 ### 비용 절감 모범 사례
 

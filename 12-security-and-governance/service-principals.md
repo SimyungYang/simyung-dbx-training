@@ -272,18 +272,16 @@ databricks account service-principals delete-oauth2-secret \
 
 ### 권장 네이밍 규칙
 
-```
-{환경}-{팀}-{용도}-sp
+**명명 규칙**: `{환경}-{팀}-{용도}-sp`
 
-예시:
-├─ prod-de-etl-sp          ← 프로덕션 데이터 엔지니어링 ETL
-├─ prod-de-lakeflow-sp     ← 프로덕션 Lakeflow Connect 수집
-├─ prod-ml-training-sp     ← 프로덕션 ML 모델 학습
-├─ prod-ml-serving-sp      ← 프로덕션 모델 서빙
-├─ prod-bi-reporting-sp    ← 프로덕션 BI 리포트
-├─ dev-de-etl-sp           ← 개발 환경 ETL
-└─ cicd-deploy-sp          ← CI/CD 배포 전용
-```
+| 이름 | 용도 |
+|------|------|
+| prod-de-etl-sp | 프로덕션 데이터 엔지니어링 ETL |
+| prod-de-lakeflow-sp | 프로덕션 Lakeflow Connect 수집 |
+| prod-ml-training-sp | 프로덕션 ML 모델 학습 |
+| prod-ml-serving-sp | 프로덕션 모델 서빙 |
+| prod-bi-reporting-sp | 프로덕션 BI 리포트 |
+| dev-ds-experiment-sp | 개발 환경 실험용 |
 
 ### SP 인벤토리 관리
 
