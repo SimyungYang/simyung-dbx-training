@@ -99,9 +99,9 @@ WITH (
 ### 방법 2: UI로 생성
 
 1. **Catalog Explorer**에서 소스 Feature Table로 이동합니다
-2. 우측 상단 **"Create Online Table"** 버튼을 클릭합니다
+2. 우측 상단 "**Create Online Table**" 버튼을 클릭합니다
 3. Online Table 이름, 동기화 모드를 설정합니다
-4. **"Create"**를 클릭하면 동기화가 시작됩니다
+4. "**Create**"를 클릭하면 동기화가 시작됩니다
 
 ### 방법 3: Python SDK로 생성
 

@@ -215,7 +215,7 @@ AWS에서 Storage Credential을 사용하려면, IAM Role의 **신뢰 정책(Tru
 
 ## 실전 인사이트: IAM Role을 하나만 만들어서 모든 버킷에 접근하게 한 실수
 
-초기 Databricks 도입 시 가장 흔한 실수가 **"편의를 위해 하나의 IAM Role에 모든 S3 버킷 접근 권한을 몰아주는 것"**입니다.
+초기 Databricks 도입 시 가장 흔한 실수가 "**편의를 위해 하나의 IAM Role에 모든 S3 버킷 접근 권한을 몰아주는 것**"입니다.
 
 ### 사고 사례
 

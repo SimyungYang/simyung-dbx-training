@@ -311,7 +311,7 @@ DEEP CLONE catalog.schema.orders_external;
 
 ### 실전 패턴: Foreign Table로 탐색 → Managed Table로 정착
 
-가장 많이 사용되는 패턴은 **"먼저 Foreign Table로 탐색하고, 가치가 확인되면 Managed Table로 가져오는"** 흐름입니다.
+가장 많이 사용되는 패턴은 "**먼저 Foreign Table로 탐색하고, 가치가 확인되면 Managed Table로 가져오는**" 흐름입니다.
 
 ```sql
 -- 1단계: Foreign Table로 데이터 탐색

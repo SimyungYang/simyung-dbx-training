@@ -328,12 +328,12 @@ databricks pipelines start-update --pipeline-id <id> --full-refresh
 
 | 증상 | 원인 | 해결 방법 |
 |------|------|----------|
-| **"Table not found"** | 소스 테이블이 아직 생성되지 않음 | SDP가 의존성을 자동 관리하므로, 전체 파이프라인을 다시 실행합니다 |
-| **"Schema mismatch"** | JSON 스키마가 변경됨 | `cloudFiles.schemaEvolutionMode`를 `addNewColumns`로 설정합니다 |
+| "**Table not found**" | 소스 테이블이 아직 생성되지 않음 | SDP가 의존성을 자동 관리하므로, 전체 파이프라인을 다시 실행합니다 |
+| "**Schema mismatch**" | JSON 스키마가 변경됨 | `cloudFiles.schemaEvolutionMode`를 `addNewColumns`로 설정합니다 |
 | **Expectation으로 모든 행이 제거됨** | 품질 규칙이 너무 엄격함 | 규칙을 완화하거나, `ON VIOLATION FAIL UPDATE`로 변경하여 원인을 조사합니다 |
-| **"Column not found"** | Silver 쿼리에서 참조한 컬럼이 Bronze에 없음 | Bronze 스키마를 `DESCRIBE TABLE`로 확인합니다 |
+| "**Column not found**" | Silver 쿼리에서 참조한 컬럼이 Bronze에 없음 | Bronze 스키마를 `DESCRIBE TABLE`로 확인합니다 |
 | **파이프라인이 시작되지 않음** | 권한 부족 | 카탈로그/스키마에 대한 `CREATE TABLE` 권한을 확인합니다 |
-| **"Auto Loader detected new files but schema changed"** | 새 파일의 스키마가 다름 | 스키마 힌트를 제공하거나, 스키마 위치를 리셋합니다 |
+| "**Auto Loader detected new files but schema changed**" | 새 파일의 스키마가 다름 | 스키마 힌트를 제공하거나, 스키마 위치를 리셋합니다 |
 
 ### 유용한 디버깅 쿼리
 
