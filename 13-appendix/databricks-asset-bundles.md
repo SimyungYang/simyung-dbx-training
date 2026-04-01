@@ -2,11 +2,11 @@
 
 ## 개념
 
-> 💡 **Databricks Declarative Automation Bundles** (구 Databricks Declarative Automation Bundles / DABs)는 Databricks 리소스(Jobs, Pipelines, 대시보드 등)를 **코드로 정의하고 배포**하는 IaC(Infrastructure as Code) 도구입니다. YAML 파일로 리소스를 선언하고, `databricks bundle` CLI 명령어로 배포합니다.
+> 💡 **Databricks Declarative Automation Bundles** (구 Databricks Declarative Automation Bundles / DABs)는 Databricks 리소스(Jobs, Pipelines, 대시보드 등)를 ** 코드로 정의하고 배포**하는 IaC(Infrastructure as Code) 도구입니다. YAML 파일로 리소스를 선언하고, `databricks bundle` CLI 명령어로 배포합니다.
 
-> 🆕 **명칭 변경**: 2025년부터 **Databricks Declarative Automation Bundles (DABs)** 가 **Declarative Automation Bundles**로 리브랜딩되었습니다. CLI 명령어(`databricks bundle`)와 설정 파일 구조는 동일합니다. 기존 문서나 블로그에서 "DABs"나 "Declarative Automation Bundles"로 언급되는 것은 같은 기능을 가리킵니다.
+> 🆕 ** 명칭 변경**: 2025년부터 **Databricks Declarative Automation Bundles (DABs)** 가 **Declarative Automation Bundles** 로 리브랜딩되었습니다. CLI 명령어(`databricks bundle`)와 설정 파일 구조는 동일합니다. 기존 문서나 블로그에서 "DABs"나 "Declarative Automation Bundles"로 언급되는 것은 같은 기능을 가리킵니다.
 
-> 💡 **IaC(Infrastructure as Code)란?** 인프라(서버, 데이터베이스, 파이프라인 등)를 수동으로 설정하는 대신, **코드(설정 파일)로 정의**하여 자동으로 배포하는 방식입니다. 코드이므로 Git으로 버전 관리할 수 있고, 코드 리뷰를 통해 변경 사항을 검토할 수 있으며, 여러 환경(dev, staging, prod)에 동일한 구성을 일관되게 배포할 수 있습니다.
+> 💡 **IaC(Infrastructure as Code)란?** 인프라(서버, 데이터베이스, 파이프라인 등)를 수동으로 설정하는 대신, ** 코드(설정 파일)로 정의**하여 자동으로 배포하는 방식입니다. 코드이므로 Git으로 버전 관리할 수 있고, 코드 리뷰를 통해 변경 사항을 검토할 수 있으며, 여러 환경(dev, staging, prod)에 동일한 구성을 일관되게 배포할 수 있습니다.
 
 ---
 
@@ -16,20 +16,20 @@
 
 | 문제 | 설명 |
 |------|------|
-| **재현 불가** | "누가, 언제, 어떤 설정으로 만들었지?" 추적이 어렵습니다 |
-| **환경 불일치** | 개발 환경과 프로덕션 환경의 설정이 다를 수 있습니다 |
-| **수동 배포** | 매번 UI에서 클릭하여 수동으로 배포해야 합니다 |
-| **코드 리뷰 불가** | 인프라 변경에 대한 리뷰가 어렵습니다 |
+| ** 재현 불가** | "누가, 언제, 어떤 설정으로 만들었지?" 추적이 어렵습니다 |
+| ** 환경 불일치** | 개발 환경과 프로덕션 환경의 설정이 다를 수 있습니다 |
+| ** 수동 배포** | 매번 UI에서 클릭하여 수동으로 배포해야 합니다 |
+| ** 코드 리뷰 불가** | 인프라 변경에 대한 리뷰가 어렵습니다 |
 
 ### Declarative Automation Bundles의 해결
 
 | 장점 | 설명 |
 |------|------|
-| **코드로 관리** | 모든 리소스 정의가 YAML 파일로 관리됩니다 |
+| ** 코드로 관리** | 모든 리소스 정의가 YAML 파일로 관리됩니다 |
 | **Git 버전 관리** | 변경 이력을 추적하고, 이전 버전으로 롤백할 수 있습니다 |
-| **멀티 환경 배포** | dev, staging, prod에 일관된 구성을 배포합니다 |
+| ** 멀티 환경 배포** | dev, staging, prod에 일관된 구성을 배포합니다 |
 | **CI/CD 통합** | GitHub Actions, Azure DevOps 등과 연동 가능합니다 |
-| **코드 리뷰** | PR(Pull Request)을 통해 변경 사항을 리뷰합니다 |
+| ** 코드 리뷰** | PR(Pull Request)을 통해 변경 사항을 리뷰합니다 |
 
 ---
 
@@ -246,11 +246,11 @@ jobs:
 | 비교 | Declarative Automation Bundles | Terraform |
 |------|--------------|-----------|
 | **대상** | Databricks 리소스 전용 | 모든 클라우드 인프라 |
-| **언어** | YAML | HCL |
-| **학습 곡선** | 낮음 | 중간~높음 |
-| **상태 관리** | Databricks가 관리 | Terraform State 파일 관리 필요 |
+| ** 언어** | YAML | HCL |
+| ** 학습 곡선** | 낮음 | 중간~높음 |
+| ** 상태 관리** | Databricks가 관리 | Terraform State 파일 관리 필요 |
 | **Databricks 통합** | 네이티브 (최적화) | Provider 필요 |
-| **적합한 경우** | Databricks 리소스만 관리 | 클라우드 인프라 + Databricks 통합 관리 |
+| ** 적합한 경우** | Databricks 리소스만 관리 | 클라우드 인프라 + Databricks 통합 관리 |
 
 ---
 

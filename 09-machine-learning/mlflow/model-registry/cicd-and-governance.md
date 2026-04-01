@@ -154,16 +154,16 @@ def reject_model(model_name, version, reviewer, reason):
 | 전략 | 설명 | 적합한 경우 |
 |------|------|-----------|
 | **단일 Registry + Alias** | 하나의 UC Registry에서 Alias로 환경 구분 | 소규모~중규모 팀 |
-| **환경별 카탈로그** | dev_catalog, staging_catalog, prod_catalog 분리 | 엔터프라이즈 (엄격한 격리) |
-| **환경별 Workspace** | Dev/Staging/Prod Workspace + UC 공유 | 가장 엄격한 격리 |
+| ** 환경별 카탈로그** | dev_catalog, staging_catalog, prod_catalog 분리 | 엔터프라이즈 (엄격한 격리) |
+| ** 환경별 Workspace** | Dev/Staging/Prod Workspace + UC 공유 | 가장 엄격한 격리 |
 
 ### 환경별 카탈로그 패턴
 
 | 환경 | 모델 경로 | 설명 |
 |------|---------|------|
-| **개발** | dev_catalog.ml.fraud_detection | 데이터 사이언티스트 자유 실험 (v1, v2, v3...) |
-| **스테이징** | staging_catalog.ml.fraud_detection | 통합 테스트 (검증된 버전만 프로모션) |
-| **프로덕션** | prod_catalog.ml.fraud_detection | 실서비스 (v1: champion, v2: challenger - A/B 테스트) |
+| ** 개발** | dev_catalog.ml.fraud_detection | 데이터 사이언티스트 자유 실험 (v1, v2, v3...) |
+| ** 스테이징** | staging_catalog.ml.fraud_detection | 통합 테스트 (검증된 버전만 프로모션) |
+| ** 프로덕션** | prod_catalog.ml.fraud_detection | 실서비스 (v1: champion, v2: challenger - A/B 테스트) |
 
 ### 환경 간 모델 프로모션
 
@@ -216,16 +216,16 @@ def promote_to_prod(staging_model_name, staging_version, prod_model_name):
 
 ## 모델 리니지
 
-Unity Catalog는 모델의 **전체 생애주기 리니지**를 자동으로 추적합니다.
+Unity Catalog는 모델의 ** 전체 생애주기 리니지**를 자동으로 추적합니다.
 
 ### 리니지가 추적하는 정보
 
 | 방향 | 구성 요소 | 설명 |
 |------|----------|------|
-| **소스 (upstream)** | catalog.ecommerce.gold_orders | 학습 데이터 |
+| ** 소스 (upstream)** | catalog.ecommerce.gold_orders | 학습 데이터 |
 | | catalog.ml.customer_features | 피처 테이블 |
 | | catalog.ml.fraud_detection | 모델 (v1: deprecated, v2: champion, v3: challenger) |
-| **소비자 (downstream)** | Serving Endpoint: fraud-detection-endpoint | 모델 서빙 |
+| ** 소비자 (downstream)** | Serving Endpoint: fraud-detection-endpoint | 모델 서빙 |
 | | Dashboard: fraud_monitoring_daily | 모니터링 대시보드 |
 | | Job: daily_fraud_scoring_pipeline | 일일 스코어링 파이프라인 |
 
@@ -255,11 +255,11 @@ WHERE source_table_full_name = 'catalog.ecommerce.gold_orders'
 
 | 주의사항 | 설명 |
 |---------|------|
-| **모델 아티팩트 크기** | UC Registry에 등록 가능한 모델 크기에는 실질적 제한이 없지만, 수 GB 이상의 대형 모델은 등록/로드 시간이 오래 걸릴 수 있습니다 |
+| ** 모델 아티팩트 크기** | UC Registry에 등록 가능한 모델 크기에는 실질적 제한이 없지만, 수 GB 이상의 대형 모델은 등록/로드 시간이 오래 걸릴 수 있습니다 |
 | **Alias 충돌** | 하나의 Alias는 하나의 버전에만 할당됩니다. 기존 Alias를 다른 버전으로 옮기면 이전 버전에서 자동 제거됩니다 |
-| **삭제 정책** | 모델 버전을 삭제하면 복구할 수 없습니다. 중요한 버전에는 `do_not_delete` 태그를 붙여 실수를 방지하세요 |
-| **서빙 참조 충돌** | Model Serving이 특정 버전을 직접 참조(by version number)하는 경우, 해당 버전을 삭제하면 서빙이 실패합니다. Alias 참조를 권장합니다 |
-| **크로스 리전 모델 공유** | 다른 리전의 Workspace에서 모델을 사용하려면, Delta Sharing을 통해 모델을 공유해야 합니다 |
+| ** 삭제 정책** | 모델 버전을 삭제하면 복구할 수 없습니다. 중요한 버전에는 `do_not_delete` 태그를 붙여 실수를 방지하세요 |
+| ** 서빙 참조 충돌** | Model Serving이 특정 버전을 직접 참조(by version number)하는 경우, 해당 버전을 삭제하면 서빙이 실패합니다. Alias 참조를 권장합니다 |
+| ** 크로스 리전 모델 공유** | 다른 리전의 Workspace에서 모델을 사용하려면, Delta Sharing을 통해 모델을 공유해야 합니다 |
 
 ---
 
@@ -272,8 +272,8 @@ WHERE source_table_full_name = 'catalog.ecommerce.gold_orders'
 | **Alias** | 특정 버전에 부여하는 별칭입니다 (champion, challenger) |
 | **Tags** | 모델에 메타데이터를 부여하여 관리를 용이하게 합니다 |
 | **Champion/Challenger** | 프로덕션과 후보 모델을 Alias로 관리하는 CI/CD 패턴입니다 |
-| **멀티 환경 프로모션** | Dev → Staging → Prod로 모델을 안전하게 승격합니다 |
-| **모델 리니지** | 소스 데이터 → 모델 → 서빙까지 전체 흐름을 추적합니다 |
+| ** 멀티 환경 프로모션** | Dev → Staging → Prod로 모델을 안전하게 승격합니다 |
+| ** 모델 리니지** | 소스 데이터 → 모델 → 서빙까지 전체 흐름을 추적합니다 |
 | **Unity Catalog 통합** | 모델에도 GRANT/REVOKE, 리니지, 감사가 적용됩니다 |
 
 ---

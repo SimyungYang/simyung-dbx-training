@@ -2,7 +2,7 @@
 
 ## 시나리오
 
-온라인 쇼핑몰의 **주문 데이터(JSON)** 와 **고객 마스터 데이터(CDC)** 를 수집하여, Medallion 아키텍처 기반의 분석 파이프라인을 구축합니다. Bronze(원본 수집) → Silver(정제·검증) → Gold(비즈니스 집계) 3계층 파이프라인을 SDP(Spark Declarative Pipelines)로 구현합니다.
+온라인 쇼핑몰의 **주문 데이터(JSON)** 와 ** 고객 마스터 데이터(CDC)** 를 수집하여, Medallion 아키텍처 기반의 분석 파이프라인을 구축합니다. Bronze(원본 수집) → Silver(정제·검증) → Gold(비즈니스 집계) 3계층 파이프라인을 SDP(Spark Declarative Pipelines)로 구현합니다.
 
 | 계층 | 테이블 | 소스 | 설명 |
 |------|--------|------|------|
@@ -80,7 +80,7 @@ dbutils.fs.put(f"{path}customers_initial.json", "\n".join(json.dumps(c) for c in
 
 ## Step 1: 파이프라인 노트북 작성
 
-하나의 SQL 노트북에 전체 파이프라인을 작성합니다. SDP에서는 **"무엇을 만들지"만 선언**하면, 실행 순서와 의존성은 자동으로 관리됩니다.
+하나의 SQL 노트북에 전체 파이프라인을 작성합니다. SDP에서는 **"무엇을 만들지"만 선언** 하면, 실행 순서와 의존성은 자동으로 관리됩니다.
 
 ### Bronze Layer — 원본 수집
 
@@ -110,7 +110,7 @@ FROM STREAM read_files(
 );
 ```
 
-> 💡 **Bronze 계층의 원칙**: 소스 데이터를 **변환 없이 원본 그대로** 저장합니다. 메타데이터(`_metadata`)를 함께 저장하면 데이터 출처를 추적할 수 있습니다.
+> 💡 **Bronze 계층의 원칙**: 소스 데이터를 ** 변환 없이 원본 그대로** 저장합니다. 메타데이터(`_metadata`)를 함께 저장하면 데이터 출처를 추적할 수 있습니다.
 
 ### Silver Layer — 정제 및 검증
 
@@ -231,8 +231,8 @@ GROUP BY DATE(order_date);
 |-----------|------|------|
 | **DAG 그래프** | Pipeline 메인 화면 | 테이블 간 의존성과 데이터 흐름을 시각적으로 표시합니다 |
 | **Expectations 결과** | 각 테이블 클릭 → Quality 탭 | 통과/실패 행 수를 확인합니다 |
-| **처리 건수** | 각 테이블 클릭 → Details | INSERT/UPDATE/DELETE 건수를 확인합니다 |
-| **이벤트 로그** | Updates 탭 | 실행 이력, 에러, 경고를 확인합니다 |
+| ** 처리 건수** | 각 테이블 클릭 → Details | INSERT/UPDATE/DELETE 건수를 확인합니다 |
+| ** 이벤트 로그** | Updates 탭 | 실행 이력, 에러, 경고를 확인합니다 |
 
 ### SQL로 결과 확인
 
@@ -262,7 +262,7 @@ ORDER BY sale_date;
 
 ## Step 5: 증분 데이터 추가 및 재실행
 
-SDP의 핵심 장점 중 하나는 **증분 처리**입니다. 새 데이터를 추가하고 파이프라인을 다시 실행하면, 새 데이터만 처리합니다.
+SDP의 핵심 장점 중 하나는 **증분 처리** 입니다. 새 데이터를 추가하고 파이프라인을 다시 실행하면, 새 데이터만 처리합니다.
 
 ### 새 주문 데이터 추가
 
@@ -302,7 +302,7 @@ dbutils.fs.put(f"{path}customers_update1.json", "\n".join(json.dumps(u) for u in
 
 Pipeline UI에서 **Start** 클릭 (또는 CLI: `databricks pipelines start-update --pipeline-id <id>`)
 
-> 💡 **증분 처리 확인**: 재실행 후 Bronze 테이블의 행 수가 증가했는지, Gold 테이블의 집계가 업데이트되었는지 확인하세요. Auto Loader는 이전에 처리한 파일을 건너뛰고 **새 파일(batch3, update1)만 처리**합니다.
+> 💡 ** 증분 처리 확인**: 재실행 후 Bronze 테이블의 행 수가 증가했는지, Gold 테이블의 집계가 업데이트되었는지 확인하세요. Auto Loader는 이전에 처리한 파일을 건너뛰고 ** 새 파일(batch3, update1)만 처리**합니다.
 
 ---
 
@@ -310,7 +310,7 @@ Pipeline UI에서 **Start** 클릭 (또는 CLI: `databricks pipelines start-upda
 
 | 모드 | 설명 | 사용 시기 |
 |------|------|----------|
-| **증분 업데이트** (기본) | 새 데이터만 처리합니다 | 일반적인 운영 |
+| ** 증분 업데이트** (기본) | 새 데이터만 처리합니다 | 일반적인 운영 |
 | **Full Refresh** | 모든 데이터를 처음부터 다시 처리합니다 | 로직 변경, 데이터 복구 |
 
 ```bash
@@ -332,7 +332,7 @@ databricks pipelines start-update --pipeline-id <id> --full-refresh
 | "**Schema mismatch**" | JSON 스키마가 변경됨 | `cloudFiles.schemaEvolutionMode`를 `addNewColumns`로 설정합니다 |
 | **Expectation으로 모든 행이 제거됨** | 품질 규칙이 너무 엄격함 | 규칙을 완화하거나, `ON VIOLATION FAIL UPDATE`로 변경하여 원인을 조사합니다 |
 | "**Column not found**" | Silver 쿼리에서 참조한 컬럼이 Bronze에 없음 | Bronze 스키마를 `DESCRIBE TABLE`로 확인합니다 |
-| **파이프라인이 시작되지 않음** | 권한 부족 | 카탈로그/스키마에 대한 `CREATE TABLE` 권한을 확인합니다 |
+| ** 파이프라인이 시작되지 않음** | 권한 부족 | 카탈로그/스키마에 대한 `CREATE TABLE` 권한을 확인합니다 |
 | "**Auto Loader detected new files but schema changed**" | 새 파일의 스키마가 다름 | 스키마 힌트를 제공하거나, 스키마 위치를 리셋합니다 |
 
 ### 유용한 디버깅 쿼리
@@ -384,8 +384,8 @@ DROP MATERIALIZED VIEW IF EXISTS training.ecommerce.gold_daily_kpi;
 | **Silver** | 데이터 타입 변환, TRIM, UPPER 등으로 정제합니다. Expectations로 품질을 검증합니다 |
 | **Gold** | JOIN, GROUP BY로 비즈니스 집계를 만듭니다. Materialized View로 성능을 최적화합니다 |
 | **CDC** | `APPLY CHANGES INTO`로 SCD Type 1 테이블을 자동 관리합니다 |
-| **증분 처리** | 새 파일만 자동으로 감지하여 처리합니다. Full Refresh도 가능합니다 |
-| **모니터링** | Pipeline UI에서 DAG, Expectations, 처리 건수를 확인합니다 |
+| ** 증분 처리** | 새 파일만 자동으로 감지하여 처리합니다. Full Refresh도 가능합니다 |
+| ** 모니터링** | Pipeline UI에서 DAG, Expectations, 처리 건수를 확인합니다 |
 
 ---
 

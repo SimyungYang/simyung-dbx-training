@@ -5,9 +5,9 @@
 Delta Lake 테이블은 시간이 지나면서 두 가지 문제가 자연스럽게 발생합니다.
 
 1. **소형 파일 누적**: 잦은 INSERT, 스트리밍 수집으로 인해 작은 파일이 수천~수만 개 쌓입니다
-2. **불필요한 파일 잔류**: UPDATE/DELETE 후 이전 버전의 파일이 계속 남아 스토리지 비용이 증가합니다
+2. ** 불필요한 파일 잔류**: UPDATE/DELETE 후 이전 버전의 파일이 계속 남아 스토리지 비용이 증가합니다
 
-**OPTIMIZE**는 첫 번째 문제를, **VACUUM**은 두 번째 문제를 해결합니다. 이 두 작업은 Delta Lake 테이블을 건강하게 유지하는 핵심 유지 보수 작업입니다.
+**OPTIMIZE** 는 첫 번째 문제를, **VACUUM** 은 두 번째 문제를 해결합니다. 이 두 작업은 Delta Lake 테이블을 건강하게 유지하는 핵심 유지 보수 작업입니다.
 
 ---
 
@@ -20,11 +20,11 @@ Delta Lake 테이블은 시간이 지나면서 두 가지 문제가 자연스럽
 | 원인 | 설명 |
 |------|------|
 | **Structured Streaming** | 마이크로 배치마다 소량의 데이터를 쓰면 작은 파일이 생성됩니다 |
-| **잦은 INSERT** | 소량 데이터를 빈번하게 INSERT하면 파일이 쪼개집니다 |
-| **과도한 파티셔닝** | 파티션 수가 많으면 각 파티션의 파일이 매우 작아집니다 |
-| **많은 동시 쓰기** | 여러 작업이 동시에 테이블에 쓰면 파일이 분산됩니다 |
+| ** 잦은 INSERT** | 소량 데이터를 빈번하게 INSERT하면 파일이 쪼개집니다 |
+| ** 과도한 파티셔닝** | 파티션 수가 많으면 각 파티션의 파일이 매우 작아집니다 |
+| ** 많은 동시 쓰기** | 여러 작업이 동시에 테이블에 쓰면 파일이 분산됩니다 |
 
-예를 들어, 1분마다 100행씩 쓰는 스트리밍 파이프라인이 있다면, 하루에 **1,440개의 작은 파일**이 생성됩니다. 한 달이면 약 43,200개입니다.
+예를 들어, 1분마다 100행씩 쓰는 스트리밍 파이프라인이 있다면, 하루에 **1,440개의 작은 파일** 이 생성됩니다. 한 달이면 약 43,200개입니다.
 
 ---
 
@@ -32,7 +32,7 @@ Delta Lake 테이블은 시간이 지나면서 두 가지 문제가 자연스럽
 
 ### 동작 원리
 
-OPTIMIZE는 여러 개의 작은 파일을 읽어 **적절한 크기의 큰 파일로 병합(bin-packing)**합니다. 기본 목표 파일 크기는 약 **1GB**입니다.
+OPTIMIZE는 여러 개의 작은 파일을 읽어 **적절한 크기의 큰 파일로 병합(bin-packing)** 합니다. 기본 목표 파일 크기는 약 **1GB** 입니다.
 
 | 상태 | 파일 구성 | 설명 |
 |------|---------|------|
@@ -67,7 +67,7 @@ WHERE order_date >= current_date() - INTERVAL 7 DAYS;
 
 ### Optimized Write (자동 파일 크기 최적화)
 
-OPTIMIZE를 수동으로 실행하는 대신, 데이터를 쓸 때 **자동으로 적절한 크기의 파일을 생성**하는 기능도 있습니다.
+OPTIMIZE를 수동으로 실행하는 대신, 데이터를 쓸 때 ** 자동으로 적절한 크기의 파일을 생성**하는 기능도 있습니다.
 
 ```sql
 -- 테이블 속성으로 활성화
@@ -75,7 +75,7 @@ ALTER TABLE catalog.schema.orders
 SET TBLPROPERTIES ('delta.autoOptimize.optimizeWrite' = 'true');
 ```
 
-> 💡 **Optimized Write**는 쓰기 시점에 파일 크기를 최적화하지만, 이미 쌓인 소형 파일은 처리하지 못합니다. 기존 파일의 압축에는 OPTIMIZE를 별도로 실행해야 합니다.
+> 💡 **Optimized Write** 는 쓰기 시점에 파일 크기를 최적화하지만, 이미 쌓인 소형 파일은 처리하지 못합니다. 기존 파일의 압축에는 OPTIMIZE를 별도로 실행해야 합니다.
 
 ---
 
@@ -83,7 +83,7 @@ SET TBLPROPERTIES ('delta.autoOptimize.optimizeWrite' = 'true');
 
 ### 동작 원리
 
-Delta Lake에서 UPDATE나 DELETE를 실행하면, 기존 파일은 즉시 삭제되지 않습니다. 타임 트래블과 진행 중인 쿼리를 위해 **이전 버전의 파일이 보존**됩니다. VACUUM은 지정된 보존 기간보다 오래된 불필요한 파일을 **영구적으로 삭제**합니다.
+Delta Lake에서 UPDATE나 DELETE를 실행하면, 기존 파일은 즉시 삭제되지 않습니다. 타임 트래블과 진행 중인 쿼리를 위해 **이전 버전의 파일이 보존** 됩니다. VACUUM은 지정된 보존 기간보다 오래된 불필요한 파일을 **영구적으로 삭제** 합니다.
 
 ### 기본 사용법
 
@@ -125,15 +125,15 @@ SET TBLPROPERTIES ('delta.deletedFileRetentionDuration' = 'interval 30 days');
 ```
 
 > ⚠️ **주의사항**:
-> - VACUUM 후에는 보존 기간 이전의 **타임 트래블이 불가능**해집니다
-> - 기본 보존 기간 7일보다 짧게 설정하는 것은 **강력히 권장하지 않습니다** (진행 중인 쿼리가 실패할 수 있음)
+> - VACUUM 후에는 보존 기간 이전의 ** 타임 트래블이 불가능**해집니다
+> - 기본 보존 기간 7일보다 짧게 설정하는 것은 ** 강력히 권장하지 않습니다** (진행 중인 쿼리가 실패할 수 있음)
 > - 7일 미만으로 설정하려면 `spark.databricks.delta.retentionDurationCheck.enabled = false`를 먼저 설정해야 합니다
 
 ---
 
 ## ANALYZE TABLE (통계 수집)
 
-> 💡 **ANALYZE TABLE**은 테이블의 **컬럼 통계(statistics)** 를 수집하는 명령입니다. 쿼리 최적화기(Query Optimizer)가 이 통계를 활용하여 더 효율적인 실행 계획을 수립합니다.
+> 💡 **ANALYZE TABLE** 은 테이블의 **컬럼 통계(statistics)** 를 수집하는 명령입니다. 쿼리 최적화기(Query Optimizer)가 이 통계를 활용하여 더 효율적인 실행 계획을 수립합니다.
 
 ### 사용법
 
@@ -154,10 +154,10 @@ COMPUTE DELTA STATISTICS;
 
 | 통계 | 설명 | 활용 |
 |------|------|------|
-| **행 수(numRows)** | 테이블의 전체 행 수 | JOIN 순서 최적화 |
-| **최소/최대값(min/max)** | 각 컬럼의 최솟값과 최댓값 | Data Skipping |
+| ** 행 수(numRows)** | 테이블의 전체 행 수 | JOIN 순서 최적화 |
+| ** 최소/최대값(min/max)** | 각 컬럼의 최솟값과 최댓값 | Data Skipping |
 | **NULL 수(numNulls)** | 각 컬럼의 NULL 개수 | 필터 최적화 |
-| **고유값 수(distinctCount)** | 컬럼의 고유값 수 | JOIN 전략 선택 |
+| ** 고유값 수(distinctCount)** | 컬럼의 고유값 수 | JOIN 전략 선택 |
 
 ---
 
@@ -198,7 +198,7 @@ for table in tables:
     print(f"✅ {table} 유지 보수 완료")
 ```
 
-> 💡 **Predictive Optimization**이 활성화된 Managed Table이라면, OPTIMIZE와 VACUUM을 Databricks가 자동으로 실행합니다. 수동 유지 보수가 필요 없어지므로, 가능하다면 Predictive Optimization 사용을 권장합니다. 자세한 내용은 [Predictive Optimization](./predictive-optimization.md) 문서를 참고하세요.
+> 💡 **Predictive Optimization** 이 활성화된 Managed Table이라면, OPTIMIZE와 VACUUM을 Databricks가 자동으로 실행합니다. 수동 유지 보수가 필요 없어지므로, 가능하다면 Predictive Optimization 사용을 권장합니다. 자세한 내용은 [Predictive Optimization](./predictive-optimization.md) 문서를 참고하세요.
 
 ---
 
@@ -224,7 +224,7 @@ for table in tables:
 - 낭비되는 월간 스토리지 비용: 약 $300/월 (연간 $3,600)
 ```
 
-문제를 더 심각하게 만든 것은, 이전 파일이 많아질수록 **파일 목록 조회(listing)**가 느려져서 쿼리 성능까지 저하되었다는 점입니다.
+문제를 더 심각하게 만든 것은, 이전 파일이 많아질수록 ** 파일 목록 조회(listing)**가 느려져서 쿼리 성능까지 저하되었다는 점입니다.
 
 ```sql
 -- VACUUM 한 번으로 13TB 정리
@@ -234,11 +234,11 @@ VACUUM prod.media.user_events RETAIN 168 HOURS;  -- 7일 보존
 -- 실행 시간: 약 45분
 ```
 
-> ⚠️ **교훈**: VACUUM은 "언젠가 해야지"가 아니라 **Day 1부터 스케줄링**해야 합니다. Predictive Optimization이 있으면 자동이지만, 그렇지 않다면 주 1회 VACUUM을 반드시 스케줄에 넣으세요.
+> ⚠️ ** 교훈**: VACUUM은 "언젠가 해야지"가 아니라 **Day 1부터 스케줄링** 해야 합니다. Predictive Optimization이 있으면 자동이지만, 그렇지 않다면 주 1회 VACUUM을 반드시 스케줄에 넣으세요.
 
 ### 프로덕션에서 VACUUM DRY RUN을 먼저 돌려야 하는 이유
 
-VACUUM은 **되돌릴 수 없는 작업**입니다. 한번 삭제된 파일은 복구할 수 없습니다. 그래서 프로덕션에서는 반드시 DRY RUN을 먼저 실행해야 합니다.
+VACUUM은 **되돌릴 수 없는 작업** 입니다. 한번 삭제된 파일은 복구할 수 없습니다. 그래서 프로덕션에서는 반드시 DRY RUN을 먼저 실행해야 합니다.
 
 실제로 한 고객이 DRY RUN 없이 VACUUM을 실행했다가 문제가 생긴 사례가 있습니다.
 
@@ -276,10 +276,10 @@ DESCRIBE HISTORY prod.crm.customer_master LIMIT 3;
 | 쓰기 패턴 | OPTIMIZE 주기 | 이유 |
 |-----------|-------------|------|
 | **Structured Streaming (1분 마이크로배치)** | 1~4시간마다 | 매 배치마다 소형 파일 생성, 빠르게 누적 |
-| **시간별 배치 적재** | 일 1회 (적재 후) | 적재 직후가 소형 파일이 가장 많은 시점 |
-| **일 1회 배치 적재** | 적재 직후 1회 | 하루치 데이터가 이미 적절한 크기일 수 있으므로 확인 후 |
-| **주 1회 대량 적재** | 적재 직후 1회 | 대량 적재 자체가 큰 파일을 생성할 수 있음 |
-| **빈번한 MERGE (upsert)** | 일 1~2회 | MERGE는 기존 파일을 재작성하므로 파편화 발생 |
+| ** 시간별 배치 적재** | 일 1회 (적재 후) | 적재 직후가 소형 파일이 가장 많은 시점 |
+| ** 일 1회 배치 적재** | 적재 직후 1회 | 하루치 데이터가 이미 적절한 크기일 수 있으므로 확인 후 |
+| ** 주 1회 대량 적재** | 적재 직후 1회 | 대량 적재 자체가 큰 파일을 생성할 수 있음 |
+| ** 빈번한 MERGE (upsert)** | 일 1~2회 | MERGE는 기존 파일을 재작성하므로 파편화 발생 |
 
 #### OPTIMIZE가 정말 필요한지 확인하는 방법
 
@@ -335,7 +335,7 @@ ALTER SCHEMA my_catalog.my_schema
 SET DBPROPERTIES ('predictive_optimization' = 'ENABLE');
 ```
 
-> 💡 **Predictive Optimization이 하는 일**: Databricks가 테이블의 쓰기 패턴, 쿼리 패턴, 파일 크기 분포를 자동으로 분석하여, 최적의 시점에 OPTIMIZE와 VACUUM을 실행합니다. 사람이 판단하는 것보다 정확하고, 잊지 않습니다. **가능하다면 이것을 1순위로 사용하세요.**
+> 💡 **Predictive Optimization이 하는 일**: Databricks가 테이블의 쓰기 패턴, 쿼리 패턴, 파일 크기 분포를 자동으로 분석하여, 최적의 시점에 OPTIMIZE와 VACUUM을 실행합니다. 사람이 판단하는 것보다 정확하고, 잊지 않습니다. ** 가능하다면 이것을 1순위로 사용하세요.**
 
 #### 패턴 2: Lakeflow Jobs로 스케줄링
 

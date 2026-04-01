@@ -2,15 +2,15 @@
 
 ## 외부 로케이션이란?
 
-Unity Catalog에서 **외부 로케이션(External Location)** 은 클라우드 스토리지의 특정 경로를 Unity Catalog에 등록하여 **거버넌스 하에 관리**할 수 있게 해주는 객체입니다. 외부 테이블(External Table)이나 외부 볼륨(External Volume)을 생성하려면, 해당 데이터가 저장된 클라우드 경로가 외부 로케이션으로 등록되어 있어야 합니다.
+Unity Catalog에서 **외부 로케이션(External Location)** 은 클라우드 스토리지의 특정 경로를 Unity Catalog에 등록하여 ** 거버넌스 하에 관리**할 수 있게 해주는 객체입니다. 외부 테이블(External Table)이나 외부 볼륨(External Volume)을 생성하려면, 해당 데이터가 저장된 클라우드 경로가 외부 로케이션으로 등록되어 있어야 합니다.
 
-> 💡 **왜 필요한가요?** 기업은 이미 S3, ADLS, GCS 등 클라우드 스토리지에 대량의 데이터를 보유하고 있습니다. 이 데이터를 Unity Catalog로 이동하지 않고도, 경로를 등록하여 접근 권한과 감사를 적용할 수 있습니다.
+> 💡 ** 왜 필요한가요?** 기업은 이미 S3, ADLS, GCS 등 클라우드 스토리지에 대량의 데이터를 보유하고 있습니다. 이 데이터를 Unity Catalog로 이동하지 않고도, 경로를 등록하여 접근 권한과 감사를 적용할 수 있습니다.
 
 ---
 
 ## 외부 로케이션과 Storage Credential의 관계
 
-외부 로케이션은 단독으로 동작하지 않습니다. 클라우드 스토리지에 접근하려면 **인증 정보(Storage Credential)** 가 필요합니다.
+외부 로케이션은 단독으로 동작하지 않습니다. 클라우드 스토리지에 접근하려면 ** 인증 정보(Storage Credential)** 가 필요합니다.
 
 | Storage Credential | External Location | 오브젝트 |
 |-------------------|------------------|---------|
@@ -23,7 +23,7 @@ Unity Catalog에서 **외부 로케이션(External Location)** 은 클라우드 
 | **External Location** | 특정 경로를 Unity Catalog에 등록한 "주소" | 건물 내 특정 사무실 |
 | **External Table/Volume** | 외부 로케이션 안에 존재하는 데이터 객체 | 사무실 안의 문서 |
 
-> 💡 **Storage Credential**에 대한 자세한 내용은 [스토리지 자격 증명](./storage-credentials.md) 문서를 참고하세요.
+> 💡 **Storage Credential** 에 대한 자세한 내용은 [스토리지 자격 증명](./storage-credentials.md) 문서를 참고하세요.
 
 ---
 
@@ -150,11 +150,11 @@ DROP EXTERNAL LOCATION production_data;
 
 | 원칙 | 설명 |
 |------|------|
-| **경로 계층화** | 버킷 루트가 아닌 의미 있는 하위 경로 단위로 등록합니다 (예: `s3://bucket/production/`) |
-| **환경 분리** | `production/`, `staging/`, `dev/` 경로를 별도 외부 로케이션으로 등록합니다 |
-| **최소 권한** | 외부 테이블 생성 권한을 데이터 엔지니어에게만 부여합니다 |
-| **네이밍 규칙** | `{환경}_{도메인}` 형식으로 이름을 지정합니다 (예: `prod_ecommerce`) |
-| **겹침 방지** | 하나의 클라우드 경로가 여러 외부 로케이션에 겹치지 않도록 관리합니다 |
+| ** 경로 계층화** | 버킷 루트가 아닌 의미 있는 하위 경로 단위로 등록합니다 (예: `s3://bucket/production/`) |
+| ** 환경 분리** | `production/`, `staging/`, `dev/` 경로를 별도 외부 로케이션으로 등록합니다 |
+| ** 최소 권한** | 외부 테이블 생성 권한을 데이터 엔지니어에게만 부여합니다 |
+| ** 네이밍 규칙** | `{환경}_{도메인}` 형식으로 이름을 지정합니다 (예: `prod_ecommerce`) |
+| ** 겹침 방지** | 하나의 클라우드 경로가 여러 외부 로케이션에 겹치지 않도록 관리합니다 |
 
 ---
 
@@ -179,10 +179,10 @@ VALIDATE EXTERNAL LOCATION production_data;
 
 | 전략 | 예시 | 장점 | 단점 |
 |------|------|------|------|
-| **버킷 레벨** | `s3://company-datalake/` | 관리 간편 | 세분화된 권한 제어 불가 |
-| **환경 레벨** | `s3://company-datalake/prod/`, `.../dev/` | 환경 격리 | 도메인 간 권한 분리 부족 |
-| **도메인 레벨** | `.../prod/finance/`, `.../prod/marketing/` | 도메인별 권한 관리 | Location 수 증가 |
-| **테이블 레벨** | `.../prod/finance/orders/` | 최대 세분화 | Location 수 폭발, 관리 복잡 |
+| ** 버킷 레벨** | `s3://company-datalake/` | 관리 간편 | 세분화된 권한 제어 불가 |
+| ** 환경 레벨** | `s3://company-datalake/prod/`, `.../dev/` | 환경 격리 | 도메인 간 권한 분리 부족 |
+| ** 도메인 레벨** | `.../prod/finance/`, `.../prod/marketing/` | 도메인별 권한 관리 | Location 수 증가 |
+| ** 테이블 레벨** | `.../prod/finance/orders/` | 최대 세분화 | Location 수 폭발, 관리 복잡 |
 
 ### 권장 설계 패턴
 
@@ -201,13 +201,13 @@ Storage Credential: aws_dev_credential (별도 IAM Role)
         → GRANT: all_developers (ALL PRIVILEGES)
 ```
 
-> 💡 **SA 권장**: 대부분의 고객에게는 **환경 + 도메인 레벨** 조합을 권장합니다. 너무 세분화하면 관리 부담이 크고, 너무 넓으면 거버넌스가 약해집니다. 초기에는 넓게 시작하고, 보안 요구사항이 구체화되면 점진적으로 세분화하는 것이 좋습니다.
+> 💡 **SA 권장**: 대부분의 고객에게는 ** 환경 + 도메인 레벨** 조합을 권장합니다. 너무 세분화하면 관리 부담이 크고, 너무 넓으면 거버넌스가 약해집니다. 초기에는 넓게 시작하고, 보안 요구사항이 구체화되면 점진적으로 세분화하는 것이 좋습니다.
 
 ---
 
 ## 중첩 Location과 우선순위 규칙
 
-하나의 클라우드 경로가 여러 External Location에 해당할 수 있는 "중첩(Overlap)" 상황이 발생할 수 있습니다. Unity Catalog는 이를 **가장 구체적인(가장 긴) 경로 우선** 규칙으로 처리합니다.
+하나의 클라우드 경로가 여러 External Location에 해당할 수 있는 "중첩(Overlap)" 상황이 발생할 수 있습니다. Unity Catalog는 이를 ** 가장 구체적인(가장 긴) 경로 우선** 규칙으로 처리합니다.
 
 ### 중첩 규칙 예시
 
@@ -232,7 +232,7 @@ CREATE TABLE t3 LOCATION 's3://bucket/data/marketing/';
 | 상황 | 동작 | 주의 |
 |------|------|------|
 | 하위 Location에 더 좁은 권한 | 하위 Location 권한이 우선 | 상위 Location에 권한이 있어도 하위에서 차단 가능 |
-| 동일 경로에 두 Location | **생성 불가** (오류 발생) | 정확히 같은 URL은 중복 등록 불가 |
+| 동일 경로에 두 Location | ** 생성 불가** (오류 발생) | 정확히 같은 URL은 중복 등록 불가 |
 | 하위 Location 삭제 | 상위 Location 권한으로 폴백 | 의도하지 않은 권한 확대에 주의 |
 
 > ⚠️ **Gotcha**: Location B(`s3://bucket/data/finance/`)를 삭제하면, 해당 경로의 테이블들은 Location A(`s3://bucket/data/`)의 권한을 상속받게 됩니다. Location A에 더 넓은 권한이 부여되어 있다면, 의도하지 않은 접근이 가능해질 수 있습니다. Location 삭제 전에 반드시 영향 범위를 확인하세요.
@@ -241,7 +241,7 @@ CREATE TABLE t3 LOCATION 's3://bucket/data/marketing/';
 
 ## 크로스 계정 접근 — AWS IAM Role Chaining
 
-대규모 기업에서는 여러 AWS 계정에 데이터가 분산되어 있는 경우가 많습니다. Unity Catalog에서 크로스 계정 데이터에 접근하려면 **IAM Role Chaining**을 설정해야 합니다.
+대규모 기업에서는 여러 AWS 계정에 데이터가 분산되어 있는 경우가 많습니다. Unity Catalog에서 크로스 계정 데이터에 접근하려면 **IAM Role Chaining** 을 설정해야 합니다.
 
 ### 아키텍처
 
@@ -270,7 +270,7 @@ CREATE EXTERNAL LOCATION account_b_data
 VALIDATE EXTERNAL LOCATION account_b_data;
 ```
 
-> ⚠️ **보안 주의**: Role Chaining에서 AssumeRole의 세션 기간은 최대 1시간입니다. 대용량 데이터 처리 시 세션 만료로 실패할 수 있으므로, 장시간 작업에는 직접 IAM Role을 사용하거나 세션 갱신 메커니즘을 고려하세요.
+> ⚠️ ** 보안 주의**: Role Chaining에서 AssumeRole의 세션 기간은 최대 1시간입니다. 대용량 데이터 처리 시 세션 만료로 실패할 수 있으므로, 장시간 작업에는 직접 IAM Role을 사용하거나 세션 갱신 메커니즘을 고려하세요.
 
 ---
 
@@ -280,7 +280,7 @@ External Location의 경로 설계는 S3의 성능 특성과도 관련이 있습
 
 ### S3 Prefix 파티셔닝과 성능
 
-AWS S3는 **prefix 단위로 초당 5,500 GET / 3,500 PUT 요청**을 처리합니다. 하나의 prefix에 대량의 파일이 집중되면 스로틀링이 발생할 수 있습니다.
+AWS S3는 **prefix 단위로 초당 5,500 GET / 3,500 PUT 요청** 을 처리합니다. 하나의 prefix에 대량의 파일이 집중되면 스로틀링이 발생할 수 있습니다.
 
 | 경로 설계 | 파일 수 | 성능 |
 |-----------|--------|------|
@@ -302,13 +302,13 @@ Auto Loader의 디렉토리 리스팅 모드를 사용할 때, External Location
   Auto Loader가 특정 경로만 스캔 → 수초 소요
 ```
 
-> 💡 **실무 팁**: Auto Loader를 사용하는 경우, External Location을 가능한 한 **데이터 소스 경로와 가깝게** 설정하세요. 그리고 Auto Loader의 파일 알림 모드(Notification Mode)를 사용하면 디렉토리 리스팅 자체를 건너뛸 수 있어 대규모 경로에서도 성능 문제가 없습니다.
+> 💡 **실무 팁**: Auto Loader를 사용하는 경우, External Location을 가능한 한 ** 데이터 소스 경로와 가깝게** 설정하세요. 그리고 Auto Loader의 파일 알림 모드(Notification Mode)를 사용하면 디렉토리 리스팅 자체를 건너뛸 수 있어 대규모 경로에서도 성능 문제가 없습니다.
 
 ---
 
 ## 와일드카드 경로와 제한사항
 
-Unity Catalog의 External Location은 **와일드카드를 지원하지 않습니다**. 각 Location은 정확한 경로 prefix여야 합니다.
+Unity Catalog의 External Location은 ** 와일드카드를 지원하지 않습니다**. 각 Location은 정확한 경로 prefix여야 합니다.
 
 ```sql
 -- ❌ 불가: 와일드카드
@@ -320,7 +320,7 @@ CREATE EXTERNAL LOCATION test
   URL 's3://bucket/data/region1/events/';
 ```
 
-여러 하위 경로에 같은 권한을 적용하려면, **상위 경로에 하나의 Location을 생성**하거나, 각 경로에 개별 Location을 생성해야 합니다.
+여러 하위 경로에 같은 권한을 적용하려면, **상위 경로에 하나의 Location을 생성** 하거나, 각 경로에 개별 Location을 생성해야 합니다.
 
 ---
 
@@ -344,7 +344,7 @@ CREATE EXTERNAL LOCATION test
    DROP TABLE hive_metastore.schema.table;
 ```
 
-> 💡 **주의**: HMS의 외부 테이블과 UC의 외부 테이블이 **동일한 S3 경로**를 참조할 수 있습니다. 이 경우 두 테이블 모두에서 동일 데이터를 읽을 수 있지만, 권한 모델이 다르므로 마이그레이션 완료 후 HMS 테이블을 삭제하는 것을 권장합니다.
+> 💡 **주의**: HMS의 외부 테이블과 UC의 외부 테이블이 ** 동일한 S3 경로**를 참조할 수 있습니다. 이 경우 두 테이블 모두에서 동일 데이터를 읽을 수 있지만, 권한 모델이 다르므로 마이그레이션 완료 후 HMS 테이블을 삭제하는 것을 권장합니다.
 
 ---
 
@@ -354,10 +354,10 @@ CREATE EXTERNAL LOCATION test
 |-----------|------|
 | **External Location** | 클라우드 스토리지 경로를 UC에 등록하여 거버넌스를 적용합니다 |
 | **Storage Credential 연결** | 외부 로케이션은 반드시 하나의 Storage Credential과 연결됩니다 |
-| **경로 기반 접근 제어** | 로케이션 단위로 외부 테이블/볼륨 생성 권한을 관리합니다 |
-| **중첩 우선순위** | 가장 구체적인(가장 긴) 경로의 Location이 우선 적용됩니다 |
-| **크로스 계정** | AWS IAM Role Chaining으로 다른 계정의 S3에 접근할 수 있습니다 |
-| **세분화 전략** | 환경 + 도메인 레벨의 Location 설계를 권장합니다 |
+| ** 경로 기반 접근 제어** | 로케이션 단위로 외부 테이블/볼륨 생성 권한을 관리합니다 |
+| ** 중첩 우선순위** | 가장 구체적인(가장 긴) 경로의 Location이 우선 적용됩니다 |
+| ** 크로스 계정** | AWS IAM Role Chaining으로 다른 계정의 S3에 접근할 수 있습니다 |
+| ** 세분화 전략** | 환경 + 도메인 레벨의 Location 설계를 권장합니다 |
 | **S3 성능** | Location 경로가 너무 넓으면 파일 리스팅과 S3 API 성능에 영향합니다 |
 | **VALIDATE** | 생성 후 연결 상태를 반드시 검증합니다 |
 

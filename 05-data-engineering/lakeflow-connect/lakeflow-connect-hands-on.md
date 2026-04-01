@@ -2,7 +2,7 @@
 
 ## 시나리오
 
-운영 중인 MySQL 데이터베이스의 **고객(customers) 테이블**과 **주문(orders) 테이블**을 Databricks 레이크하우스로 **실시간 CDC 수집**합니다. 수집된 Bronze 데이터를 SDP 파이프라인으로 변환하여 Silver 계층까지 구성하는 전체 흐름을 실습합니다.
+운영 중인 MySQL 데이터베이스의 **고객(customers) 테이블** 과 **주문(orders) 테이블** 을 Databricks 레이크하우스로 **실시간 CDC 수집** 합니다. 수집된 Bronze 데이터를 SDP 파이프라인으로 변환하여 Silver 계층까지 구성하는 전체 흐름을 실습합니다.
 
 | 계층 | 구성 요소 | 설명 |
 |------|-----------|------|
@@ -56,7 +56,7 @@ Databricks에서 소스 MySQL에 접속할 수 있어야 합니다.
 | **VPC Peering** | Databricks VPC와 소스 DB VPC 간 피어링 | 중간 |
 | **AWS PrivateLink** | Private Endpoint를 통한 프라이빗 연결 | 높음 |
 
-> 💡 **프로덕션 환경에서는 PrivateLink 또는 VPC Peering**을 권장합니다. 퍼블릭 인터넷 접속은 개발/테스트 환경에서만 사용하시기 바랍니다.
+> 💡 ** 프로덕션 환경에서는 PrivateLink 또는 VPC Peering**을 권장합니다. 퍼블릭 인터넷 접속은 개발/테스트 환경에서만 사용하시기 바랍니다.
 
 ### 3. Unity Catalog 설정
 
@@ -142,15 +142,15 @@ SHOW TABLES IN mysql_ecommerce.ecommerce;
 | Source | `MySQL` | 소스 유형 |
 | Connection | `mysql_ecommerce` | 앞서 생성한 Connection |
 
-4. **테이블 선택**:
+4. ** 테이블 선택**:
    - Source schema: `ecommerce`
    - Tables: `customers`, `orders` 선택 (또는 전체 스키마 선택)
 
-5. **대상 설정**:
+5. ** 대상 설정**:
    - Target catalog: `analytics`
    - Target schema: `bronze`
 
-6. **실행 모드 설정**:
+6. ** 실행 모드 설정**:
    - Mode: `Continuous` (실시간 CDC) 또는 `Triggered` (주기적)
 
 7. **Create** 클릭
@@ -312,13 +312,13 @@ WHERE phone IS NULL
 LIMIT 5;
 ```
 
-> 💡 **스키마 진화 자동 처리**: Lakeflow Connect는 소스에서 컬럼이 추가되면 대상 Delta 테이블에도 자동으로 컬럼을 추가합니다. 기존 행의 새 컬럼 값은 NULL로 채워집니다.
+> 💡 ** 스키마 진화 자동 처리**: Lakeflow Connect는 소스에서 컬럼이 추가되면 대상 Delta 테이블에도 자동으로 컬럼을 추가합니다. 기존 행의 새 컬럼 값은 NULL로 채워집니다.
 
 ---
 
 ## Step 6: SDP 파이프라인으로 Silver 변환 연결
 
-수집된 Bronze 데이터를 **SDP 파이프라인으로 정제하여 Silver 계층**을 구축합니다.
+수집된 Bronze 데이터를 **SDP 파이프라인으로 정제하여 Silver 계층** 을 구축합니다.
 
 ```sql
 -- SDP 파이프라인에서 Silver 변환 정의
@@ -383,10 +383,10 @@ WHERE _change_type != 'DELETE';
 
 | 팁 | 설명 |
 |----|------|
-| **테이블 필터링** | 필요한 테이블만 선택하여 불필요한 수집 방지 |
-| **연속 vs 트리거** | 실시간이 필요 없으면 트리거 모드로 비용 절감 |
-| **대규모 초기 스냅샷** | 테이블이 매우 크면 오프피크 시간에 시작 |
-| **병렬 수집** | 여러 테이블을 하나의 파이프라인에서 동시 수집 |
+| ** 테이블 필터링** | 필요한 테이블만 선택하여 불필요한 수집 방지 |
+| ** 연속 vs 트리거** | 실시간이 필요 없으면 트리거 모드로 비용 절감 |
+| ** 대규모 초기 스냅샷** | 테이블이 매우 크면 오프피크 시간에 시작 |
+| ** 병렬 수집** | 여러 테이블을 하나의 파이프라인에서 동시 수집 |
 
 ---
 
@@ -412,7 +412,7 @@ DROP CONNECTION IF EXISTS mysql_ecommerce;
 -- DROP CATALOG IF EXISTS analytics CASCADE;
 ```
 
-> ⚠️ **주의**: `CASCADE` 옵션은 스키마/카탈로그 내의 모든 테이블을 삭제합니다. 프로덕션 환경에서는 절대 사용하지 마시기 바랍니다. 실습용 리소스만 삭제하시기 바랍니다.
+> ⚠️ ** 주의**: `CASCADE` 옵션은 스키마/카탈로그 내의 모든 테이블을 삭제합니다. 프로덕션 환경에서는 절대 사용하지 마시기 바랍니다. 실습용 리소스만 삭제하시기 바랍니다.
 
 ---
 
@@ -422,8 +422,8 @@ DROP CONNECTION IF EXISTS mysql_ecommerce;
 
 1. **MySQL Connection 생성**: Unity Catalog에 소스 접속 정보를 안전하게 등록
 2. **Ingestion Pipeline 생성**: 코드 없이 UI에서 CDC 수집 파이프라인 구성
-3. **실시간 CDC 확인**: 소스 변경사항이 수초 내에 Delta 테이블에 반영됨을 검증
-4. **스키마 진화 확인**: 소스에서 컬럼 추가 시 대상 테이블에 자동 반영됨을 검증
+3. ** 실시간 CDC 확인**: 소스 변경사항이 수초 내에 Delta 테이블에 반영됨을 검증
+4. ** 스키마 진화 확인**: 소스에서 컬럼 추가 시 대상 테이블에 자동 반영됨을 검증
 5. **SDP 연동**: Bronze 데이터를 Silver로 변환하는 후처리 파이프라인 구성
 
 ---

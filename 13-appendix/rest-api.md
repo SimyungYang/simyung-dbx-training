@@ -2,16 +2,16 @@
 
 ## 개념
 
-> 💡 **Databricks REST API**는 Databricks 플랫폼의 거의 모든 기능을 **HTTP 요청으로 제어**할 수 있는 프로그래밍 인터페이스입니다. 웹 UI에서 할 수 있는 대부분의 작업을 API로 자동화할 수 있습니다.
+> 💡 **Databricks REST API** 는 Databricks 플랫폼의 거의 모든 기능을 **HTTP 요청으로 제어** 할 수 있는 프로그래밍 인터페이스입니다. 웹 UI에서 할 수 있는 대부분의 작업을 API로 자동화할 수 있습니다.
 
 ### 왜 REST API가 필요한가요?
 
 | 상황 | UI 방식 | REST API 방식 |
 |------|---------|--------------|
 | **클러스터 100개 설정 변경** | 하나씩 수동으로 변경 | 스크립트로 일괄 변경 |
-| **매일 Job 상태 모니터링** | 매번 UI 접속해서 확인 | 자동 알림 시스템 구축 |
+| ** 매일 Job 상태 모니터링** | 매번 UI 접속해서 확인 | 자동 알림 시스템 구축 |
 | **CI/CD 파이프라인** | 수동 배포 | API로 자동 배포 |
-| **외부 시스템 연동** | 불가능 | Slack, JIRA 등과 통합 |
+| ** 외부 시스템 연동** | 불가능 | Slack, JIRA 등과 통합 |
 | **Workspace 초기 설정** | 반복 수작업 | IaC(Infrastructure as Code)로 자동화 |
 
 ---
@@ -38,7 +38,7 @@ curl -s -X GET \
   -H "Content-Type: application/json"
 ```
 
-> ⚠️ **주의**: PAT는 발급한 사용자의 모든 권한을 가지므로, 코드에 직접 하드코딩하지 마세요. 환경 변수나 시크릿 관리 도구를 사용하세요.
+> ⚠️ ** 주의**: PAT는 발급한 사용자의 모든 권한을 가지므로, 코드에 직접 하드코딩하지 마세요. 환경 변수나 시크릿 관리 도구를 사용하세요.
 
 ### OAuth Machine-to-Machine (M2M)
 
@@ -381,11 +381,11 @@ Databricks REST API는 여러 버전이 공존합니다.
 | **2.0** | `/api/2.0/clusters/list` | 대부분의 서비스에서 사용 중 |
 | **2.1** | `/api/2.1/jobs/list` | Jobs, Unity Catalog 등 신규 기능 |
 
-> 💡 **버전 선택 팁**: 공식 문서의 API Reference에서 각 엔드포인트의 최신 버전을 확인하세요. 새로운 기능은 대부분 2.1 버전에서 제공됩니다.
+> 💡 ** 버전 선택 팁**: 공식 문서의 API Reference에서 각 엔드포인트의 최신 버전을 확인하세요. 새로운 기능은 대부분 2.1 버전에서 제공됩니다.
 
 ### Databricks SDK (권장)
 
-REST API를 직접 호출하는 대신, 공식 **Databricks SDK**를 사용하면 더 편리합니다.
+REST API를 직접 호출하는 대신, 공식 **Databricks SDK** 를 사용하면 더 편리합니다.
 
 ```python
 # Databricks SDK 설치
@@ -419,10 +419,10 @@ print(result.result.data_array)
 | 핵심 개념 | 요약 |
 |-----------|------|
 | **REST API** | HTTP 요청으로 Databricks 플랫폼의 모든 기능을 제어 |
-| **인증** | PAT (개발용), OAuth M2M (프로덕션), SDK 자동 인증 |
-| **주요 영역** | Clusters, Jobs, SQL, Unity Catalog, Model Serving 등 |
+| ** 인증** | PAT (개발용), OAuth M2M (프로덕션), SDK 자동 인증 |
+| ** 주요 영역** | Clusters, Jobs, SQL, Unity Catalog, Model Serving 등 |
 | **Python 활용** | requests 라이브러리 또는 공식 Databricks SDK 사용 |
-| **자동화** | 유휴 클러스터 종료, Job 모니터링, CI/CD 파이프라인 등 |
+| ** 자동화** | 유휴 클러스터 종료, Job 모니터링, CI/CD 파이프라인 등 |
 
 ---
 

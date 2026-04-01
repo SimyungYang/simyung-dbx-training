@@ -2,7 +2,7 @@
 
 ## 왜 쿼리 최적화가 중요한가요?
 
-동일한 데이터를 조회하더라도, 쿼리를 어떻게 작성하고 테이블을 어떻게 구성하느냐에 따라 **실행 시간이 수십 배** 차이날 수 있습니다. 대시보드의 응답 속도, ETL 파이프라인의 처리 시간, 그리고 **컴퓨팅 비용(DBU)** 에 직접적으로 영향을 미칩니다.
+동일한 데이터를 조회하더라도, 쿼리를 어떻게 작성하고 테이블을 어떻게 구성하느냐에 따라 **실행 시간이 수십 배** 차이날 수 있습니다. 대시보드의 응답 속도, ETL 파이프라인의 처리 시간, 그리고 ** 컴퓨팅 비용(DBU)** 에 직접적으로 영향을 미칩니다.
 
 이 문서에서는 Databricks에서 쿼리 성능을 극대화하기 위한 핵심 기술과 모범 사례를 상세히 다루겠습니다.
 
@@ -12,13 +12,13 @@
 
 ### 개념
 
-> 💡 **Liquid Clustering**은 데이터를 지정한 컬럼 기준으로 **물리적으로 가까이 배치**하여, 쿼리 시 불필요한 파일 읽기를 최소화하는 기술입니다. 기존의 파티셔닝(Partitioning)과 Z-Order를 대체하는 Databricks의 최신 최적화 기술입니다.
+> 💡 **Liquid Clustering** 은 데이터를 지정한 컬럼 기준으로 **물리적으로 가까이 배치** 하여, 쿼리 시 불필요한 파일 읽기를 최소화하는 기술입니다. 기존의 파티셔닝(Partitioning)과 Z-Order를 대체하는 Databricks의 최신 최적화 기술입니다.
 
 ### 왜 기존 방식을 대체하나요?
 
 | 기존 방식 | 문제점 |
 |-----------|--------|
-| **Hive-style 파티셔닝** | 파티션 컬럼을 변경하려면 **테이블을 재생성**해야 합니다. 카디널리티가 높은 컬럼(예: user_id)으로 파티셔닝하면 수만 개의 작은 파일이 생깁니다 |
+| **Hive-style 파티셔닝** | 파티션 컬럼을 변경하려면 ** 테이블을 재생성**해야 합니다. 카디널리티가 높은 컬럼(예: user_id)으로 파티셔닝하면 수만 개의 작은 파일이 생깁니다 |
 | **Z-Order** | 매번 `OPTIMIZE ... ZORDER BY` 를 명시적으로 실행해야 하며, 최적 컬럼 조합을 찾기 어렵습니다 |
 | **Liquid Clustering** | 컬럼 변경이 자유롭고(`ALTER TABLE`), OPTIMIZE 시 자동 적용되며, 증분 방식으로 효율적입니다 |
 
@@ -56,9 +56,9 @@ ALTER TABLE catalog.schema.orders CLUSTER BY NONE;
 
 | 원칙 | 설명 | 예시 |
 |------|------|------|
-| **자주 필터링하는 컬럼** | WHERE 절에 자주 등장하는 컬럼을 선택합니다 | `order_date`, `region`, `status` |
-| **카디널리티가 적당한 컬럼** | 값의 종류가 너무 적거나 너무 많지 않은 컬럼이 좋습니다 | ✅ `region` (10개), ❌ `order_id` (수억 개) |
-| **최대 4개 이하** | 컬럼 수가 많으면 효과가 분산됩니다 | `CLUSTER BY (date, region)` |
+| ** 자주 필터링하는 컬럼** | WHERE 절에 자주 등장하는 컬럼을 선택합니다 | `order_date`, `region`, `status` |
+| ** 카디널리티가 적당한 컬럼** | 값의 종류가 너무 적거나 너무 많지 않은 컬럼이 좋습니다 | ✅ `region` (10개), ❌ `order_id` (수억 개) |
+| ** 최대 4개 이하** | 컬럼 수가 많으면 효과가 분산됩니다 | `CLUSTER BY (date, region)` |
 | **JOIN 키 컬럼** | 자주 JOIN에 사용되는 컬럼도 좋은 후보입니다 | `customer_id` |
 
 ### Liquid Clustering의 동작 원리
@@ -76,8 +76,8 @@ ALTER TABLE catalog.schema.orders CLUSTER BY NONE;
 |  | 파일 4 | 대구 (3월) |
 
 `WHERE region = '서울' AND order_date >= '2025-03-01'` 쿼리를 실행하면:
-- **최적화 전**: 3개 파일을 모두 스캔해야 합니다
-- **최적화 후**: 파일 2만 스캔하면 됩니다 → **데이터 스캔량 2/3 감소**
+- ** 최적화 전**: 3개 파일을 모두 스캔해야 합니다
+- ** 최적화 후**: 파일 2만 스캔하면 됩니다 → ** 데이터 스캔량 2/3 감소**
 
 ---
 
@@ -85,7 +85,7 @@ ALTER TABLE catalog.schema.orders CLUSTER BY NONE;
 
 ### 개념
 
-> 💡 **Predictive Optimization**은 Databricks가 테이블의 사용 패턴을 분석하여, **OPTIMIZE와 VACUUM을 자동으로 실행**해 주는 기능입니다. 사용자가 직접 스케줄을 관리할 필요가 없습니다.
+> 💡 **Predictive Optimization** 은 Databricks가 테이블의 사용 패턴을 분석하여, **OPTIMIZE와 VACUUM을 자동으로 실행** 해 주는 기능입니다. 사용자가 직접 스케줄을 관리할 필요가 없습니다.
 
 ### 활성화 방법
 
@@ -108,7 +108,7 @@ SET TBLPROPERTIES ('delta.enableOptimizeWrite' = 'true');
 | **Auto VACUUM** | 오래된 불필요한 파일을 자동으로 삭제합니다 |
 | **Auto ANALYZE** | 통계 정보를 자동으로 갱신합니다 |
 
-> ⚠️ **요구 사항**: Predictive Optimization은 Unity Catalog의 **Managed Table**에서만 사용할 수 있습니다. External Table에서는 사용할 수 없습니다.
+> ⚠️ ** 요구 사항**: Predictive Optimization은 Unity Catalog의 **Managed Table** 에서만 사용할 수 있습니다. External Table에서는 사용할 수 없습니다.
 
 ---
 
@@ -131,7 +131,7 @@ SQL Editor에서 쿼리를 실행한 후 **Query Profile** 탭을 클릭하면, 
 
 ### 성능 개선 판단 플로우
 
-**쿼리 성능 문제 해결 가이드**
+** 쿼리 성능 문제 해결 가이드**
 
 | 증상 | 원인 | 해결 방법 |
 |------|------|----------|
@@ -240,11 +240,11 @@ DESCRIBE EXTENDED catalog.schema.orders;
 
 ### Delta Cache
 
-SQL Warehouse는 자주 접근하는 데이터를 **로컬 SSD에 자동 캐싱**합니다. 동일한 데이터를 반복 조회할 때 디스크 I/O 없이 캐시에서 바로 읽을 수 있습니다. 별도 설정 없이 자동으로 동작합니다.
+SQL Warehouse는 자주 접근하는 데이터를 ** 로컬 SSD에 자동 캐싱**합니다. 동일한 데이터를 반복 조회할 때 디스크 I/O 없이 캐시에서 바로 읽을 수 있습니다. 별도 설정 없이 자동으로 동작합니다.
 
 ### Materialized View 활용
 
-자주 실행되는 복잡한 집계 쿼리는 **Materialized View**로 만들어 결과를 사전 계산해 두면, 매번 재계산하지 않아 응답 시간이 크게 단축됩니다.
+자주 실행되는 복잡한 집계 쿼리는 **Materialized View** 로 만들어 결과를 사전 계산해 두면, 매번 재계산하지 않아 응답 시간이 크게 단축됩니다.
 
 ```sql
 -- 자주 조회되는 복잡한 집계를 MV로 사전 계산
@@ -295,8 +295,8 @@ SET TBLPROPERTIES ('delta.autoOptimize.optimizeWrite' = 'true');
 | **Liquid Clustering** | 데이터 스캔량 대폭 감소 | 낮음 (`CLUSTER BY` 한 줄) |
 | **Predictive Optimization** | 자동 OPTIMIZE/VACUUM | 낮음 (스키마 설정) |
 | **SELECT 컬럼 명시** | 불필요한 I/O 감소 | 낮음 (코딩 습관) |
-| **브로드캐스트 JOIN** | Shuffle 제거 | 중간 (크기 판단 필요) |
-| **통계 수집** | 최적화기 판단력 향상 | 낮음 (ANALYZE 실행) |
+| ** 브로드캐스트 JOIN** | Shuffle 제거 | 중간 (크기 판단 필요) |
+| ** 통계 수집** | 최적화기 판단력 향상 | 낮음 (ANALYZE 실행) |
 | **Materialized View** | 반복 집계 시간 제거 | 중간 (MV 설계 필요) |
 | **Query Profile 분석** | 병목 지점 식별 | 중간 (읽기 능력 필요) |
 

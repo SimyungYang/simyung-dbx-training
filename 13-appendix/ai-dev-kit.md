@@ -2,9 +2,9 @@
 
 ## AI Dev Kit란?
 
-Databricks AI Dev Kit는 **AI 코딩 어시스턴트**(Claude Code, VS Code Copilot, Cursor 등)와 **Databricks 플랫폼**을 연결하는 통합 도구입니다. MCP(Model Context Protocol) 서버를 통해 AI 어시스턴트가 Databricks의 리소스에 직접 접근할 수 있게 해주며, 자연어 명령만으로 SQL 실행, 클러스터 관리, 파이프라인 생성, 대시보드 구축 등의 작업을 수행할 수 있습니다.
+Databricks AI Dev Kit는 **AI 코딩 어시스턴트**(Claude Code, VS Code Copilot, Cursor 등)와 **Databricks 플랫폼** 을 연결하는 통합 도구입니다. MCP(Model Context Protocol) 서버를 통해 AI 어시스턴트가 Databricks의 리소스에 직접 접근할 수 있게 해주며, 자연어 명령만으로 SQL 실행, 클러스터 관리, 파이프라인 생성, 대시보드 구축 등의 작업을 수행할 수 있습니다.
 
-> 💡 **MCP(Model Context Protocol)**란?
+> 💡 **MCP(Model Context Protocol)** 란?
 > Anthropic이 제안한 개방형 프로토콜로, AI 모델이 외부 도구·데이터 소스와 표준화된 방식으로 소통할 수 있게 합니다. AI Dev Kit는 이 프로토콜을 활용하여 Databricks API를 AI 어시스턴트의 "도구(tool)"로 노출합니다.
 
 ### 왜 AI Dev Kit가 필요한가?
@@ -213,17 +213,17 @@ Lakeview 대시보드를 자연어로 생성할 수 있습니다.
 | 카테고리 | 주요 도구 | 설명 |
 |---|---|---|
 | **SQL** | `execute_sql`, `execute_sql_multi` | SQL 쿼리 실행 및 결과 반환 |
-| **클러스터** | `list_clusters`, `start_cluster`, `get_cluster_status` | 클러스터 관리 |
+| ** 클러스터** | `list_clusters`, `start_cluster`, `get_cluster_status` | 클러스터 관리 |
 | **Job** | `manage_jobs`, `manage_job_runs` | 워크플로 Job 관리 및 실행 |
-| **파이프라인** | `create_or_update_pipeline`, `start_update` | SDP 파이프라인 관리 |
-| **대시보드** | `create_or_update_dashboard`, `publish_dashboard` | Lakeview 대시보드 관리 |
+| ** 파이프라인** | `create_or_update_pipeline`, `start_update` | SDP 파이프라인 관리 |
+| ** 대시보드** | `create_or_update_dashboard`, `publish_dashboard` | Lakeview 대시보드 관리 |
 | **Unity Catalog** | `manage_uc_objects`, `manage_uc_grants` | 카탈로그/스키마/테이블/권한 관리 |
 | **Vector Search** | `create_or_update_vs_index`, `query_vs_index` | 벡터 검색 인덱스 관리 |
 | **Genie** | `ask_genie`, `create_or_update_genie` | Genie 스페이스 관리 |
-| **볼륨** | `upload_to_volume`, `list_volume_files` | Unity Catalog 볼륨 파일 관리 |
-| **서빙** | `query_serving_endpoint` | 모델 서빙 엔드포인트 호출 |
+| ** 볼륨** | `upload_to_volume`, `list_volume_files` | Unity Catalog 볼륨 파일 관리 |
+| ** 서빙** | `query_serving_endpoint` | 모델 서빙 엔드포인트 호출 |
 | **Lakebase** | `create_or_update_lakebase_database` | Lakebase DB 관리 |
-| **앱** | `create_or_update_app` | Databricks 앱 관리 |
+| ** 앱** | `create_or_update_app` | Databricks 앱 관리 |
 
 ---
 
@@ -276,7 +276,7 @@ resources:
       target: "my_catalog.my_schema"
 ```
 
-> 💡 **팁**: `databricks.yml`이 프로젝트에 있으면 AI Dev Kit가 자동으로 대상 환경을 인식하므로, "이 프로젝트의 파이프라인을 실행해줘"처럼 간결한 명령이 가능합니다.
+> 💡 ** 팁**: `databricks.yml`이 프로젝트에 있으면 AI Dev Kit가 자동으로 대상 환경을 인식하므로, "이 프로젝트의 파이프라인을 실행해줘"처럼 간결한 명령이 가능합니다.
 
 ---
 
@@ -292,8 +292,8 @@ resources:
 
 ### 보안 고려사항
 
-- AI Dev Kit는 **사용자의 Databricks 권한**을 그대로 상속합니다. Unity Catalog 권한이 적용되므로 접근 권한이 없는 데이터는 조회할 수 없습니다.
-- PAT(개인 접근 토큰)보다 **OAuth 인증**을 권장합니다. 토큰 만료 관리가 자동으로 이루어집니다.
+- AI Dev Kit는 ** 사용자의 Databricks 권한**을 그대로 상속합니다. Unity Catalog 권한이 적용되므로 접근 권한이 없는 데이터는 조회할 수 없습니다.
+- PAT(개인 접근 토큰)보다 **OAuth 인증** 을 권장합니다. 토큰 만료 관리가 자동으로 이루어집니다.
 - `.mcp.json` 파일에 토큰을 직접 작성하지 마세요. 환경 변수나 프로파일을 사용하세요.
 - `.gitignore`에 민감한 설정 파일이 포함되어 있는지 확인하세요.
 
@@ -304,10 +304,10 @@ resources:
 | 항목 | 내용 |
 |---|---|
 | **핵심 가치** | AI 코딩 어시스턴트에서 자연어로 Databricks 플랫폼 제어 |
-| **기반 기술** | MCP (Model Context Protocol) |
-| **지원 도구** | Claude Code, VS Code, Cursor, Windsurf, Claude Desktop |
-| **인증** | Databricks Unified Auth (OAuth, PAT, Service Principal) |
-| **권한** | Unity Catalog 권한을 그대로 상속 |
+| ** 기반 기술** | MCP (Model Context Protocol) |
+| ** 지원 도구** | Claude Code, VS Code, Cursor, Windsurf, Claude Desktop |
+| ** 인증** | Databricks Unified Auth (OAuth, PAT, Service Principal) |
+| ** 권한** | Unity Catalog 권한을 그대로 상속 |
 
 ---
 
