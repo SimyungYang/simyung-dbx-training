@@ -1,11 +1,6 @@
 # Databricks 종합 교육 자료
 
-> 데이터 관련 지식이 전혀 없는 분도 처음부터 단계적으로 학습할 수 있도록 구성된 Databricks 교육 자료입니다.
-
-## 학습 대상
-
-- 데이터 엔지니어링, 데이터 웨어하우스, ETL 등의 개념을 처음 접하는 분
-- Databricks 플랫폼을 처음 사용하는 고객, SA, 파트너
+Databricks Data Intelligence Platform의 핵심 기능과 아키텍처를 체계적으로 다루는 한국어 교육 자료입니다.
 
 ## 커리큘럼
 
