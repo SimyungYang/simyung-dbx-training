@@ -12,9 +12,9 @@
 
 | 전략 | 설명 | 장점 | 단점 |
 |------|------|------|------|
-| **Grid Search**| 모든 가능한 조합을 시도합니다 | 놓치는 조합 없음 | 차원이 많으면 비용 폭발 |
-| **Random Search**| 무작위로 조합을 샘플링합니다 | 효율적, 차원에 강건 | 최적값을 놓칠 수 있음 |
-| **Bayesian Optimization**| 이전 결과를 바탕으로 다음 시도를 선택합니다 | 가장 효율적 | 구현이 복잡 |
+| **Grid Search** | 모든 가능한 조합을 시도합니다 | 놓치는 조합 없음 | 차원이 많으면 비용 폭발 |
+| **Random Search** | 무작위로 조합을 샘플링합니다 | 효율적, 차원에 강건 | 최적값을 놓칠 수 있음 |
+| **Bayesian Optimization** | 이전 결과를 바탕으로 다음 시도를 선택합니다 | 가장 효율적 | 구현이 복잡 |
 
 ---
 
@@ -90,7 +90,7 @@ with mlflow.start_run(run_name="xgboost-tuning"):
 spark_trials = SparkTrials(parallelism=8)  # Worker 8개에서 동시 실행
 ```
 
-> ⚠️ **parallelism이 너무 높으면** Bayesian Optimization의 효과가 줄어듭니다. 이전 결과를 충분히 반영하기 전에 다음 시행이 시작되기 때문입니다. `parallelism`은 `max_evals`의 1/3~1/2 정도를 권장합니다.
+> ⚠️ **parallelism이 너무 높으면**Bayesian Optimization의 효과가 줄어듭니다. 이전 결과를 충분히 반영하기 전에 다음 시행이 시작되기 때문입니다. `parallelism`은 `max_evals`의 1/3~1/2 정도를 권장합니다.
 
 ---
 

@@ -10,7 +10,7 @@ GitHub: https://github.com/SimyungYang/simyung-dbx-training
 
 ## 관련 프로젝트
 
-- **Databricks Enablements** (실전 가이드 & 핸즈온): https://simyungyang.gitbook.io/databricks-enablement-resources/
+- **Databricks Enablements**(실전 가이드 & 핸즈온): https://simyungyang.gitbook.io/databricks-enablement-resources/
   - GitHub: https://github.com/SimyungYang/databricks-enablement-blog
   - 역할 분리: Training = 전체 문서(교육) / Enablements = 시나리오별 가이드 & 핸즈온
 
@@ -20,11 +20,11 @@ GitHub: https://github.com/SimyungYang/simyung-dbx-training
 
 ### 각 기술/개념에 반드시 포함할 내용:
 
-1. **왜 등장했는가** — 이전 기술의 한계, 해결하려는 문제
-2. **어떻게 작동하는가** — 핵심 메커니즘, 아키텍처, 동작 원리
-3. **실전에서 어떻게 활용되는가** — 구체적 사용 사례, 구성 예시, 코드
-4. **장단점과 트레이드오프** — 알려진 제약, 대안, 비용, 성능 비교
-5. **주의사항과 베스트 프랙티스** — 흔한 실수, 권장 설정, 모범 사례
+1. **왜 등장했는가**— 이전 기술의 한계, 해결하려는 문제
+2. **어떻게 작동하는가**— 핵심 메커니즘, 아키텍처, 동작 원리
+3. **실전에서 어떻게 활용되는가**— 구체적 사용 사례, 구성 예시, 코드
+4. **장단점과 트레이드오프**— 알려진 제약, 대안, 비용, 성능 비교
+5. **주의사항과 베스트 프랙티스**— 흔한 실수, 권장 설정, 모범 사례
 
 ### 잘못된 예시 vs 올바른 예시:
 

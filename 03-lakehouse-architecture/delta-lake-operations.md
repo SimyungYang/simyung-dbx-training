@@ -57,11 +57,11 @@ WHEN NOT MATCHED THEN
 
 | 패턴 | 설명 |
 |------|------|
-| **Upsert**| 있으면 UPDATE, 없으면 INSERT (가장 일반적) |
-| **SCD Type 1**| 최신 값으로 덮어쓰기 (이력 보존 안 함) |
-| **SCD Type 2**| 변경 이력을 모두 보존 (유효 기간 관리) |
-| **Deduplication**| 중복 데이터 제거 |
-| **Delete 동기화**| 소스에서 삭제된 레코드를 타겟에서도 삭제 |
+| **Upsert** | 있으면 UPDATE, 없으면 INSERT (가장 일반적) |
+| **SCD Type 1** | 최신 값으로 덮어쓰기 (이력 보존 안 함) |
+| **SCD Type 2** | 변경 이력을 모두 보존 (유효 기간 관리) |
+| **Deduplication** | 중복 데이터 제거 |
+| **Delete 동기화** | 소스에서 삭제된 레코드를 타겟에서도 삭제 |
 
 > 💡 **SCD(Slowly Changing Dimension, 완만하게 변하는 차원)란?** 데이터 웨어하우스에서 시간에 따라 변하는 데이터(예: 고객 주소, 상품 가격)를 어떻게 관리할지에 대한 전략입니다.
 > - **Type 1**: 변경 시 이전 값을 덮어씁니다. 이력을 보존하지 않습니다.
@@ -203,9 +203,9 @@ SHOW CREATE TABLE catalog.schema.orders;
 
 | 작업 | 권장 빈도 | 설명 |
 |------|-----------|------|
-| **OPTIMIZE**| 일 1회 또는 데이터 변경 후 | 작은 파일을 합쳐 쿼리 성능을 유지합니다 |
-| **VACUUM**| 주 1회 | 오래된 파일을 삭제하여 스토리지 비용을 절약합니다 |
-| **ANALYZE TABLE**| 주 1회 | 통계 정보를 갱신하여 쿼리 최적화기의 성능을 높입니다 |
+| **OPTIMIZE** | 일 1회 또는 데이터 변경 후 | 작은 파일을 합쳐 쿼리 성능을 유지합니다 |
+| **VACUUM** | 주 1회 | 오래된 파일을 삭제하여 스토리지 비용을 절약합니다 |
+| **ANALYZE TABLE** | 주 1회 | 통계 정보를 갱신하여 쿼리 최적화기의 성능을 높입니다 |
 
 ```sql
 -- 추천 운영 스크립트
@@ -247,9 +247,9 @@ MERGE는 내부적으로 3단계로 동작합니다. 각 단계를 이해하면 
 
 | 단계 | 동작 | 최적화 팁 |
 |------|------|----------|
-| **1단계: Scan**| 타겟 테이블의 모든 파일을 스캔하여 매칭할 행을 찾습니다. 비용 = 타겟 테이블 크기에 비례 | Liquid Clustering이나 파티션으로 스캔 범위를 줄입니다 |
-| **2단계: Match**| ON 조건으로 소스와 타겟의 매칭 행을 식별합니다 (Inner/Outer Join 발생) | 매칭 키에 인덱스/클러스터링이 있으면 빠릅니다 |
-| **3단계: Write**| 매칭된 파일만 새로 씁니다 (Copy-on-Write). 변경 1건이라도 해당 파일 전체 재작성 | 파일이 적절히 클러스터링되면 재작성할 파일 수가 줄어듭니다 |
+| **1단계: Scan** | 타겟 테이블의 모든 파일을 스캔하여 매칭할 행을 찾습니다. 비용 = 타겟 테이블 크기에 비례 | Liquid Clustering이나 파티션으로 스캔 범위를 줄입니다 |
+| **2단계: Match** | ON 조건으로 소스와 타겟의 매칭 행을 식별합니다 (Inner/Outer Join 발생) | 매칭 키에 인덱스/클러스터링이 있으면 빠릅니다 |
+| **3단계: Write** | 매칭된 파일만 새로 씁니다 (Copy-on-Write). 변경 1건이라도 해당 파일 전체 재작성 | 파일이 적절히 클러스터링되면 재작성할 파일 수가 줄어듭니다 |
 
 ### 원인 분석: 왜 10배 느려졌는가
 
@@ -270,10 +270,10 @@ MERGE는 내부적으로 3단계로 동작합니다. 각 단계를 이해하면 
 
 | 전략 | 효과 | 적용 방법 |
 |------|------|----------|
-| **Liquid Clustering**| 스캔 범위 축소 (10~100배) | `CLUSTER BY (merge_key)` — MERGE ON 조건의 키를 클러스터링 키로 설정 |
-| **정기 OPTIMIZE**| Small File 제거 | 매일 OPTIMIZE 실행 (또는 Predictive Optimization 활성화) |
-| **소스 필터링**| 매칭 대상 축소 | MERGE 전에 소스에서 불필요한 행을 미리 필터 |
-| **조건부 MERGE**| 스캔 범위 한정 | `MERGE INTO ... WHERE target.order_date >= '2025-03-01'` |
+| **Liquid Clustering** | 스캔 범위 축소 (10~100배) | `CLUSTER BY (merge_key)` — MERGE ON 조건의 키를 클러스터링 키로 설정 |
+| **정기 OPTIMIZE** | Small File 제거 | 매일 OPTIMIZE 실행 (또는 Predictive Optimization 활성화) |
+| **소스 필터링** | 매칭 대상 축소 | MERGE 전에 소스에서 불필요한 행을 미리 필터 |
+| **조건부 MERGE** | 스캔 범위 한정 | `MERGE INTO ... WHERE target.order_date >= '2025-03-01'` |
 | **배치 분할** | 메모리 부족 방지 | 500만 건을 50만 건씩 10회로 분할 실행 |
 
 ```sql
@@ -297,11 +297,11 @@ WHEN NOT MATCHED THEN
 
 | 고려사항 | 설명 | 권장 |
 |---------|------|------|
-| **멱등성(Idempotency)**| 같은 MERGE를 2번 실행해도 결과가 같아야 합니다 | `WHEN MATCHED AND source.updated_at > target.updated_at` 조건 추가 |
-| **DELETE 동기화**| 소스에서 삭제된 레코드를 어떻게 처리할 것인가 | Soft Delete (`is_deleted` 플래그) 권장. Hard Delete는 리스크가 큼 |
-| **Late Arriving Data**| 3일 전 주문의 상태가 오늘에야 도착하는 경우 | MERGE 조건에 날짜 범위를 충분히 넓게 설정 (예: 7일) |
-| **중복 소스 데이터**| CDC에서 같은 키의 이벤트가 여러 번 올 수 있음 | MERGE 전에 소스에서 `ROW_NUMBER()` 등으로 중복 제거 |
-| **대용량 초기 적재**| 빈 테이블에 10억 건을 MERGE하면 극도로 느림 | 초기 적재는 `INSERT INTO`로, 이후부터 MERGE 사용 |
+| **멱등성(Idempotency)** | 같은 MERGE를 2번 실행해도 결과가 같아야 합니다 | `WHEN MATCHED AND source.updated_at > target.updated_at` 조건 추가 |
+| **DELETE 동기화** | 소스에서 삭제된 레코드를 어떻게 처리할 것인가 | Soft Delete (`is_deleted` 플래그) 권장. Hard Delete는 리스크가 큼 |
+| **Late Arriving Data** | 3일 전 주문의 상태가 오늘에야 도착하는 경우 | MERGE 조건에 날짜 범위를 충분히 넓게 설정 (예: 7일) |
+| **중복 소스 데이터** | CDC에서 같은 키의 이벤트가 여러 번 올 수 있음 | MERGE 전에 소스에서 `ROW_NUMBER()` 등으로 중복 제거 |
+| **대용량 초기 적재** | 빈 테이블에 10억 건을 MERGE하면 극도로 느림 | 초기 적재는 `INSERT INTO`로, 이후부터 MERGE 사용 |
 
 > ⚠️ **현업에서는 이렇게 합니다**: MERGE의 성능은 "얼마나 많은 파일을 재작성하느냐"에 달려있습니다. Liquid Clustering으로 MERGE 키 기준 데이터를 모아두면, 변경 대상 파일만 재작성하므로 10~100배 빨라집니다. 이것을 안 하면 500GB 테이블에서 1건만 UPDATE해도 수십 GB의 파일을 재작성하게 됩니다.
 
@@ -327,10 +327,10 @@ DESCRIBE HISTORY catalog.schema.orders LIMIT 5;
 
 | 모니터링 지표 | 정상 범위 | 이상 신호 | 조치 |
 |-------------|---------|---------|------|
-| **재작성 파일 비율**| <20% | >50% | Liquid Clustering 확인, OPTIMIZE 실행 |
-| **실행 시간 추이**| 일정 | 주 단위로 증가 | Small File 문제, 데이터 볼륨 변화 확인 |
-| **삽입 행 수**| 예상 범위 내 | 0건 또는 급증 | 소스 데이터 문제 확인 |
-| **업데이트 행 수**| 예상 범위 내 | 급증 | 중복 소스 데이터 확인 |
+| **재작성 파일 비율** | <20% | >50% | Liquid Clustering 확인, OPTIMIZE 실행 |
+| **실행 시간 추이** | 일정 | 주 단위로 증가 | Small File 문제, 데이터 볼륨 변화 확인 |
+| **삽입 행 수** | 예상 범위 내 | 0건 또는 급증 | 소스 데이터 문제 확인 |
+| **업데이트 행 수** | 예상 범위 내 | 급증 | 중복 소스 데이터 확인 |
 
 ---
 
@@ -338,11 +338,11 @@ DESCRIBE HISTORY catalog.schema.orders LIMIT 5;
 
 | 핵심 기능 | 설명 |
 |-----------|------|
-| **MERGE**| Upsert(있으면 UPDATE, 없으면 INSERT)를 한 번에 수행합니다 |
-| **OPTIMIZE**| 작은 파일들을 합쳐서 쿼리 성능을 향상시킵니다 |
-| **Liquid Clustering**| 차세대 데이터 레이아웃 최적화. 기존 파티셔닝/Z-Order를 대체합니다 |
-| **VACUUM**| 불필요한 오래된 파일을 삭제하여 스토리지 비용을 절약합니다 |
-| **Predictive Optimization**| OPTIMIZE/VACUUM을 Databricks가 자동으로 실행합니다 |
+| **MERGE** | Upsert(있으면 UPDATE, 없으면 INSERT)를 한 번에 수행합니다 |
+| **OPTIMIZE** | 작은 파일들을 합쳐서 쿼리 성능을 향상시킵니다 |
+| **Liquid Clustering** | 차세대 데이터 레이아웃 최적화. 기존 파티셔닝/Z-Order를 대체합니다 |
+| **VACUUM** | 불필요한 오래된 파일을 삭제하여 스토리지 비용을 절약합니다 |
+| **Predictive Optimization** | OPTIMIZE/VACUUM을 Databricks가 자동으로 실행합니다 |
 
 다음 문서에서는 Delta Lake와 **Apache Iceberg** 의 관계 및 상호 운용성을 살펴보겠습니다.
 

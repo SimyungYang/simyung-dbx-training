@@ -22,11 +22,11 @@
 
 | 계층 | 구성 요소 | 역할 |
 |------|-----------|------|
-| **사용자**| 웹 브라우저 | HTTPS로 앱에 접속합니다 |
-| **Databricks Apps**| Python 앱 (Streamlit/FastAPI) | 웹 애플리케이션을 실행합니다 |
+| **사용자** | 웹 브라우저 | HTTPS로 앱에 접속합니다 |
+| **Databricks Apps** | Python 앱 (Streamlit/FastAPI) | 웹 애플리케이션을 실행합니다 |
 |  | Databricks OAuth | 자동 인증을 처리합니다 |
-| **Lakebase**| PostgreSQL 호환 DB | 인증된 연결로 데이터를 읽고 씁니다 |
-| **분석 환경**| Delta Lake | Data Sync로 동기화된 데이터를 분석합니다 |
+| **Lakebase** | PostgreSQL 호환 DB | 인증된 연결로 데이터를 읽고 씁니다 |
+| **분석 환경** | Delta Lake | Data Sync로 동기화된 데이터를 분석합니다 |
 
 이 아키텍처의 핵심 장점은 **인증이 자동으로 처리된다는 것** 입니다. Databricks Apps에서 실행되는 앱은 워크스페이스의 OAuth 인증을 자동으로 상속받아, 별도의 비밀번호 관리가 필요 없습니다.
 
@@ -47,7 +47,7 @@ Streamlit은 데이터 앱을 가장 빠르게 만들 수 있는 프레임워크
 | `app.yaml` | Databricks Apps 설정 |
 | `.streamlit/secrets.toml` | 시크릿 (로컬 개발용) |
 
-**Streamlit secrets 설정** (`secrets.toml`):
+**Streamlit secrets 설정**(`secrets.toml`):
 
 ```toml
 [lakebase]

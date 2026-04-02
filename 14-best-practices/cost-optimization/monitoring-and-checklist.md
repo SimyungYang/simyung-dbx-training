@@ -233,7 +233,7 @@ HAVING SUM(usage_quantity) > 1000;
 |------|--------|-------|-------|
 | 클러스터 유형 | All-Purpose, 항시 가동 | Serverless + Auto Stop 10분 | - |
 | 일일 가동 시간 | 24시간 | ~4시간 | 83% |
-| 월간 DBU | 7,200 DBU | 1,200 DBU | **83%**|
+| 월간 DBU | 7,200 DBU | 1,200 DBU | **83%** |
 
 ### 사례 2: ETL 파이프라인 최적화
 
@@ -242,7 +242,7 @@ HAVING SUM(usage_quantity) > 1000;
 | 컴퓨트 | All-Purpose Compute | Jobs Compute + Spot 80% | - |
 | 인스턴스 | r5.2xlarge × 10 | i3.xlarge × 8 (스토리지 최적화) | - |
 | 실행 시간 | 2시간 | 1.5시간 (Photon 적용) | 25% |
-| 월간 DBU | 3,000 DBU | 600 DBU | **80%**|
+| 월간 DBU | 3,000 DBU | 600 DBU | **80%** |
 
 ### 사례 3: BI 대시보드 환경 최적화
 

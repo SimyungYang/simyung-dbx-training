@@ -129,9 +129,9 @@
 
 | 전략 | 설정 | 효과 |
 |------|------|------|
-| **SPOT_WITH_FALLBACK**| Spot 우선, 불가 시 On-Demand로 전환 | 비용 60~90% 절감, 안정성 유지 |
-| **first_on_demand**| Driver는 On-Demand, Worker는 Spot | Driver 장애 방지 |
-| **spot_bid_max_price**| Spot 최대 입찰가 설정 | 예산 제어 |
+| **SPOT_WITH_FALLBACK** | Spot 우선, 불가 시 On-Demand로 전환 | 비용 60~90% 절감, 안정성 유지 |
+| **first_on_demand** | Driver는 On-Demand, Worker는 Spot | Driver 장애 방지 |
+| **spot_bid_max_price** | Spot 최대 입찰가 설정 | 예산 제어 |
 
 ```yaml
 new_cluster:
@@ -189,11 +189,11 @@ tasks:
 
 | 구성 요소 | 핵심 포인트 |
 |-----------|-------------|
-| **태스크 유형**| Notebook, SQL, dbt, Pipeline 등 워크로드에 맞는 유형을 선택합니다 |
-| **의존성**| DAG로 선형, 병렬, 조건부 흐름을 설계합니다 |
-| **클러스터**| Job Cluster + Spot 인스턴스로 비용을 최적화합니다 |
-| **파라미터**| `dbutils.widgets`와 Task Values로 태스크 간 데이터를 전달합니다 |
-| **재시도/타임아웃**| 일시적 장애에 대비하되, 멱등성을 보장합니다 |
+| **태스크 유형** | Notebook, SQL, dbt, Pipeline 등 워크로드에 맞는 유형을 선택합니다 |
+| **의존성** | DAG로 선형, 병렬, 조건부 흐름을 설계합니다 |
+| **클러스터** | Job Cluster + Spot 인스턴스로 비용을 최적화합니다 |
+| **파라미터** | `dbutils.widgets`와 Task Values로 태스크 간 데이터를 전달합니다 |
+| **재시도/타임아웃** | 일시적 장애에 대비하되, 멱등성을 보장합니다 |
 | **알림** | 프로덕션 Job에는 반드시 실패 알림을 설정합니다 |
 
 ---

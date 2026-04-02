@@ -6,10 +6,10 @@
 
 | 문제 | 설명 |
 |------|------|
-| **재현 불가**| "지난주에 정확도 95% 나왔던 설정이 뭐였지?" — 코드, 데이터, 파라미터를 모두 기억할 수 없습니다 |
-| **비교 어려움**| 노트북에 결과를 수동으로 적어두면, 수십 개 실험을 체계적으로 비교하기 어렵습니다 |
-| **협업 장벽**| 팀원이 내 실험을 재현하거나 이어서 작업하기 어렵습니다 |
-| **감사 추적 불가**| 프로덕션 모델이 어떤 실험에서 나왔는지 추적할 수 없습니다 |
+| **재현 불가** | "지난주에 정확도 95% 나왔던 설정이 뭐였지?" — 코드, 데이터, 파라미터를 모두 기억할 수 없습니다 |
+| **비교 어려움** | 노트북에 결과를 수동으로 적어두면, 수십 개 실험을 체계적으로 비교하기 어렵습니다 |
+| **협업 장벽** | 팀원이 내 실험을 재현하거나 이어서 작업하기 어렵습니다 |
+| **감사 추적 불가** | 프로덕션 모델이 어떤 실험에서 나왔는지 추적할 수 없습니다 |
 
 > 💡 **실험 추적(Experiment Tracking)** 이란 머신러닝 실험의 모든 요소(코드, 데이터, 파라미터, 메트릭, 모델 아티팩트)를 자동으로 기록하고 버전 관리하는 체계를 말합니다. MLflow Tracking은 이를 위한 업계 표준 오픈소스 도구입니다.
 
@@ -21,19 +21,19 @@ MLflow의 실험 추적은 **Experiment(실험)** 와 **Run(실행)** 이라는 
 
 | 계층 | 구성 요소 | 예시 |
 |------|-----------|------|
-| **MLflow Tracking Server**| 최상위 | 모든 실험을 관리합니다 |
-| **Experiment**| 프로젝트 단위 | "사기 탐지 모델", "추천 시스템" |
-| **Run**| 개별 실험 실행 | Run 1: RF baseline (accuracy=0.92), Run 2: XGBoost v1 (accuracy=0.95), Run 3: XGBoost v2 (accuracy=0.96) |
-| **Run 기록 항목**| 각 Run에 포함 | Parameters, Metrics, Artifacts, Tags |
+| **MLflow Tracking Server** | 최상위 | 모든 실험을 관리합니다 |
+| **Experiment** | 프로젝트 단위 | "사기 탐지 모델", "추천 시스템" |
+| **Run** | 개별 실험 실행 | Run 1: RF baseline (accuracy=0.92), Run 2: XGBoost v1 (accuracy=0.95), Run 3: XGBoost v2 (accuracy=0.96) |
+| **Run 기록 항목** | 각 Run에 포함 | Parameters, Metrics, Artifacts, Tags |
 
 | 구성 요소 | 설명 | 예시 |
 |-----------|------|------|
-| **Experiment**| 관련 실험을 묶는 최상위 컨테이너 | `/Workspace/experiments/fraud-detection` |
-| **Run**| 한 번의 모델 학습 실행 단위 | `rf-baseline`, `xgboost-tuned-v2` |
-| **Parameters**| 학습에 사용한 하이퍼파라미터 | `n_estimators=100`, `learning_rate=0.01` |
-| **Metrics**| 모델 성능 평가 지표 | `accuracy=0.95`, `f1_score=0.93` |
-| **Artifacts**| 모델 파일, 시각화, 데이터 샘플 등 | `model.pkl`, `confusion_matrix.png` |
-| **Tags**| 실험 분류 및 메타데이터 | `team=fraud`, `stage=development` |
+| **Experiment** | 관련 실험을 묶는 최상위 컨테이너 | `/Workspace/experiments/fraud-detection` |
+| **Run** | 한 번의 모델 학습 실행 단위 | `rf-baseline`, `xgboost-tuned-v2` |
+| **Parameters** | 학습에 사용한 하이퍼파라미터 | `n_estimators=100`, `learning_rate=0.01` |
+| **Metrics** | 모델 성능 평가 지표 | `accuracy=0.95`, `f1_score=0.93` |
+| **Artifacts** | 모델 파일, 시각화, 데이터 샘플 등 | `model.pkl`, `confusion_matrix.png` |
+| **Tags** | 실험 분류 및 메타데이터 | `team=fraud`, `stage=development` |
 
 ---
 
@@ -149,13 +149,13 @@ model.fit(X_train, y_train)
 
 | 프레임워크 | 자동 기록 항목 | 비고 |
 |-----------|---------------|------|
-| **scikit-learn**| 모든 하이퍼파라미터, 학습/평가 메트릭, 모델, 피처 중요도 | `post_training_metrics=True` 옵션 |
-| **XGBoost**| 파라미터, 학습 메트릭(각 boosting round), 모델, 피처 중요도 | 학습 곡선 자동 추적 |
-| **LightGBM**| 파라미터, 메트릭, 모델, 피처 중요도 | XGBoost와 유사 |
-| **PyTorch**| 에포크별 loss, 모델 가중치 | `log_every_n_epoch` 설정 가능 |
-| **TensorFlow/Keras**| 에포크별 메트릭, 콜백 메트릭, 모델 | `log_models=True` 기본값 |
-| **Spark ML**| Pipeline 파라미터, 평가 메트릭, 모델 | 분산 학습 자동 추적 |
-| **Hugging Face**| 학습 args, 에포크별 메트릭, 모델 체크포인트 | Transformers Trainer 연동 |
+| **scikit-learn** | 모든 하이퍼파라미터, 학습/평가 메트릭, 모델, 피처 중요도 | `post_training_metrics=True` 옵션 |
+| **XGBoost** | 파라미터, 학습 메트릭(각 boosting round), 모델, 피처 중요도 | 학습 곡선 자동 추적 |
+| **LightGBM** | 파라미터, 메트릭, 모델, 피처 중요도 | XGBoost와 유사 |
+| **PyTorch** | 에포크별 loss, 모델 가중치 | `log_every_n_epoch` 설정 가능 |
+| **TensorFlow/Keras** | 에포크별 메트릭, 콜백 메트릭, 모델 | `log_models=True` 기본값 |
+| **Spark ML** | Pipeline 파라미터, 평가 메트릭, 모델 | 분산 학습 자동 추적 |
+| **Hugging Face** | 학습 args, 에포크별 메트릭, 모델 체크포인트 | Transformers Trainer 연동 |
 
 > **autolog 세부 제어 옵션:**
 > ```python
@@ -315,21 +315,21 @@ Databricks에서 MLflow를 사용하면 추가적인 편의 기능을 활용할 
 
 | 구성 요소 | 연결 대상 | 설명 |
 |-----------|-----------|------|
-| **Databricks Notebook**| MLflow Experiment | 자동으로 연결됩니다 |
-| **MLflow Experiment**| Run 기록 | 실험 실행 기록을 관리합니다 |
-| **Run 기록**| Unity Catalog 모델 레지스트리 | 모델을 등록합니다 |
-| **Run 기록**| 아티팩트 스토리지 | 클라우드 스토리지에 아티팩트를 저장합니다 |
-| **MLflow UI**| MLflow Experiment | UI에서 실험을 조회합니다 |
-| **Experiment API**| MLflow Experiment | API로 실험을 프로그래밍 방식으로 접근합니다 |
+| **Databricks Notebook** | MLflow Experiment | 자동으로 연결됩니다 |
+| **MLflow Experiment** | Run 기록 | 실험 실행 기록을 관리합니다 |
+| **Run 기록** | Unity Catalog 모델 레지스트리 | 모델을 등록합니다 |
+| **Run 기록** | 아티팩트 스토리지 | 클라우드 스토리지에 아티팩트를 저장합니다 |
+| **MLflow UI** | MLflow Experiment | UI에서 실험을 조회합니다 |
+| **Experiment API** | MLflow Experiment | API로 실험을 프로그래밍 방식으로 접근합니다 |
 
 | 기능 | 설명 |
 |------|------|
-| **노트북 자동 연동**| 노트북에서 학습하면 해당 노트북의 실험에 자동으로 Run이 연결됩니다 |
-| **노트북 스냅샷**| 각 Run에 실행 시점의 노트북 코드가 자동 저장됩니다 |
-| **Git 연동**| Git 커밋 해시가 Run에 자동 기록되어 코드 버전 추적이 가능합니다 |
-| **Autolog 기본 활성화**| Databricks Runtime ML에서는 autolog가 기본 활성화됩니다 |
-| **Unity Catalog 통합**| `registered_model_name`에 3-level namespace(`catalog.schema.model`)를 사용하여 UC에 직접 모델을 등록합니다 |
-| **클러스터 정보 기록**| 학습에 사용된 클러스터 사양(노드 수, 인스턴스 타입 등)이 자동 기록됩니다 |
+| **노트북 자동 연동** | 노트북에서 학습하면 해당 노트북의 실험에 자동으로 Run이 연결됩니다 |
+| **노트북 스냅샷** | 각 Run에 실행 시점의 노트북 코드가 자동 저장됩니다 |
+| **Git 연동** | Git 커밋 해시가 Run에 자동 기록되어 코드 버전 추적이 가능합니다 |
+| **Autolog 기본 활성화** | Databricks Runtime ML에서는 autolog가 기본 활성화됩니다 |
+| **Unity Catalog 통합** | `registered_model_name`에 3-level namespace(`catalog.schema.model`)를 사용하여 UC에 직접 모델을 등록합니다 |
+| **클러스터 정보 기록** | 학습에 사용된 클러스터 사양(노드 수, 인스턴스 타입 등)이 자동 기록됩니다 |
 
 > ⚠️ **주의사항**: Databricks에서 `mlflow.set_tracking_uri()`를 별도로 호출할 필요가 없습니다. Databricks 환경에서는 자동으로 워크스페이스의 MLflow Tracking Server에 연결됩니다.
 
@@ -407,11 +407,11 @@ print(f"Run ID: {best_run['run_id']}")
 
 | 항목 | 핵심 포인트 |
 |------|------------|
-| **Experiment**| 관련 실험을 묶는 컨테이너. 프로젝트/팀별로 구분합니다 |
-| **Run**| 한 번의 학습 실행. 파라미터, 메트릭, 아티팩트, 태그를 기록합니다 |
-| **수동 로깅**| `log_param`, `log_metric`, `log_artifact`, `log_model`로 세밀하게 제어합니다 |
-| **자동 로깅**| `mlflow.autolog()`로 코드 변경 없이 자동 추적합니다 |
-| **튜닝 연동**| Optuna, Hyperopt와 중첩 Run으로 결합하여 체계적으로 최적화합니다 |
+| **Experiment** | 관련 실험을 묶는 컨테이너. 프로젝트/팀별로 구분합니다 |
+| **Run** | 한 번의 학습 실행. 파라미터, 메트릭, 아티팩트, 태그를 기록합니다 |
+| **수동 로깅** | `log_param`, `log_metric`, `log_artifact`, `log_model`로 세밀하게 제어합니다 |
+| **자동 로깅** | `mlflow.autolog()`로 코드 변경 없이 자동 추적합니다 |
+| **튜닝 연동** | Optuna, Hyperopt와 중첩 Run으로 결합하여 체계적으로 최적화합니다 |
 | **Databricks 통합** | 노트북 스냅샷, Git 연동, Unity Catalog 모델 등록이 자동으로 지원됩니다 |
 
 ---

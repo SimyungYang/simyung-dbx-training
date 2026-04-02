@@ -6,11 +6,11 @@
 
 | 계층 | 테이블 | 소스 | 설명 |
 |------|--------|------|------|
-| **Bronze**| bronze_orders | JSON 파일 (주문) | Auto Loader로 원본 수집 |
+| **Bronze** | bronze_orders | JSON 파일 (주문) | Auto Loader로 원본 수집 |
 |  | bronze_customers | CDC 스트림 (고객) | CDC 데이터를 수집 |
-| **Silver**| silver_orders | bronze_orders | 정제 + Expectations 적용 |
+| **Silver** | silver_orders | bronze_orders | 정제 + Expectations 적용 |
 |  | silver_customers | bronze_customers | SCD Type 1 처리 |
-| **Gold**| gold_customer_revenue | silver_orders + silver_customers | 고객별 매출 집계 |
+| **Gold** | gold_customer_revenue | silver_orders + silver_customers | 고객별 매출 집계 |
 |  | gold_daily_kpi | silver_orders | 일별 KPI 집계 |
 
 ---
@@ -198,11 +198,11 @@ GROUP BY DATE(order_date);
 
 | 설정 항목 | 값 |
 |----------|-----|
-| **Pipeline name**| `shop-medallion-pipeline` |
-| **Source code**| 위에서 작성한 노트북 경로 |
-| **Destination**| Catalog: `training`, Schema: `ecommerce` |
-| **Compute**| Serverless 선택 |
-| **Pipeline mode**| Triggered (실습용) |
+| **Pipeline name** | `shop-medallion-pipeline` |
+| **Source code** | 위에서 작성한 노트북 경로 |
+| **Destination** | Catalog: `training`, Schema: `ecommerce` |
+| **Compute** | Serverless 선택 |
+| **Pipeline mode** | Triggered (실습용) |
 
 4. **Create** 클릭
 
@@ -229,9 +229,9 @@ GROUP BY DATE(order_date);
 
 | 확인 항목 | 위치 | 설명 |
 |-----------|------|------|
-| **DAG 그래프**| Pipeline 메인 화면 | 테이블 간 의존성과 데이터 흐름을 시각적으로 표시합니다 |
-| **Expectations 결과**| 각 테이블 클릭 → Quality 탭 | 통과/실패 행 수를 확인합니다 |
-| **처리 건수**| 각 테이블 클릭 → Details | INSERT/UPDATE/DELETE 건수를 확인합니다 |
+| **DAG 그래프** | Pipeline 메인 화면 | 테이블 간 의존성과 데이터 흐름을 시각적으로 표시합니다 |
+| **Expectations 결과** | 각 테이블 클릭 → Quality 탭 | 통과/실패 행 수를 확인합니다 |
+| **처리 건수** | 각 테이블 클릭 → Details | INSERT/UPDATE/DELETE 건수를 확인합니다 |
 | **이벤트 로그** | Updates 탭 | 실행 이력, 에러, 경고를 확인합니다 |
 
 ### SQL로 결과 확인
@@ -311,7 +311,7 @@ Pipeline UI에서 **Start** 클릭 (또는 CLI: `databricks pipelines start-upda
 | 모드 | 설명 | 사용 시기 |
 |------|------|----------|
 | **증분 업데이트**(기본) | 새 데이터만 처리합니다 | 일반적인 운영 |
-| **Full Refresh**| 모든 데이터를 처음부터 다시 처리합니다 | 로직 변경, 데이터 복구 |
+| **Full Refresh** | 모든 데이터를 처음부터 다시 처리합니다 | 로직 변경, 데이터 복구 |
 
 ```bash
 # CLI로 Full Refresh 실행
@@ -330,9 +330,9 @@ databricks pipelines start-update --pipeline-id <id> --full-refresh
 |------|------|----------|
 | "**Table not found**" | 소스 테이블이 아직 생성되지 않음 | SDP가 의존성을 자동 관리하므로, 전체 파이프라인을 다시 실행합니다 |
 | "**Schema mismatch**" | JSON 스키마가 변경됨 | `cloudFiles.schemaEvolutionMode`를 `addNewColumns`로 설정합니다 |
-| **Expectation으로 모든 행이 제거됨**| 품질 규칙이 너무 엄격함 | 규칙을 완화하거나, `ON VIOLATION FAIL UPDATE`로 변경하여 원인을 조사합니다 |
+| **Expectation으로 모든 행이 제거됨** | 품질 규칙이 너무 엄격함 | 규칙을 완화하거나, `ON VIOLATION FAIL UPDATE`로 변경하여 원인을 조사합니다 |
 | "**Column not found**" | Silver 쿼리에서 참조한 컬럼이 Bronze에 없음 | Bronze 스키마를 `DESCRIBE TABLE`로 확인합니다 |
-| **파이프라인이 시작되지 않음**| 권한 부족 | 카탈로그/스키마에 대한 `CREATE TABLE` 권한을 확인합니다 |
+| **파이프라인이 시작되지 않음** | 권한 부족 | 카탈로그/스키마에 대한 `CREATE TABLE` 권한을 확인합니다 |
 | "**Auto Loader detected new files but schema changed**" | 새 파일의 스키마가 다름 | 스키마 힌트를 제공하거나, 스키마 위치를 리셋합니다 |
 
 ### 유용한 디버깅 쿼리
@@ -380,11 +380,11 @@ DROP MATERIALIZED VIEW IF EXISTS training.ecommerce.gold_daily_kpi;
 
 | 단계 | 배운 내용 |
 |------|----------|
-| **Bronze**| Auto Loader + `read_files()`로 파일을 자동 수집합니다. 원본을 그대로 저장합니다 |
-| **Silver**| 데이터 타입 변환, TRIM, UPPER 등으로 정제합니다. Expectations로 품질을 검증합니다 |
-| **Gold**| JOIN, GROUP BY로 비즈니스 집계를 만듭니다. Materialized View로 성능을 최적화합니다 |
-| **CDC**| `APPLY CHANGES INTO`로 SCD Type 1 테이블을 자동 관리합니다 |
-| **증분 처리**| 새 파일만 자동으로 감지하여 처리합니다. Full Refresh도 가능합니다 |
+| **Bronze** | Auto Loader + `read_files()`로 파일을 자동 수집합니다. 원본을 그대로 저장합니다 |
+| **Silver** | 데이터 타입 변환, TRIM, UPPER 등으로 정제합니다. Expectations로 품질을 검증합니다 |
+| **Gold** | JOIN, GROUP BY로 비즈니스 집계를 만듭니다. Materialized View로 성능을 최적화합니다 |
+| **CDC** | `APPLY CHANGES INTO`로 SCD Type 1 테이블을 자동 관리합니다 |
+| **증분 처리** | 새 파일만 자동으로 감지하여 처리합니다. Full Refresh도 가능합니다 |
 | **모니터링** | Pipeline UI에서 DAG, Expectations, 처리 건수를 확인합니다 |
 
 ---

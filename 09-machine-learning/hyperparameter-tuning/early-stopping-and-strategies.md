@@ -110,12 +110,12 @@ print(f"200회 중 {len(complete_trials)}회만 완주 → {200 - len(complete_t
 
 | 비교 항목 | Hyperopt (TPE) | Optuna (TPE) |
 |-----------|---------------|-------------|
-| **수렴 속도**| 빠름 | 빠름 (유사) |
-| **최종 성능**| 유사 | 유사 (가지치기로 더 많은 시행 가능) |
-| **100회 시행 실행 시간**| 기준 | 가지치기 적용 시 30~50% 빠름 |
-| **메모리 사용**| 낮음 | 약간 높음 (Study 객체) |
-| **대시보드**| MLflow UI | Optuna Dashboard + MLflow |
-| **분산 지원**| SparkTrials (네이티브) | Joblib + Spark (간접) |
+| **수렴 속도** | 빠름 | 빠름 (유사) |
+| **최종 성능** | 유사 | 유사 (가지치기로 더 많은 시행 가능) |
+| **100회 시행 실행 시간** | 기준 | 가지치기 적용 시 30~50% 빠름 |
+| **메모리 사용** | 낮음 | 약간 높음 (Study 객체) |
+| **대시보드** | MLflow UI | Optuna Dashboard + MLflow |
+| **분산 지원** | SparkTrials (네이티브) | Joblib + Spark (간접) |
 
 ### 선택 가이드
 
@@ -215,14 +215,14 @@ fine_best = fmin(fn=objective, space=fine_space,
 
 | 핵심 개념 | 설명 |
 |-----------|------|
-| **하이퍼파라미터 튜닝**| 모델 학습 전 설정하는 값의 최적 조합을 찾는 과정입니다 |
-| **TPE 알고리즘**| 좋은/나쁜 결과의 파라미터 분포를 분리 모델링하여 효율적으로 탐색합니다 |
-| **Hyperopt + SparkTrials**| Databricks 내장, Spark 분산 병렬 튜닝을 지원합니다 |
-| **parallelism**| sqrt(max_evals) 또는 Worker 수 중 작은 값이 권장됩니다 |
-| **Optuna**| 직관적 API, 가지치기, 다목적 최적화를 지원하는 최신 프레임워크입니다 |
-| **Early Stopping**| 유망하지 않은 시행을 조기 중단하여 비용을 크게 절감합니다 |
-| **탐색 공간**| hp.choice, hp.uniform, hp.loguniform 등으로 파라미터 범위를 정의합니다 |
-| **3단계 전략**| Random(거친) → Bayesian(세밀) → Grid(검증) 순서가 대규모 탐색에 효과적입니다 |
+| **하이퍼파라미터 튜닝** | 모델 학습 전 설정하는 값의 최적 조합을 찾는 과정입니다 |
+| **TPE 알고리즘** | 좋은/나쁜 결과의 파라미터 분포를 분리 모델링하여 효율적으로 탐색합니다 |
+| **Hyperopt + SparkTrials** | Databricks 내장, Spark 분산 병렬 튜닝을 지원합니다 |
+| **parallelism** | sqrt(max_evals) 또는 Worker 수 중 작은 값이 권장됩니다 |
+| **Optuna** | 직관적 API, 가지치기, 다목적 최적화를 지원하는 최신 프레임워크입니다 |
+| **Early Stopping** | 유망하지 않은 시행을 조기 중단하여 비용을 크게 절감합니다 |
+| **탐색 공간** | hp.choice, hp.uniform, hp.loguniform 등으로 파라미터 범위를 정의합니다 |
+| **3단계 전략** | Random(거친) → Bayesian(세밀) → Grid(검증) 순서가 대규모 탐색에 효과적입니다 |
 | **MLflow 연동** | 모든 시행이 MLflow에 자동 기록되어 비교 및 추적이 가능합니다 |
 
 ---

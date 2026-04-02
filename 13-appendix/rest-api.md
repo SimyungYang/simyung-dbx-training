@@ -8,11 +8,11 @@
 
 | 상황 | UI 방식 | REST API 방식 |
 |------|---------|--------------|
-| **클러스터 100개 설정 변경**| 하나씩 수동으로 변경 | 스크립트로 일괄 변경 |
-| **매일 Job 상태 모니터링**| 매번 UI 접속해서 확인 | 자동 알림 시스템 구축 |
-| **CI/CD 파이프라인**| 수동 배포 | API로 자동 배포 |
-| **외부 시스템 연동**| 불가능 | Slack, JIRA 등과 통합 |
-| **Workspace 초기 설정**| 반복 수작업 | IaC(Infrastructure as Code)로 자동화 |
+| **클러스터 100개 설정 변경** | 하나씩 수동으로 변경 | 스크립트로 일괄 변경 |
+| **매일 Job 상태 모니터링** | 매번 UI 접속해서 확인 | 자동 알림 시스템 구축 |
+| **CI/CD 파이프라인** | 수동 배포 | API로 자동 배포 |
+| **외부 시스템 연동** | 불가능 | Slack, JIRA 등과 통합 |
+| **Workspace 초기 설정** | 반복 수작업 | IaC(Infrastructure as Code)로 자동화 |
 
 ---
 
@@ -68,9 +68,9 @@ curl -s -X POST \
 
 | 방식 | 보안 수준 | 만료 | 적합한 용도 |
 |------|-----------|------|------------|
-| **PAT**| 중간 | 수동 설정 (최대 365일) | 개발, 테스트, 개인 스크립트 |
-| **OAuth M2M**| 높음 | 자동 (1시간) | CI/CD, 프로덕션 자동화 |
-| **OAuth U2M**| 높음 | 자동 | 대화형 애플리케이션 |
+| **PAT** | 중간 | 수동 설정 (최대 365일) | 개발, 테스트, 개인 스크립트 |
+| **OAuth M2M** | 높음 | 자동 (1시간) | CI/CD, 프로덕션 자동화 |
+| **OAuth U2M** | 높음 | 자동 | 대화형 애플리케이션 |
 
 ---
 
@@ -91,14 +91,14 @@ curl -s -X POST \
 
 | API 영역 | 엔드포인트 | 주요 기능 |
 |----------|-----------|-----------|
-| **Clusters**| `/api/2.0/clusters/` | 클러스터 생성, 시작, 종료, 목록 조회 |
-| **Jobs**| `/api/2.1/jobs/` | Job 생성, 실행, 상태 조회, 스케줄 관리 |
-| **SQL**| `/api/2.0/sql/` | SQL Warehouse 관리, 쿼리 실행 |
-| **Unity Catalog**| `/api/2.1/unity-catalog/` | 카탈로그, 스키마, 테이블, 권한 관리 |
-| **Workspace**| `/api/2.0/workspace/` | 노트북, 폴더 관리 |
-| **Model Serving**| `/api/2.0/serving-endpoints/` | 모델 엔드포인트 생성, 관리, 호출 |
-| **DBFS**| `/api/2.0/dbfs/` | 파일 업로드, 다운로드, 삭제 |
-| **Repos**| `/api/2.0/repos/` | Git 저장소 연동 관리 |
+| **Clusters** | `/api/2.0/clusters/` | 클러스터 생성, 시작, 종료, 목록 조회 |
+| **Jobs** | `/api/2.1/jobs/` | Job 생성, 실행, 상태 조회, 스케줄 관리 |
+| **SQL** | `/api/2.0/sql/` | SQL Warehouse 관리, 쿼리 실행 |
+| **Unity Catalog** | `/api/2.1/unity-catalog/` | 카탈로그, 스키마, 테이블, 권한 관리 |
+| **Workspace** | `/api/2.0/workspace/` | 노트북, 폴더 관리 |
+| **Model Serving** | `/api/2.0/serving-endpoints/` | 모델 엔드포인트 생성, 관리, 호출 |
+| **DBFS** | `/api/2.0/dbfs/` | 파일 업로드, 다운로드, 삭제 |
+| **Repos** | `/api/2.0/repos/` | Git 저장소 연동 관리 |
 | **Secrets** | `/api/2.0/secrets/` | 시크릿 스코프, 키 관리 |
 
 ---
@@ -378,8 +378,8 @@ Databricks REST API는 여러 버전이 공존합니다.
 
 | API 버전 | 엔드포인트 예시 | 상태 |
 |----------|----------------|------|
-| **2.0**| `/api/2.0/clusters/list` | 대부분의 서비스에서 사용 중 |
-| **2.1**| `/api/2.1/jobs/list` | Jobs, Unity Catalog 등 신규 기능 |
+| **2.0** | `/api/2.0/clusters/list` | 대부분의 서비스에서 사용 중 |
+| **2.1** | `/api/2.1/jobs/list` | Jobs, Unity Catalog 등 신규 기능 |
 
 > 💡 **버전 선택 팁**: 공식 문서의 API Reference에서 각 엔드포인트의 최신 버전을 확인하세요. 새로운 기능은 대부분 2.1 버전에서 제공됩니다.
 
@@ -418,10 +418,10 @@ print(result.result.data_array)
 
 | 핵심 개념 | 요약 |
 |-----------|------|
-| **REST API**| HTTP 요청으로 Databricks 플랫폼의 모든 기능을 제어 |
-| **인증**| PAT (개발용), OAuth M2M (프로덕션), SDK 자동 인증 |
-| **주요 영역**| Clusters, Jobs, SQL, Unity Catalog, Model Serving 등 |
-| **Python 활용**| requests 라이브러리 또는 공식 Databricks SDK 사용 |
+| **REST API** | HTTP 요청으로 Databricks 플랫폼의 모든 기능을 제어 |
+| **인증** | PAT (개발용), OAuth M2M (프로덕션), SDK 자동 인증 |
+| **주요 영역** | Clusters, Jobs, SQL, Unity Catalog, Model Serving 등 |
+| **Python 활용** | requests 라이브러리 또는 공식 Databricks SDK 사용 |
 | **자동화** | 유휴 클러스터 종료, Job 모니터링, CI/CD 파이프라인 등 |
 
 ---

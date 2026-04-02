@@ -8,10 +8,10 @@
 
 | 대시보드 | 주요 패널 | 데이터 소스 |
 |---------|----------|-----------|
-| **비용 관리**| 월별 DBU 추이, 팀별 비용, 비용 급증 알림 | `system.billing.usage` |
-| **보안 감사**| 로그인 실패, 권한 변경, 대량 다운로드 | `system.access.audit` |
-| **Job 모니터링**| 실패율, 실행시간 추이, SLA 위반 | `system.lakeflow.jobs` |
-| **클러스터 현황**| 유휴 클러스터, 활용률, 비용 | `system.compute.clusters` |
+| **비용 관리** | 월별 DBU 추이, 팀별 비용, 비용 급증 알림 | `system.billing.usage` |
+| **보안 감사** | 로그인 실패, 권한 변경, 대량 다운로드 | `system.access.audit` |
+| **Job 모니터링** | 실패율, 실행시간 추이, SLA 위반 | `system.lakeflow.jobs` |
+| **클러스터 현황** | 유휴 클러스터, 활용률, 비용 | `system.compute.clusters` |
 | **데이터 거버넌스** | 리니지 맵, 미사용 테이블, 접근 패턴 | `system.lineage.*`, `system.access.audit` |
 
 ### 알림 설정 예시
@@ -48,10 +48,10 @@ HAVING estimated_cost_usd > 500;
 
 | 핵심 카테고리 | 대표 테이블 | 활용 |
 |-------------|-----------|------|
-| **감사**| `system.access.audit` | 누가 무엇을 했는지 추적 |
-| **빌링**| `system.billing.usage` | 비용 분석, 예산 관리 |
-| **컴퓨트**| `system.compute.clusters` | 유휴 리소스 감지 |
-| **워크플로우**| `system.lakeflow.jobs` | Job 성공/실패 모니터링 |
+| **감사** | `system.access.audit` | 누가 무엇을 했는지 추적 |
+| **빌링** | `system.billing.usage` | 비용 분석, 예산 관리 |
+| **컴퓨트** | `system.compute.clusters` | 유휴 리소스 감지 |
+| **워크플로우** | `system.lakeflow.jobs` | Job 성공/실패 모니터링 |
 | **리니지** | `system.lineage.table_lineage` | 데이터 흐름 추적 |
 
 ---

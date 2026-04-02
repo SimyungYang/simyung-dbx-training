@@ -19,9 +19,9 @@ Unity Catalog에서 **외부 로케이션(External Location)** 은 클라우드 
 
 | 구성 요소 | 역할 | 비유 |
 |-----------|------|------|
-| **Storage Credential**| 클라우드 스토리지에 접근할 수 있는 "열쇠" | 건물 마스터키 |
-| **External Location**| 특정 경로를 Unity Catalog에 등록한 "주소" | 건물 내 특정 사무실 |
-| **External Table/Volume**| 외부 로케이션 안에 존재하는 데이터 객체 | 사무실 안의 문서 |
+| **Storage Credential** | 클라우드 스토리지에 접근할 수 있는 "열쇠" | 건물 마스터키 |
+| **External Location** | 특정 경로를 Unity Catalog에 등록한 "주소" | 건물 내 특정 사무실 |
+| **External Table/Volume** | 외부 로케이션 안에 존재하는 데이터 객체 | 사무실 안의 문서 |
 
 > 💡 **Storage Credential** 에 대한 자세한 내용은 [스토리지 자격 증명](./storage-credentials.md) 문서를 참고하세요.
 
@@ -42,9 +42,9 @@ CREATE EXTERNAL LOCATION [IF NOT EXISTS] <location_name>
 
 | 클라우드 | URL 형식 | 예시 |
 |---------|---------|------|
-| **AWS S3**| `s3://<bucket>/<path>` | `s3://my-company-data/production/` |
-| **Azure ADLS**| `abfss://<container>@<account>.dfs.core.windows.net/<path>` | `abfss://data@myaccount.dfs.core.windows.net/prod/` |
-| **GCP GCS**| `gs://<bucket>/<path>` | `gs://my-company-data/production/` |
+| **AWS S3** | `s3://<bucket>/<path>` | `s3://my-company-data/production/` |
+| **Azure ADLS** | `abfss://<container>@<account>.dfs.core.windows.net/<path>` | `abfss://data@myaccount.dfs.core.windows.net/prod/` |
+| **GCP GCS** | `gs://<bucket>/<path>` | `gs://my-company-data/production/` |
 
 ### 실전 예시
 
@@ -89,12 +89,12 @@ CREATE EXTERNAL VOLUME production.ecommerce.raw_files
 
 | 권한 | 설명 |
 |------|------|
-| **CREATE EXTERNAL TABLE**| 해당 로케이션에 외부 테이블을 생성할 수 있습니다 |
-| **CREATE EXTERNAL VOLUME**| 해당 로케이션에 외부 볼륨을 생성할 수 있습니다 |
-| **BROWSE**| 로케이션의 파일 목록을 조회할 수 있습니다 |
-| **READ FILES**| 로케이션의 파일을 읽을 수 있습니다 |
-| **WRITE FILES**| 로케이션에 파일을 쓸 수 있습니다 |
-| **MANAGE**| 로케이션을 수정/삭제할 수 있습니다 |
+| **CREATE EXTERNAL TABLE** | 해당 로케이션에 외부 테이블을 생성할 수 있습니다 |
+| **CREATE EXTERNAL VOLUME** | 해당 로케이션에 외부 볼륨을 생성할 수 있습니다 |
+| **BROWSE** | 로케이션의 파일 목록을 조회할 수 있습니다 |
+| **READ FILES** | 로케이션의 파일을 읽을 수 있습니다 |
+| **WRITE FILES** | 로케이션에 파일을 쓸 수 있습니다 |
+| **MANAGE** | 로케이션을 수정/삭제할 수 있습니다 |
 
 ### 권한 부여 예시
 
@@ -150,11 +150,11 @@ DROP EXTERNAL LOCATION production_data;
 
 | 원칙 | 설명 |
 |------|------|
-| **경로 계층화**| 버킷 루트가 아닌 의미 있는 하위 경로 단위로 등록합니다 (예: `s3://bucket/production/`) |
-| **환경 분리**| `production/`, `staging/`, `dev/` 경로를 별도 외부 로케이션으로 등록합니다 |
-| **최소 권한**| 외부 테이블 생성 권한을 데이터 엔지니어에게만 부여합니다 |
-| **네이밍 규칙**| `{환경}_{도메인}` 형식으로 이름을 지정합니다 (예: `prod_ecommerce`) |
-| **겹침 방지**| 하나의 클라우드 경로가 여러 외부 로케이션에 겹치지 않도록 관리합니다 |
+| **경로 계층화** | 버킷 루트가 아닌 의미 있는 하위 경로 단위로 등록합니다 (예: `s3://bucket/production/`) |
+| **환경 분리** | `production/`, `staging/`, `dev/` 경로를 별도 외부 로케이션으로 등록합니다 |
+| **최소 권한** | 외부 테이블 생성 권한을 데이터 엔지니어에게만 부여합니다 |
+| **네이밍 규칙** | `{환경}_{도메인}` 형식으로 이름을 지정합니다 (예: `prod_ecommerce`) |
+| **겹침 방지** | 하나의 클라우드 경로가 여러 외부 로케이션에 겹치지 않도록 관리합니다 |
 
 ---
 
@@ -179,10 +179,10 @@ VALIDATE EXTERNAL LOCATION production_data;
 
 | 전략 | 예시 | 장점 | 단점 |
 |------|------|------|------|
-| **버킷 레벨**| `s3://company-datalake/` | 관리 간편 | 세분화된 권한 제어 불가 |
-| **환경 레벨**| `s3://company-datalake/prod/`, `.../dev/` | 환경 격리 | 도메인 간 권한 분리 부족 |
-| **도메인 레벨**| `.../prod/finance/`, `.../prod/marketing/` | 도메인별 권한 관리 | Location 수 증가 |
-| **테이블 레벨**| `.../prod/finance/orders/` | 최대 세분화 | Location 수 폭발, 관리 복잡 |
+| **버킷 레벨** | `s3://company-datalake/` | 관리 간편 | 세분화된 권한 제어 불가 |
+| **환경 레벨** | `s3://company-datalake/prod/`, `.../dev/` | 환경 격리 | 도메인 간 권한 분리 부족 |
+| **도메인 레벨** | `.../prod/finance/`, `.../prod/marketing/` | 도메인별 권한 관리 | Location 수 증가 |
+| **테이블 레벨** | `.../prod/finance/orders/` | 최대 세분화 | Location 수 폭발, 관리 복잡 |
 
 ### 권장 설계 패턴
 
@@ -352,13 +352,13 @@ CREATE EXTERNAL LOCATION test
 
 | 핵심 개념 | 설명 |
 |-----------|------|
-| **External Location**| 클라우드 스토리지 경로를 UC에 등록하여 거버넌스를 적용합니다 |
-| **Storage Credential 연결**| 외부 로케이션은 반드시 하나의 Storage Credential과 연결됩니다 |
-| **경로 기반 접근 제어**| 로케이션 단위로 외부 테이블/볼륨 생성 권한을 관리합니다 |
-| **중첩 우선순위**| 가장 구체적인(가장 긴) 경로의 Location이 우선 적용됩니다 |
-| **크로스 계정**| AWS IAM Role Chaining으로 다른 계정의 S3에 접근할 수 있습니다 |
-| **세분화 전략**| 환경 + 도메인 레벨의 Location 설계를 권장합니다 |
-| **S3 성능**| Location 경로가 너무 넓으면 파일 리스팅과 S3 API 성능에 영향합니다 |
+| **External Location** | 클라우드 스토리지 경로를 UC에 등록하여 거버넌스를 적용합니다 |
+| **Storage Credential 연결** | 외부 로케이션은 반드시 하나의 Storage Credential과 연결됩니다 |
+| **경로 기반 접근 제어** | 로케이션 단위로 외부 테이블/볼륨 생성 권한을 관리합니다 |
+| **중첩 우선순위** | 가장 구체적인(가장 긴) 경로의 Location이 우선 적용됩니다 |
+| **크로스 계정** | AWS IAM Role Chaining으로 다른 계정의 S3에 접근할 수 있습니다 |
+| **세분화 전략** | 환경 + 도메인 레벨의 Location 설계를 권장합니다 |
+| **S3 성능** | Location 경로가 너무 넓으면 파일 리스팅과 S3 API 성능에 영향합니다 |
 | **VALIDATE** | 생성 후 연결 상태를 반드시 검증합니다 |
 
 ---

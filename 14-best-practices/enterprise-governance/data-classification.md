@@ -6,9 +6,9 @@
 
 | 분류 등급 | 설명 | 예시 데이터 | 접근 제어 |
 |----------|------|-----------|----------|
-| **Public**| 공개 가능 정보 | 제품 카탈로그, 공시 데이터 | 전체 열람 가능 |
-| **Internal**| 사내 한정 정보 | 매출 집계, 내부 리포트 | 임직원 전체 |
-| **Confidential**| 기밀 정보 | 고객 개인정보, 계약 조건 | 관련 팀만 |
+| **Public** | 공개 가능 정보 | 제품 카탈로그, 공시 데이터 | 전체 열람 가능 |
+| **Internal** | 사내 한정 정보 | 매출 집계, 내부 리포트 | 임직원 전체 |
+| **Confidential** | 기밀 정보 | 고객 개인정보, 계약 조건 | 관련 팀만 |
 | **Restricted** | 최고 기밀 | 주민등록번호, 의료기록, 금융정보 | 승인된 개인만 + 감사 |
 
 ### 3.2 Unity Catalog 태그를 활용한 분류
@@ -143,10 +143,10 @@ ORDER BY event_date DESC;
 
 | 규제 | 핵심 요구사항 | Databricks 구현 방법 |
 |------|-------------|---------------------|
-| **GDPR**| 개인정보 접근 권한, 삭제 권한, 이동 권한 | Row/Column Filter, VACUUM, Delta Sharing |
-| **HIPAA**| PHI 암호화, 접근 감사, 최소 권한 | Column Mask, 감사 로그, 그룹 기반 접근 |
-| **SOC 2**| 접근 제어, 변경 관리, 모니터링 | Unity Catalog, 감사 로그, Compute Policy |
-| **PCI-DSS**| 카드 데이터 암호화, 접근 제한, 로깅 | Column Mask, Row Filter, 감사 로그 |
+| **GDPR** | 개인정보 접근 권한, 삭제 권한, 이동 권한 | Row/Column Filter, VACUUM, Delta Sharing |
+| **HIPAA** | PHI 암호화, 접근 감사, 최소 권한 | Column Mask, 감사 로그, 그룹 기반 접근 |
+| **SOC 2** | 접근 제어, 변경 관리, 모니터링 | Unity Catalog, 감사 로그, Compute Policy |
+| **PCI-DSS** | 카드 데이터 암호화, 접근 제한, 로깅 | Column Mask, Row Filter, 감사 로그 |
 | **PIPA (한국 개인정보보호법)** | 개인정보 수집/이용 동의, 파기 | 태깅, VACUUM, 접근 감사 |
 
 ### 4.3 데이터 보존 정책

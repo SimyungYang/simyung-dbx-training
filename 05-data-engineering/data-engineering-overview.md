@@ -40,10 +40,10 @@ Databricks는 2024년부터 데이터 엔지니어링 관련 제품들을 **Lake
 
 | Lakeflow 구성 요소 | 이전 이름 / 별칭 | 역할 | 핵심 가치 |
 |-------------------|-----------------|------|----------|
-| **Lakeflow Connect**| (신규) | 외부 DB/SaaS에서 관리형 수집 | 코드 없이 CDC 수집 자동화 |
-| **Lakeflow Declarative Pipelines (SDP)**| Delta Live Tables (DLT) | 선언적 변환 파이프라인 | "무엇을"만 정의하면 "어떻게"는 자동 |
-| **Lakeflow Jobs**| Databricks Workflows | 워크플로 오케스트레이션 | 스케줄링, 의존성 관리, 모니터링 |
-| **Auto Loader**| Auto Loader (변경 없음) | 클라우드 파일 증분 수집 | 새 파일 자동 감지, 스키마 진화 |
+| **Lakeflow Connect** | (신규) | 외부 DB/SaaS에서 관리형 수집 | 코드 없이 CDC 수집 자동화 |
+| **Lakeflow Declarative Pipelines (SDP)** | Delta Live Tables (DLT) | 선언적 변환 파이프라인 | "무엇을"만 정의하면 "어떻게"는 자동 |
+| **Lakeflow Jobs** | Databricks Workflows | 워크플로 오케스트레이션 | 스케줄링, 의존성 관리, 모니터링 |
+| **Auto Loader** | Auto Loader (변경 없음) | 클라우드 파일 증분 수집 | 새 파일 자동 감지, 스키마 진화 |
 
 > ⚠️ **용어 참고**: Delta Live Tables(DLT)는 현재 **Spark Declarative Pipelines(SDP)** 또는 **Lakeflow Declarative Pipelines** 로 명칭이 변경되었습니다. 기존 문서나 블로그에서 DLT라는 이름이 등장하면 SDP와 동일한 것으로 이해하시면 됩니다.
 
@@ -111,10 +111,10 @@ Databricks의 데이터 엔지니어링 도구들은 **서버리스 컴퓨트(Se
 
 | 도구 | 서버리스 지원 | 이점 |
 |------|:------------:|------|
-| **Lakeflow Connect**| ✅ 기본값 | 항상 서버리스로 실행, 인프라 관리 불필요 |
-| **SDP**| ✅ 지원 | 파이프라인 실행 시 자동 스케일링 |
-| **Lakeflow Jobs**| ✅ 지원 | 잡 실행 시 빠른 시작, 자동 스케일링 |
-| **Auto Loader**| ✅ 지원 (SDP/Jobs 내) | SDP 또는 Jobs의 서버리스 컴퓨트 활용 |
+| **Lakeflow Connect** | ✅ 기본값 | 항상 서버리스로 실행, 인프라 관리 불필요 |
+| **SDP** | ✅ 지원 | 파이프라인 실행 시 자동 스케일링 |
+| **Lakeflow Jobs** | ✅ 지원 | 잡 실행 시 빠른 시작, 자동 스케일링 |
+| **Auto Loader** | ✅ 지원 (SDP/Jobs 내) | SDP 또는 Jobs의 서버리스 컴퓨트 활용 |
 
 > 💡 **서버리스의 장점**: 클러스터 시작 대기 시간이 수초 이내로 줄어들고, 사용한 만큼만 과금되며, 인프라 관리(패치, 스케일링 등)가 완전히 자동화됩니다.
 
@@ -126,9 +126,9 @@ Databricks의 데이터 엔지니어링 도구들은 **서버리스 컴퓨트(Se
 
 | 품질 관리 방법 | 도구 | 적용 시점 | 설명 |
 |--------------|------|---------|------|
-| **Expectations**| SDP | 수집/변환 시 | 파이프라인 내에서 선언적 품질 규칙 적용 |
-| **Unity Catalog Monitor**| Lakehouse Monitoring | 테이블 레벨 | 데이터 프로파일링, 드리프트 감지, 이상 탐지 |
-| **SQL 제약조건**| Delta Lake | 테이블 레벨 | NOT NULL, CHECK 제약조건 |
+| **Expectations** | SDP | 수집/변환 시 | 파이프라인 내에서 선언적 품질 규칙 적용 |
+| **Unity Catalog Monitor** | Lakehouse Monitoring | 테이블 레벨 | 데이터 프로파일링, 드리프트 감지, 이상 탐지 |
+| **SQL 제약조건** | Delta Lake | 테이블 레벨 | NOT NULL, CHECK 제약조건 |
 | **커스텀 검증** | Lakeflow Jobs | 파이프라인 후 | Python/SQL로 비즈니스 규칙 검증 |
 
 ```sql
@@ -148,11 +148,11 @@ AS SELECT * FROM STREAM(bronze_orders);
 
 | 모니터링 영역 | 도구/기능 | 확인 내용 |
 |-------------|----------|----------|
-| **파이프라인 실행 상태**| Lakeflow Jobs UI | 성공/실패, 실행 시간, 재시도 횟수 |
-| **SDP 파이프라인 메트릭**| SDP Pipeline UI | 처리 건수, 지연 시간, Expectation 위반율 |
-| **시스템 테이블**| `system.workflow.job_run_timeline` | 잡 실행 이력, 비용 분석 |
-| **알림**| Lakeflow Jobs 알림 | 실패, SLA 위반 시 이메일/Slack/PagerDuty 알림 |
-| **데이터 리니지**| Unity Catalog Lineage | 데이터 흐름 추적, 영향 분석 |
+| **파이프라인 실행 상태** | Lakeflow Jobs UI | 성공/실패, 실행 시간, 재시도 횟수 |
+| **SDP 파이프라인 메트릭** | SDP Pipeline UI | 처리 건수, 지연 시간, Expectation 위반율 |
+| **시스템 테이블** | `system.workflow.job_run_timeline` | 잡 실행 이력, 비용 분석 |
+| **알림** | Lakeflow Jobs 알림 | 실패, SLA 위반 시 이메일/Slack/PagerDuty 알림 |
+| **데이터 리니지** | Unity Catalog Lineage | 데이터 흐름 추적, 영향 분석 |
 
 > 💡 **시스템 테이블(System Tables)** 은 Databricks 플랫폼의 운영 데이터(잡 실행 이력, 비용, 감사 로그 등)를 Delta 테이블로 제공하는 기능입니다. SQL로 직접 쿼리하여 커스텀 모니터링 대시보드를 만들 수 있습니다.
 
@@ -164,12 +164,12 @@ AS SELECT * FROM STREAM(bronze_orders);
 
 | 전략 | 설명 | 적용 도구 |
 |------|------|----------|
-| **서버리스 사용**| 클러스터 대기 비용 제거, 사용한 만큼만 과금 | 모든 Lakeflow 도구 |
-| **트리거 배치 모드**| 연속 실행 대신 주기적 트리거로 비용 절감 | Auto Loader, SDP |
-| **증분 처리**| 전체 데이터 재처리 대신 변경분만 처리 | Auto Loader, SDP, Lakeflow Connect |
-| **적절한 클러스터 크기**| 워크로드에 맞는 클러스터 사이즈 선택 | Lakeflow Jobs |
-| **Photon 엔진 활용**| C++ 기반 쿼리 엔진으로 처리 속도 향상 (비용/시간 절감) | SDP, Jobs |
-| **파티셔닝/Z-Order**| 불필요한 데이터 스캔 감소 | Delta Lake 테이블 |
+| **서버리스 사용** | 클러스터 대기 비용 제거, 사용한 만큼만 과금 | 모든 Lakeflow 도구 |
+| **트리거 배치 모드** | 연속 실행 대신 주기적 트리거로 비용 절감 | Auto Loader, SDP |
+| **증분 처리** | 전체 데이터 재처리 대신 변경분만 처리 | Auto Loader, SDP, Lakeflow Connect |
+| **적절한 클러스터 크기** | 워크로드에 맞는 클러스터 사이즈 선택 | Lakeflow Jobs |
+| **Photon 엔진 활용** | C++ 기반 쿼리 엔진으로 처리 속도 향상 (비용/시간 절감) | SDP, Jobs |
+| **파티셔닝/Z-Order** | 불필요한 데이터 스캔 감소 | Delta Lake 테이블 |
 | **Liquid Clustering** | 자동 데이터 레이아웃 최적화 | Delta Lake 테이블 |
 
 ```sql
@@ -198,7 +198,7 @@ AS SELECT * FROM silver_sales_agg;
 
 | 순서 | 문서 | 핵심 학습 내용 |
 |:----:|------|-------------|
-| 1 | **본 문서**| 전체 그림 파악, 각 도구의 역할 이해 |
+| 1 | **본 문서** | 전체 그림 파악, 각 도구의 역할 이해 |
 | 2 | [수집 방법 선택 가이드](./choosing-ingestion-method.md) | 상황별 최적 수집 방법 결정 |
 | 3 | [Auto Loader](./auto-loader/) | 파일 기반 데이터 수집 마스터 |
 | 4 | [Lakeflow Connect](./lakeflow-connect/) | DB/SaaS 관리형 수집 이해 |

@@ -34,7 +34,7 @@
 
 | 유형 | 설명 | 데이터 위치 |
 |------|------|-----------|
-| **Managed Volume**| Databricks가 스토리지 위치를 자동 관리합니다 | Databricks 관리 경로 |
+| **Managed Volume** | Databricks가 스토리지 위치를 자동 관리합니다 | Databricks 관리 경로 |
 | **External Volume** | 사용자가 지정한 외부 스토리지 경로를 사용합니다 | 고객 지정 경로 (S3, ADLS) |
 
 ```sql
@@ -128,10 +128,10 @@ SHOW GRANTS ON VOLUME production.ecommerce.raw_files;
 
 | 시나리오 | 저장 파일 | 처리 방법 |
 |----------|----------|----------|
-| **RAG 문서 저장**| PDF, DOCX, 웹 페이지 | `ai_parse_document`로 파싱 → 청킹 → Vector Search |
-| **원본 데이터 수집**| CSV, JSON, Parquet | Auto Loader로 읽어서 Delta 테이블에 적재 |
-| **ML 모델 아티팩트**| 모델 파일, 설정 파일 | MLflow 모델과 함께 관리 |
-| **이미지/미디어**| 상품 이미지, 의료 영상 | Spark로 배치 처리, ML 모델 입력 |
+| **RAG 문서 저장** | PDF, DOCX, 웹 페이지 | `ai_parse_document`로 파싱 → 청킹 → Vector Search |
+| **원본 데이터 수집** | CSV, JSON, Parquet | Auto Loader로 읽어서 Delta 테이블에 적재 |
+| **ML 모델 아티팩트** | 모델 파일, 설정 파일 | MLflow 모델과 함께 관리 |
+| **이미지/미디어** | 상품 이미지, 의료 영상 | Spark로 배치 처리, ML 모델 입력 |
 | **보고서/내보내기** | PDF 리포트, Excel 파일 | 대시보드 결과를 파일로 내보내기 |
 
 ---

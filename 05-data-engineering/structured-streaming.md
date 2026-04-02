@@ -10,9 +10,9 @@
 
 | 처리 방식 | 지연 시간 | 적합한 시나리오 |
 |-----------|----------|----------------|
-| **배치 처리**| 분~시간 단위 | 일일 리포트, 월말 정산 |
-| **마이크로 배치**| 초~분 단위 | 실시간 대시보드, 로그 분석 |
-| **연속 처리 (Continuous)**| 밀리초 단위 | 이상 거래 탐지, 실시간 알림 |
+| **배치 처리** | 분~시간 단위 | 일일 리포트, 월말 정산 |
+| **마이크로 배치** | 초~분 단위 | 실시간 대시보드, 로그 분석 |
+| **연속 처리 (Continuous)** | 밀리초 단위 | 이상 거래 탐지, 실시간 알림 |
 
 Structured Streaming은 **마이크로 배치(기본)** 와 **연속 처리** 모드를 모두 지원하여, 요구사항에 맞는 지연 시간을 선택할 수 있습니다.
 
@@ -83,8 +83,8 @@ query = (
 | 모드 | 설명 | 사용 시나리오 |
 |------|------|-------------|
 | **append**(기본) | 새로 추가된 행만 출력합니다 | 로그 수집, 이벤트 적재 |
-| **complete**| 전체 결과 테이블을 매번 출력합니다 | 집계 결과 (GROUP BY) |
-| **update**| 변경된 행만 출력합니다 | 집계 결과의 증분 업데이트 |
+| **complete** | 전체 결과 테이블을 매번 출력합니다 | 집계 결과 (GROUP BY) |
+| **update** | 변경된 행만 출력합니다 | 집계 결과의 증분 업데이트 |
 
 ---
 
@@ -94,10 +94,10 @@ query = (
 
 | 트리거 | 설명 | 코드 |
 |--------|------|------|
-| **processingTime**| 지정 간격마다 마이크로 배치 실행 | `.trigger(processingTime="10 seconds")` |
-| **availableNow**| 현재 가용한 데이터를 모두 처리 후 종료 | `.trigger(availableNow=True)` |
-| **continuous**| 밀리초 단위 연속 처리 (실험적) | `.trigger(continuous="1 second")` |
-| **기본값 (미지정)**| 이전 배치 완료 즉시 다음 배치 시작 | 트리거 옵션 생략 |
+| **processingTime** | 지정 간격마다 마이크로 배치 실행 | `.trigger(processingTime="10 seconds")` |
+| **availableNow** | 현재 가용한 데이터를 모두 처리 후 종료 | `.trigger(availableNow=True)` |
+| **continuous** | 밀리초 단위 연속 처리 (실험적) | `.trigger(continuous="1 second")` |
+| **기본값 (미지정)** | 이전 배치 완료 즉시 다음 배치 시작 | 트리거 옵션 생략 |
 
 ```python
 # 30초마다 마이크로 배치 실행
@@ -227,10 +227,10 @@ query = (
 
 | 체크포인트 관리 규칙 | 설명 |
 |-------------------|------|
-| **1 쿼리 = 1 체크포인트**| 각 스트리밍 쿼리는 고유한 체크포인트 경로를 사용해야 합니다 |
-| **체크포인트 삭제 주의**| 삭제하면 처음부터 다시 처리합니다. 의도하지 않은 중복이 발생할 수 있습니다 |
-| **경로 변경 금지**| 같은 쿼리의 체크포인트 경로를 중간에 변경하면 안 됩니다 |
-| **클라우드 스토리지 권장**| DBFS 대신 S3/ADLS/GCS에 저장하여 내구성을 확보합니다 |
+| **1 쿼리 = 1 체크포인트** | 각 스트리밍 쿼리는 고유한 체크포인트 경로를 사용해야 합니다 |
+| **체크포인트 삭제 주의** | 삭제하면 처음부터 다시 처리합니다. 의도하지 않은 중복이 발생할 수 있습니다 |
+| **경로 변경 금지** | 같은 쿼리의 체크포인트 경로를 중간에 변경하면 안 됩니다 |
+| **클라우드 스토리지 권장** | DBFS 대신 S3/ADLS/GCS에 저장하여 내구성을 확보합니다 |
 
 ---
 
@@ -240,10 +240,10 @@ Structured Streaming은 다양한 메시지 브로커와 연동할 수 있습니
 
 | 소스 | format | 주요 옵션 |
 |------|--------|----------|
-| **Kafka / Confluent Cloud**| `kafka` | `kafka.bootstrap.servers`, `subscribe`, `startingOffsets` |
-| **Amazon Kinesis**| `kinesis` | `streamName`, `region`, `initialPosition` |
-| **Azure Event Hubs**| `eventhubs` | `eventhubs.connectionString` |
-| **Delta Table**| `delta` | `readChangeFeed` (CDF 활용 시) |
+| **Kafka / Confluent Cloud** | `kafka` | `kafka.bootstrap.servers`, `subscribe`, `startingOffsets` |
+| **Amazon Kinesis** | `kinesis` | `streamName`, `region`, `initialPosition` |
+| **Azure Event Hubs** | `eventhubs` | `eventhubs.connectionString` |
+| **Delta Table** | `delta` | `readChangeFeed` (CDF 활용 시) |
 | **Auto Loader** | `cloudFiles` | `cloudFiles.format`, `cloudFiles.schemaLocation` |
 
 ```python
@@ -298,10 +298,10 @@ query = (
 
 | 패턴 | 설명 |
 |------|------|
-| **MERGE (Upsert)**| 키 기반으로 업데이트 또는 삽입합니다 |
-| **다중 출력**| 하나의 스트림을 여러 테이블에 동시에 씁니다 |
-| **외부 시스템 연동**| REST API 호출, DB 직접 쓰기 등을 수행합니다 |
-| **커스텀 검증**| 배치별 데이터 품질 검사를 실행합니다 |
+| **MERGE (Upsert)** | 키 기반으로 업데이트 또는 삽입합니다 |
+| **다중 출력** | 하나의 스트림을 여러 테이블에 동시에 씁니다 |
+| **외부 시스템 연동** | REST API 호출, DB 직접 쓰기 등을 수행합니다 |
+| **커스텀 검증** | 배치별 데이터 품질 검사를 실행합니다 |
 
 ---
 
@@ -334,12 +334,12 @@ query.lastProgress
 
 | 항목 | 권장 사항 |
 |------|----------|
-| **체크포인트**| 클라우드 스토리지에 저장하고, 쿼리별로 고유 경로를 사용합니다 |
-| **워터마크**| 상태 기반 연산(윈도우 집계, 스트림 조인)에는 반드시 워터마크를 설정합니다 |
-| **트리거 선택**| 실시간이 필요하면 `processingTime`, 스케줄링이면 `availableNow`를 사용합니다 |
-| **스키마 관리**| Kafka JSON 등 스키마 없는 소스는 명시적 스키마를 정의합니다 |
-| **모니터링**| StreamingQueryListener로 처리 지연을 감시합니다 |
-| **Auto Loader 활용**| 파일 기반 스트리밍은 Auto Loader를 우선 사용합니다 |
+| **체크포인트** | 클라우드 스토리지에 저장하고, 쿼리별로 고유 경로를 사용합니다 |
+| **워터마크** | 상태 기반 연산(윈도우 집계, 스트림 조인)에는 반드시 워터마크를 설정합니다 |
+| **트리거 선택** | 실시간이 필요하면 `processingTime`, 스케줄링이면 `availableNow`를 사용합니다 |
+| **스키마 관리** | Kafka JSON 등 스키마 없는 소스는 명시적 스키마를 정의합니다 |
+| **모니터링** | StreamingQueryListener로 처리 지연을 감시합니다 |
+| **Auto Loader 활용** | 파일 기반 스트리밍은 Auto Loader를 우선 사용합니다 |
 | **SDP 연동** | 복잡한 파이프라인은 SDP(Spark Declarative Pipelines)를 고려합니다 |
 
 ---

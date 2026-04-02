@@ -12,9 +12,9 @@
 
 | 전략 | 설명 | 적합한 상황 |
 |------|------|-----------|
-| **Data Parallelism**| 같은 모델을 여러 GPU에 복제하고, 데이터를 분할하여 학습합니다 | 대부분의 경우 (모델이 단일 GPU에 들어갈 때) |
-| **Model Parallelism**| 모델 자체를 여러 GPU에 나누어 저장합니다 | 모델이 단일 GPU 메모리보다 클 때 |
-| **Pipeline Parallelism**| 모델 레이어를 파이프라인으로 분할합니다 | 매우 큰 모델 (수십 B 파라미터 이상) |
+| **Data Parallelism** | 같은 모델을 여러 GPU에 복제하고, 데이터를 분할하여 학습합니다 | 대부분의 경우 (모델이 단일 GPU에 들어갈 때) |
+| **Model Parallelism** | 모델 자체를 여러 GPU에 나누어 저장합니다 | 모델이 단일 GPU 메모리보다 클 때 |
+| **Pipeline Parallelism** | 모델 레이어를 파이프라인으로 분할합니다 | 매우 큰 모델 (수십 B 파라미터 이상) |
 
 ---
 
@@ -104,9 +104,9 @@ result = distributor.run(train_function)
 
 | 단계 | 분산 대상 | 메모리 절감 | 설명 |
 |------|---------|-----------|------|
-| **ZeRO-1**| Optimizer States | ~4x | 옵티마이저 상태만 분산합니다 |
-| **ZeRO-2**| + Gradients | ~8x | 그래디언트도 분산합니다 |
-| **ZeRO-3**| + Parameters | ~Nx | 모델 파라미터까지 분산합니다 |
+| **ZeRO-1** | Optimizer States | ~4x | 옵티마이저 상태만 분산합니다 |
+| **ZeRO-2** | + Gradients | ~8x | 그래디언트도 분산합니다 |
+| **ZeRO-3** | + Parameters | ~Nx | 모델 파라미터까지 분산합니다 |
 
 ### DeepSpeed 설정 파일 (ds_config.json)
 
@@ -315,9 +315,9 @@ Speedup = 4 / (1 + 0.8 × 3) = 4 / 3.4 = 1.18배
 |------|------|------|
 | **모델이 작을 때**(<100M params) | 연산 시간 < 통신 시간 | 단일 GPU 사용 |
 | **데이터가 적을 때**(<10GB) | GPU가 놀게 됨 (데이터 부족) | 단일 GPU 사용 |
-| **배치 크기를 키울 수 없을 때**| 큰 배치에서 학습 불안정 | 단일 GPU + gradient accumulation |
-| **노드 간 네트워크가 느릴 때**| All-Reduce 병목 | 단일 노드 멀티 GPU (NVLink) |
-| **I/O 바운드 학습**| 데이터 로딩이 병목 | 데이터 파이프라인 최적화 먼저 |
+| **배치 크기를 키울 수 없을 때** | 큰 배치에서 학습 불안정 | 단일 GPU + gradient accumulation |
+| **노드 간 네트워크가 느릴 때** | All-Reduce 병목 | 단일 노드 멀티 GPU (NVLink) |
+| **I/O 바운드 학습** | 데이터 로딩이 병목 | 데이터 파이프라인 최적화 먼저 |
 
 ### 분산 학습이 꼭 필요한 경우 — 모델 크기 기준
 
@@ -325,11 +325,11 @@ Speedup = 4 / (1 + 0.8 × 3) = 4 / 3.4 = 1.18배
 
 | 모델 크기 | 데이터 규모 | 분산 필요? | 이유 |
 |----------|-----------|----------|------|
-| <100M params | <10GB | **아니오**| 단일 GPU에서 1시간 이내 완료 |
-| 100M~1B params | 10~100GB | **선택적**| 학습 시간이 4시간+ 이면 분산 고려 |
-| 1B~7B params | 100GB+ | **예 (Data Parallel)**| 단일 GPU에서 수일~수주 소요 |
-| 7B+ params | 관계없음 | **예 (필수)**| 단일 GPU 메모리에 모델이 안 들어감 |
-| 70B+ params | 관계없음 | **예 (Model + Pipeline)**| DeepSpeed ZeRO-3 또는 FSDP 필수 |
+| <100M params | <10GB | **아니오** | 단일 GPU에서 1시간 이내 완료 |
+| 100M~1B params | 10~100GB | **선택적** | 학습 시간이 4시간+ 이면 분산 고려 |
+| 1B~7B params | 100GB+ | **예 (Data Parallel)** | 단일 GPU에서 수일~수주 소요 |
+| 7B+ params | 관계없음 | **예 (필수)** | 단일 GPU 메모리에 모델이 안 들어감 |
+| 70B+ params | 관계없음 | **예 (Model + Pipeline)** | DeepSpeed ZeRO-3 또는 FSDP 필수 |
 
 ### 분산 학습 성능을 최대화하는 실전 팁
 
@@ -377,10 +377,10 @@ dataloader = DataLoader(
 
 | 핵심 개념 | 설명 |
 |-----------|------|
-| **TorchDistributor**| Databricks에서 PyTorch 분산 학습을 간편하게 실행하는 도구입니다 |
-| **Data Parallelism**| 모델을 복제하고 데이터를 분할하여 병렬 학습하는 가장 일반적인 전략입니다 |
-| **DeepSpeed**| ZeRO 최적화로 대규모 모델의 메모리 효율을 크게 개선합니다 |
-| **Horovod**| MPI 기반 All-Reduce 분산 학습 프레임워크입니다 |
+| **TorchDistributor** | Databricks에서 PyTorch 분산 학습을 간편하게 실행하는 도구입니다 |
+| **Data Parallelism** | 모델을 복제하고 데이터를 분할하여 병렬 학습하는 가장 일반적인 전략입니다 |
+| **DeepSpeed** | ZeRO 최적화로 대규모 모델의 메모리 효율을 크게 개선합니다 |
+| **Horovod** | MPI 기반 All-Reduce 분산 학습 프레임워크입니다 |
 | **local_mode** | 단일 노드(True) vs 멀티 노드(False) 분산을 제어합니다 |
 
 ---

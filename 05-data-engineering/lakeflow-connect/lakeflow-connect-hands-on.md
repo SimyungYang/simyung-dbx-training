@@ -6,13 +6,13 @@
 
 | 계층 | 구성 요소 | 설명 |
 |------|-----------|------|
-| **소스 MySQL**| ecommerce.customers | 고객 테이블 |
+| **소스 MySQL** | ecommerce.customers | 고객 테이블 |
 |  | ecommerce.orders | 주문 테이블 |
-| **Lakeflow Connect**| Connection: mysql_ecommerce | MySQL 연결 정보 |
+| **Lakeflow Connect** | Connection: mysql_ecommerce | MySQL 연결 정보 |
 |  | Ingestion Pipeline: ecommerce_ingestion | 수집 파이프라인 |
-| **Databricks (Bronze)**| analytics.bronze.customers | 수집된 고객 데이터 |
+| **Databricks (Bronze)** | analytics.bronze.customers | 수집된 고객 데이터 |
 |  | analytics.bronze.orders | 수집된 주문 데이터 |
-| **Databricks (Silver)**| analytics.silver.customers | 정제된 고객 데이터 |
+| **Databricks (Silver)** | analytics.silver.customers | 정제된 고객 데이터 |
 |  | analytics.silver.orders | 정제된 주문 데이터 |
 
 ---
@@ -52,9 +52,9 @@ Databricks에서 소스 MySQL에 접속할 수 있어야 합니다.
 
 | 네트워크 구성 | 방법 | 보안 수준 |
 |-------------|------|:--------:|
-| **퍼블릭 인터넷**| MySQL의 퍼블릭 IP + 보안 그룹으로 Databricks IP 허용 | 낮음 |
-| **VPC Peering**| Databricks VPC와 소스 DB VPC 간 피어링 | 중간 |
-| **AWS PrivateLink**| Private Endpoint를 통한 프라이빗 연결 | 높음 |
+| **퍼블릭 인터넷** | MySQL의 퍼블릭 IP + 보안 그룹으로 Databricks IP 허용 | 낮음 |
+| **VPC Peering** | Databricks VPC와 소스 DB VPC 간 피어링 | 중간 |
+| **AWS PrivateLink** | Private Endpoint를 통한 프라이빗 연결 | 높음 |
 
 > 💡 **프로덕션 환경에서는 PrivateLink 또는 VPC Peering** 을 권장합니다. 퍼블릭 인터넷 접속은 개발/테스트 환경에서만 사용하시기 바랍니다.
 
@@ -201,10 +201,10 @@ Pipeline UI에서 다음 메트릭을 실시간으로 확인할 수 있습니다
 
 | 메트릭 | 설명 | 정상 기준 |
 |-------|------|---------|
-| **Ingestion Latency**| 소스 변경 → 대상 반영까지 지연 시간 | 수초~수분 |
-| **Records Processed**| 처리된 레코드 수 | 지속적으로 증가 |
-| **Pipeline Status**| 파이프라인 상태 | `RUNNING` 또는 `IDLE` |
-| **Error Count**| 에러 발생 건수 | 0 |
+| **Ingestion Latency** | 소스 변경 → 대상 반영까지 지연 시간 | 수초~수분 |
+| **Records Processed** | 처리된 레코드 수 | 지속적으로 증가 |
+| **Pipeline Status** | 파이프라인 상태 | `RUNNING` 또는 `IDLE` |
+| **Error Count** | 에러 발생 건수 | 0 |
 | **Last Update Time** | 마지막 업데이트 시간 | 최근 시간 |
 
 ### SQL로 수집 결과 확인
@@ -383,10 +383,10 @@ WHERE _change_type != 'DELETE';
 
 | 팁 | 설명 |
 |----|------|
-| **테이블 필터링**| 필요한 테이블만 선택하여 불필요한 수집 방지 |
-| **연속 vs 트리거**| 실시간이 필요 없으면 트리거 모드로 비용 절감 |
-| **대규모 초기 스냅샷**| 테이블이 매우 크면 오프피크 시간에 시작 |
-| **병렬 수집**| 여러 테이블을 하나의 파이프라인에서 동시 수집 |
+| **테이블 필터링** | 필요한 테이블만 선택하여 불필요한 수집 방지 |
+| **연속 vs 트리거** | 실시간이 필요 없으면 트리거 모드로 비용 절감 |
+| **대규모 초기 스냅샷** | 테이블이 매우 크면 오프피크 시간에 시작 |
+| **병렬 수집** | 여러 테이블을 하나의 파이프라인에서 동시 수집 |
 
 ---
 

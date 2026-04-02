@@ -179,9 +179,9 @@ FROM employees;
 
 | 구분 | ROWS | RANGE |
 |------|------|-------|
-| **기준**| 물리적 행 수 | 논리적 값 범위 |
-| **동일 값 처리**| 각 행을 개별로 취급합니다 | 같은 값의 행을 하나로 취급합니다 |
-| **사용 빈도**| 더 자주 사용됩니다 | 날짜/시간 범위에 유용합니다 |
+| **기준** | 물리적 행 수 | 논리적 값 범위 |
+| **동일 값 처리** | 각 행을 개별로 취급합니다 | 같은 값의 행을 하나로 취급합니다 |
+| **사용 빈도** | 더 자주 사용됩니다 | 날짜/시간 범위에 유용합니다 |
 
 ```sql
 -- ROWS: 물리적으로 전후 1행씩 (총 3행)
@@ -274,10 +274,10 @@ QUALIFY days_between_orders > 90 OR days_between_orders IS NULL;
 
 | 함수 카테고리 | 함수 | 핵심 포인트 |
 |-------------|------|-----------|
-| **순위**| ROW_NUMBER, RANK, DENSE_RANK, NTILE | 파티션 내 행에 순위를 부여합니다 |
-| **집계**| SUM, AVG, COUNT OVER | 행을 줄이지 않고 집계를 추가합니다 |
-| **오프셋**| LAG, LEAD, FIRST_VALUE, LAST_VALUE | 전후 행이나 첫/끝 값을 참조합니다 |
-| **프레임**| ROWS BETWEEN, RANGE BETWEEN | 계산 범위를 세밀하게 제어합니다 |
+| **순위** | ROW_NUMBER, RANK, DENSE_RANK, NTILE | 파티션 내 행에 순위를 부여합니다 |
+| **집계** | SUM, AVG, COUNT OVER | 행을 줄이지 않고 집계를 추가합니다 |
+| **오프셋** | LAG, LEAD, FIRST_VALUE, LAST_VALUE | 전후 행이나 첫/끝 값을 참조합니다 |
+| **프레임** | ROWS BETWEEN, RANGE BETWEEN | 계산 범위를 세밀하게 제어합니다 |
 | **QUALIFY** | QUALIFY 절 | 윈도우 함수 결과를 서브쿼리 없이 필터링합니다 |
 
 ---

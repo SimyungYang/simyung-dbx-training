@@ -8,10 +8,10 @@
 
 | 구성 요소 | 역할 | 연결 |
 |-----------|------|------|
-| **기업 ID 시스템 (IdP)**| Okta / Azure Entra ID / Google Workspace | SSO (SAML/OIDC) + SCIM 동기화 → Databricks |
-| **Databricks 계정 수준 (Account)**| 중앙 ID 관리 | ID Federation으로 워크스페이스에 전파 |
-| **워크스페이스 A**| 개별 작업 환경 | Account에서 ID Federation |
-| **워크스페이스 B**| 개별 작업 환경 | Account에서 ID Federation |
+| **기업 ID 시스템 (IdP)** | Okta / Azure Entra ID / Google Workspace | SSO (SAML/OIDC) + SCIM 동기화 → Databricks |
+| **Databricks 계정 수준 (Account)** | 중앙 ID 관리 | ID Federation으로 워크스페이스에 전파 |
+| **워크스페이스 A** | 개별 작업 환경 | Account에서 ID Federation |
+| **워크스페이스 B** | 개별 작업 환경 | Account에서 ID Federation |
 
 ---
 
@@ -21,8 +21,8 @@ Databricks의 ID 관리는 **두 가지 수준** 에서 이루어집니다.
 
 | 수준 | 설명 | 관리 주체 |
 |------|------|----------|
-| **Account 수준**| 조직 전체의 사용자, 그룹, Service Principal을 관리합니다 | Account Admin |
-| **Workspace 수준**| 개별 워크스페이스에서의 접근 권한을 관리합니다 | Workspace Admin |
+| **Account 수준** | 조직 전체의 사용자, 그룹, Service Principal을 관리합니다 | Account Admin |
+| **Workspace 수준** | 개별 워크스페이스에서의 접근 권한을 관리합니다 | Workspace Admin |
 
 ### ID Federation (ID 연합)
 
@@ -46,9 +46,9 @@ Databricks의 ID 관리는 **두 가지 수준** 에서 이루어집니다.
 
 | 속성 | 설명 |
 |------|------|
-| **식별자**| 이메일 주소 (예: `alice@corp.com`) |
-| **인증 방식**| SSO, 비밀번호, MFA |
-| **용도**| 대화형 작업 (노트북, SQL 편집기, 대시보드) |
+| **식별자** | 이메일 주소 (예: `alice@corp.com`) |
+| **인증 방식** | SSO, 비밀번호, MFA |
+| **용도** | 대화형 작업 (노트북, SQL 편집기, 대시보드) |
 
 ### 그룹 (Group)
 
@@ -56,8 +56,8 @@ Databricks의 ID 관리는 **두 가지 수준** 에서 이루어집니다.
 
 | 그룹 유형 | 설명 | 예시 |
 |-----------|------|------|
-| **Account 그룹**| Account 수준에서 생성. 모든 워크스페이스에서 사용 가능 | `data-engineers`, `data-analysts` |
-| **Workspace 로컬 그룹**| 특정 워크스페이스에서만 유효 | `ws-a-admins` |
+| **Account 그룹** | Account 수준에서 생성. 모든 워크스페이스에서 사용 가능 | `data-engineers`, `data-analysts` |
+| **Workspace 로컬 그룹** | 특정 워크스페이스에서만 유효 | `ws-a-admins` |
 
 > 💡 **모범 사례**: 항상 **Account 그룹** 을 사용하세요. Workspace 로컬 그룹은 레거시 방식이며, Unity Catalog에서 권한을 부여할 때 Account 그룹만 사용할 수 있습니다.
 
@@ -78,11 +78,11 @@ w = WorkspaceClient(
 
 | 구분 | 개인 계정 | Service Principal |
 |------|----------|-----------------|
-| **소유자**| 특정 사용자 | 조직/팀 |
-| **수명**| 사용자 퇴사 시 비활성화 | 영구적 |
-| **용도**| 대화형 작업 | 프로덕션 자동화 |
-| **MFA**| 적용 가능 | 해당 없음 (M2M 인증) |
-| **모범 사례**| 개발, 탐색 | **프로덕션 Job, 파이프라인, CI/CD**|
+| **소유자** | 특정 사용자 | 조직/팀 |
+| **수명** | 사용자 퇴사 시 비활성화 | 영구적 |
+| **용도** | 대화형 작업 | 프로덕션 자동화 |
+| **MFA** | 적용 가능 | 해당 없음 (M2M 인증) |
+| **모범 사례** | 개발, 탐색 | **프로덕션 Job, 파이프라인, CI/CD** |
 
 ---
 
@@ -94,8 +94,8 @@ w = WorkspaceClient(
 
 | 프로토콜 | 설명 | 적합한 경우 |
 |---------|------|-----------|
-| **SAML 2.0**| XML 기반 인증 표준. 가장 널리 사용됩니다 | 대부분의 기업 IdP (Okta, Azure AD, OneLogin) |
-| **OIDC (OpenID Connect)**| OAuth 2.0 기반 최신 인증 프로토콜입니다 | 최신 클라우드 네이티브 환경 |
+| **SAML 2.0** | XML 기반 인증 표준. 가장 널리 사용됩니다 | 대부분의 기업 IdP (Okta, Azure AD, OneLogin) |
+| **OIDC (OpenID Connect)** | OAuth 2.0 기반 최신 인증 프로토콜입니다 | 최신 클라우드 네이티브 환경 |
 
 ### SSO 설정 흐름
 
@@ -130,16 +130,16 @@ w = WorkspaceClient(
 
 | 이벤트 | 방향 | 설명 |
 |--------|------|------|
-| **사용자 추가**| ID Provider → Databricks Account | SCIM 동기화로 자동 반영됩니다 |
-| **사용자 삭제**| ID Provider → Databricks Account | SCIM 동기화로 자동 반영됩니다 |
-| **그룹 변경**| ID Provider → Databricks Account | SCIM 동기화로 자동 반영됩니다 |
+| **사용자 추가** | ID Provider → Databricks Account | SCIM 동기화로 자동 반영됩니다 |
+| **사용자 삭제** | ID Provider → Databricks Account | SCIM 동기화로 자동 반영됩니다 |
+| **그룹 변경** | ID Provider → Databricks Account | SCIM 동기화로 자동 반영됩니다 |
 
 | SCIM으로 동기화되는 정보 | 설명 |
 |------------------------|------|
-| **사용자 생성/삭제**| IdP에서 사용자를 추가/삭제하면 Databricks에도 자동 반영됩니다 |
-| **그룹 멤버십**| IdP의 그룹(예: "data-engineers")에 사용자를 추가하면, Databricks 그룹에도 자동 추가됩니다 |
-| **사용자 비활성화**| 퇴사 등으로 IdP에서 비활성화하면 Databricks에서도 비활성화됩니다 |
-| **사용자 속성**| 이름, 이메일, 부서 등 프로필 정보가 동기화됩니다 |
+| **사용자 생성/삭제** | IdP에서 사용자를 추가/삭제하면 Databricks에도 자동 반영됩니다 |
+| **그룹 멤버십** | IdP의 그룹(예: "data-engineers")에 사용자를 추가하면, Databricks 그룹에도 자동 추가됩니다 |
+| **사용자 비활성화** | 퇴사 등으로 IdP에서 비활성화하면 Databricks에서도 비활성화됩니다 |
+| **사용자 속성** | 이름, 이메일, 부서 등 프로필 정보가 동기화됩니다 |
 
 ### 왜 SCIM이 중요한가요?
 
@@ -169,8 +169,8 @@ SCIM은 **Account 수준** 에서 설정하는 것이 권장됩니다.
 
 | 방식 | 설명 |
 |------|------|
-| **IdP 측 MFA**| SSO를 사용하는 경우, IdP(Okta, Azure AD)에서 MFA를 설정합니다. **가장 권장되는 방식** 입니다 |
-| **Databricks 내장 MFA**| Databricks 자체 비밀번호 로그인 시 사용할 수 있는 TOTP(시간 기반 OTP)입니다 |
+| **IdP 측 MFA** | SSO를 사용하는 경우, IdP(Okta, Azure AD)에서 MFA를 설정합니다. **가장 권장되는 방식** 입니다 |
+| **Databricks 내장 MFA** | Databricks 자체 비밀번호 로그인 시 사용할 수 있는 TOTP(시간 기반 OTP)입니다 |
 
 > 💡 SSO를 사용하는 환경에서는 **IdP 측에서 MFA를 강제** 하는 것이 가장 효과적입니다. Databricks에서 별도로 MFA를 설정할 필요 없이, IdP의 정책 한 곳에서 관리할 수 있습니다.
 
@@ -230,11 +230,11 @@ w = WorkspaceClient(
 
 | 항목 | PAT | OAuth |
 |------|-----|-------|
-| **토큰 형식**| `dapi...` 문자열 | JWT (자동 갱신) |
-| **만료**| 수동 설정 (무기한 가능) | 자동 만료 + 갱신 |
-| **권한 범위**| 전체 권한 (또는 Scoped) | 세밀한 범위 지정 |
-| **보안 수준**| 낮음 (유출 위험) | 높음 (자동 갱신, 범위 제한) |
-| **적합한 용도**| 개발, 빠른 테스트 | 프로덕션, CI/CD |
+| **토큰 형식** | `dapi...` 문자열 | JWT (자동 갱신) |
+| **만료** | 수동 설정 (무기한 가능) | 자동 만료 + 갱신 |
+| **권한 범위** | 전체 권한 (또는 Scoped) | 세밀한 범위 지정 |
+| **보안 수준** | 낮음 (유출 위험) | 높음 (자동 갱신, 범위 제한) |
+| **적합한 용도** | 개발, 빠른 테스트 | 프로덕션, CI/CD |
 
 ### PAT 관리 정책
 
@@ -258,9 +258,9 @@ w = WorkspaceClient(
 
 | 역할 | 설명 | 할 수 있는 것 |
 |------|------|-------------|
-| **Account Admin**| 계정 전체를 관리합니다 | 워크스페이스 생성, 사용자/그룹 관리, 청구 |
-| **Workspace Admin**| 특정 워크스페이스를 관리합니다 | 클러스터 정책, 접근 제어, 기능 활성화 |
-| **User**| 일반 사용자입니다 | 노트북, Job, SQL 쿼리 실행 (부여된 권한 범위 내) |
+| **Account Admin** | 계정 전체를 관리합니다 | 워크스페이스 생성, 사용자/그룹 관리, 청구 |
+| **Workspace Admin** | 특정 워크스페이스를 관리합니다 | 클러스터 정책, 접근 제어, 기능 활성화 |
+| **User** | 일반 사용자입니다 | 노트북, Job, SQL 쿼리 실행 (부여된 권한 범위 내) |
 
 ### 워크스페이스 할당
 
@@ -268,9 +268,9 @@ ID Federation이 활성화된 환경에서, 특정 사용자/그룹만 워크스
 
 | 워크스페이스 | 할당된 그룹 | 설명 |
 |------------|-----------|------|
-| **Production**| data-engineers, data-analysts | 프로덕션 작업 환경입니다 |
-| **Development**| data-engineers, ml-engineers | 개발/실험 환경입니다 |
-| **Finance**| finance-team만 | 재무팀 전용 환경입니다 (미할당 사용자는 접근 불가) |
+| **Production** | data-engineers, data-analysts | 프로덕션 작업 환경입니다 |
+| **Development** | data-engineers, ml-engineers | 개발/실험 환경입니다 |
+| **Finance** | finance-team만 | 재무팀 전용 환경입니다 (미할당 사용자는 접근 불가) |
 
 ---
 
@@ -346,12 +346,12 @@ job = w.jobs.create(
 
 | 방식 | 대상 | 보안 수준 | 적합한 용도 |
 |------|------|----------|-----------|
-| **SSO (SAML/OIDC)**| 사용자 | 높음 | 웹 로그인 (기본 권장) |
-| **MFA**| 사용자 | 매우 높음 | SSO와 함께 사용 |
-| **OAuth U2M**| 사용자 | 높음 | CLI, SDK, 대화형 작업 |
-| **OAuth M2M**| Service Principal | 높음 | 자동화, CI/CD |
-| **PAT**| 사용자 | 중간 | 개발, 빠른 테스트 |
-| **Scoped PAT**| 사용자 | 중~높 | 제한된 API 접근 |
+| **SSO (SAML/OIDC)** | 사용자 | 높음 | 웹 로그인 (기본 권장) |
+| **MFA** | 사용자 | 매우 높음 | SSO와 함께 사용 |
+| **OAuth U2M** | 사용자 | 높음 | CLI, SDK, 대화형 작업 |
+| **OAuth M2M** | Service Principal | 높음 | 자동화, CI/CD |
+| **PAT** | 사용자 | 중간 | 개발, 빠른 테스트 |
+| **Scoped PAT** | 사용자 | 중~높 | 제한된 API 접근 |
 
 ---
 
@@ -359,16 +359,16 @@ job = w.jobs.create(
 
 | 원칙 | 설명 |
 |------|------|
-| **SSO 필수 사용**| 모든 사용자 로그인에 SSO를 강제합니다. 비밀번호 기반 로그인을 비활성화합니다 |
-| **MFA 활성화**| SSO와 함께 MFA를 활성화하여 계정 탈취를 방지합니다 |
-| **Service Principal 사용**| 프로덕션 Job/파이프라인은 반드시 Service Principal로 실행합니다 |
-| **SCIM 연동**| IdP(Okta, Azure AD)와 SCIM을 연동하여 사용자/그룹을 자동 동기화합니다 |
-| **Account 수준 SCIM**| Workspace 수준이 아닌 Account 수준에서 SCIM을 설정합니다 |
-| **Account 그룹 사용**| Workspace 로컬 그룹 대신 Account 그룹을 사용합니다 |
-| **PAT 최소화**| PAT은 개발용으로만 사용하고, 만료 기간을 설정합니다 |
-| **토큰 범위 제한**| Scoped PAT을 사용하여 필요한 최소 범위만 허용합니다 |
-| **최소 권한 원칙**| 각 사용자/SP에게 업무에 필요한 최소한의 권한만 부여합니다 |
-| **정기 감사**| `system.access.audit` 테이블로 인증 이벤트를 정기적으로 점검합니다 |
+| **SSO 필수 사용** | 모든 사용자 로그인에 SSO를 강제합니다. 비밀번호 기반 로그인을 비활성화합니다 |
+| **MFA 활성화** | SSO와 함께 MFA를 활성화하여 계정 탈취를 방지합니다 |
+| **Service Principal 사용** | 프로덕션 Job/파이프라인은 반드시 Service Principal로 실행합니다 |
+| **SCIM 연동** | IdP(Okta, Azure AD)와 SCIM을 연동하여 사용자/그룹을 자동 동기화합니다 |
+| **Account 수준 SCIM** | Workspace 수준이 아닌 Account 수준에서 SCIM을 설정합니다 |
+| **Account 그룹 사용** | Workspace 로컬 그룹 대신 Account 그룹을 사용합니다 |
+| **PAT 최소화** | PAT은 개발용으로만 사용하고, 만료 기간을 설정합니다 |
+| **토큰 범위 제한** | Scoped PAT을 사용하여 필요한 최소 범위만 허용합니다 |
+| **최소 권한 원칙** | 각 사용자/SP에게 업무에 필요한 최소한의 권한만 부여합니다 |
+| **정기 감사** | `system.access.audit` 테이블로 인증 이벤트를 정기적으로 점검합니다 |
 
 ---
 
@@ -376,13 +376,13 @@ job = w.jobs.create(
 
 | 핵심 개념 | 설명 |
 |-----------|------|
-| **Account vs Workspace**| Account 수준에서 ID를 통합 관리하고, 워크스페이스에 할당합니다 |
-| **ID Federation**| Account의 사용자/그룹을 워크스페이스에서 자동으로 사용할 수 있습니다 |
-| **SSO**| 기업 IdP와 연동한 통합 로그인입니다. 모든 사용자에게 권장됩니다 |
-| **SCIM**| IdP → Databricks 사용자/그룹 자동 동기화 프로토콜입니다 |
-| **Service Principal**| 자동화/프로덕션용 서비스 계정입니다. 개인 계정 대신 사용합니다 |
-| **OAuth**| U2M(사용자)과 M2M(서비스) 인증을 지원하는 현대적 인증 방식입니다 |
-| **PAT**| API/CLI용 개인 토큰입니다. 개발 환경에서만 제한적으로 사용합니다 |
+| **Account vs Workspace** | Account 수준에서 ID를 통합 관리하고, 워크스페이스에 할당합니다 |
+| **ID Federation** | Account의 사용자/그룹을 워크스페이스에서 자동으로 사용할 수 있습니다 |
+| **SSO** | 기업 IdP와 연동한 통합 로그인입니다. 모든 사용자에게 권장됩니다 |
+| **SCIM** | IdP → Databricks 사용자/그룹 자동 동기화 프로토콜입니다 |
+| **Service Principal** | 자동화/프로덕션용 서비스 계정입니다. 개인 계정 대신 사용합니다 |
+| **OAuth** | U2M(사용자)과 M2M(서비스) 인증을 지원하는 현대적 인증 방식입니다 |
+| **PAT** | API/CLI용 개인 토큰입니다. 개발 환경에서만 제한적으로 사용합니다 |
 | **MFA** | 다중 인증으로 계정 보안을 강화합니다. IdP 측에서 설정하는 것이 권장됩니다 |
 
 ---

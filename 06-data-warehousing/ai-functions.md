@@ -361,12 +361,12 @@ SELECT * FROM ai_anomaly_detection(
 
 | 항목 | 권장 사항 |
 |------|----------|
-| **배치 크기**| 한 번에 수천 행을 처리하면 오버헤드가 줄어듭니다. `LIMIT`으로 테스트 후 전체 실행을 권장합니다 |
-| **모델 선택**| 간단한 분류는 작은 모델, 복잡한 생성은 큰 모델을 사용합니다 |
-| **캐싱**| 동일한 입력에 대한 반복 호출은 결과를 테이블에 저장하여 재사용합니다 |
-| **failOnError**| 대량 처리 시 `failOnError => false`로 설정하여 일부 실패가 전체를 중단하지 않도록 합니다 |
-| **프롬프트 최적화**| 프롬프트를 짧고 명확하게 작성하면 토큰 비용이 절약됩니다 |
-| **Provisioned Throughput**| 대량/정기적 사용 시 Pay-per-token보다 비용 효율적입니다 |
+| **배치 크기** | 한 번에 수천 행을 처리하면 오버헤드가 줄어듭니다. `LIMIT`으로 테스트 후 전체 실행을 권장합니다 |
+| **모델 선택** | 간단한 분류는 작은 모델, 복잡한 생성은 큰 모델을 사용합니다 |
+| **캐싱** | 동일한 입력에 대한 반복 호출은 결과를 테이블에 저장하여 재사용합니다 |
+| **failOnError** | 대량 처리 시 `failOnError => false`로 설정하여 일부 실패가 전체를 중단하지 않도록 합니다 |
+| **프롬프트 최적화** | 프롬프트를 짧고 명확하게 작성하면 토큰 비용이 절약됩니다 |
+| **Provisioned Throughput** | 대량/정기적 사용 시 Pay-per-token보다 비용 효율적입니다 |
 
 ### 비용 구조
 
@@ -449,13 +449,13 @@ FROM parsed_contracts;
 
 | AI 함수 | 용도 | 반환 타입 |
 |---------|------|----------|
-| **ai_query()**| 범용 LLM 호출 (요약, 생성, 번역, 분석) | STRING 또는 지정 STRUCT |
-| **ai_classify()**| 텍스트를 사전 정의 카테고리로 분류 | STRING |
-| **ai_extract()**| 텍스트에서 특정 정보 추출 | STRUCT |
-| **ai_gen()**| 컨텍스트 기반 텍스트 생성 | STRING |
-| **ai_parse_document()**| PDF, 이미지 등에서 텍스트 추출 | STRING |
-| **ai_similarity()**| 두 텍스트 간 의미적 유사도 측정 | DOUBLE |
-| **ai_forecast()**| 시계열 예측 | TABLE |
+| **ai_query()** | 범용 LLM 호출 (요약, 생성, 번역, 분석) | STRING 또는 지정 STRUCT |
+| **ai_classify()** | 텍스트를 사전 정의 카테고리로 분류 | STRING |
+| **ai_extract()** | 텍스트에서 특정 정보 추출 | STRUCT |
+| **ai_gen()** | 컨텍스트 기반 텍스트 생성 | STRING |
+| **ai_parse_document()** | PDF, 이미지 등에서 텍스트 추출 | STRING |
+| **ai_similarity()** | 두 텍스트 간 의미적 유사도 측정 | DOUBLE |
+| **ai_forecast()** | 시계열 예측 | TABLE |
 | **ai_anomaly_detection()** | 시계열 이상 감지 | TABLE |
 
 ---

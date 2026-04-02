@@ -24,9 +24,9 @@ Databricks가 자체적으로 관리하는 암호화된 저장소입니다.
 
 | 항목 | 설명 |
 |------|------|
-| **저장소**| Databricks 내부 (AES-256 암호화) |
-| **설정 복잡도**| 낮음 (별도 인프라 불필요) |
-| **적합한 환경**| AWS, GCP, 간편한 설정이 필요한 경우 |
+| **저장소** | Databricks 내부 (AES-256 암호화) |
+| **설정 복잡도** | 낮음 (별도 인프라 불필요) |
+| **적합한 환경** | AWS, GCP, 간편한 설정이 필요한 경우 |
 
 ### Azure Key Vault-backed Scope
 
@@ -34,9 +34,9 @@ Azure Key Vault의 Secret을 Databricks에서 직접 참조합니다.
 
 | 항목 | 설명 |
 |------|------|
-| **저장소**| Azure Key Vault |
-| **설정 복잡도**| 중간 (Key Vault 사전 구성 필요) |
-| **적합한 환경**| Azure 환경, 중앙 집중 키 관리 필요 시 |
+| **저장소** | Azure Key Vault |
+| **설정 복잡도** | 중간 (Key Vault 사전 구성 필요) |
+| **적합한 환경** | Azure 환경, 중앙 집중 키 관리 필요 시 |
 
 ```bash
 # Azure Key Vault-backed Scope 생성
@@ -189,9 +189,9 @@ Secret Scope에 대한 접근 권한을 세밀하게 관리할 수 있습니다.
 
 | 권한 | 설명 |
 |------|------|
-| **READ**| `dbutils.secrets.get()`으로 Secret 값을 읽을 수 있습니다 |
-| **WRITE**| Secret을 추가, 수정, 삭제할 수 있습니다 |
-| **MANAGE**| Scope 자체를 관리(삭제, ACL 변경)할 수 있습니다 |
+| **READ** | `dbutils.secrets.get()`으로 Secret 값을 읽을 수 있습니다 |
+| **WRITE** | Secret을 추가, 수정, 삭제할 수 있습니다 |
+| **MANAGE** | Scope 자체를 관리(삭제, ACL 변경)할 수 있습니다 |
 
 ### ACL 설정 명령
 
@@ -222,10 +222,10 @@ databricks secrets delete-acl my-secrets data-engineers
 
 | 대상 | 권한 | 사유 |
 |------|------|------|
-| **platform-admins**| MANAGE | Scope 전체 관리 |
-| **data-engineers**| READ | 파이프라인에서 Secret 참조 |
-| **ml-engineers**| READ | ML 모델에서 API 키 사용 |
-| **etl-pipeline-sp**| READ | SP가 파이프라인에서 Secret 참조 |
+| **platform-admins** | MANAGE | Scope 전체 관리 |
+| **data-engineers** | READ | 파이프라인에서 Secret 참조 |
+| **ml-engineers** | READ | ML 모델에서 API 키 사용 |
+| **etl-pipeline-sp** | READ | SP가 파이프라인에서 Secret 참조 |
 
 ---
 
@@ -298,19 +298,19 @@ connection_config = {
 
 | Scope | Key | 설명 |
 |-------|-----|------|
-| **dev-db-secrets**| mysql-host, mysql-user, mysql-password | 개발 환경 DB 접속 정보 |
-| **prod-db-secrets**| mysql-host, mysql-user, mysql-password | 프로덕션 환경 DB 접속 정보 |
-| **api-keys**| openai-key, slack-webhook | 외부 API 키 |
-| **cloud-credentials**| aws-access-key, aws-secret-key | 클라우드 접근 정보 |
+| **dev-db-secrets** | mysql-host, mysql-user, mysql-password | 개발 환경 DB 접속 정보 |
+| **prod-db-secrets** | mysql-host, mysql-user, mysql-password | 프로덕션 환경 DB 접속 정보 |
+| **api-keys** | openai-key, slack-webhook | 외부 API 키 |
+| **cloud-credentials** | aws-access-key, aws-secret-key | 클라우드 접근 정보 |
 
 ### 설계 원칙
 
 | 원칙 | 설명 | 잘못된 예 | 올바른 예 |
 |------|------|----------|----------|
-| **환경별 분리**| dev/prod는 반드시 다른 Scope | `my-secrets` 하나에 전부 | `dev-db-secrets`, `prod-db-secrets` |
-| **용도별 분리**| DB, API, SP 등 용도별로 분리 | 모든 Secret을 한 Scope에 | DB/API/SP 별도 Scope |
-| **키 이름 통일**| 환경 간 같은 키 이름 사용 | `dev_password`, `prod_pw` | 양쪽 모두 `mysql-password` |
-| **최소 Scope 수**| 너무 많이 쪼개지 않음 | 팀원마다 별도 Scope | 환경+용도 조합 (5~8개) |
+| **환경별 분리** | dev/prod는 반드시 다른 Scope | `my-secrets` 하나에 전부 | `dev-db-secrets`, `prod-db-secrets` |
+| **용도별 분리** | DB, API, SP 등 용도별로 분리 | 모든 Secret을 한 Scope에 | DB/API/SP 별도 Scope |
+| **키 이름 통일** | 환경 간 같은 키 이름 사용 | `dev_password`, `prod_pw` | 양쪽 모두 `mysql-password` |
+| **최소 Scope 수** | 너무 많이 쪼개지 않음 | 팀원마다 별도 Scope | 환경+용도 조합 (5~8개) |
 
 > 💡 **현업 팁**: **키 이름을 환경 간에 통일** 하면, 노트북 코드에서 Scope 이름만 변경하여 환경을 전환할 수 있습니다. 이는 Asset Bundles와 결합하면 더욱 강력합니다.
 
@@ -333,11 +333,11 @@ Azure 환경에서 Key Vault-backed Scope를 사용할 때, 현업에서 자주 
 
 | 문제 | 원인 | 해결 방법 |
 |------|------|----------|
-| **`SecretDoesNotExist` 에러**| Key Vault의 Secret 이름에 밑줄(`_`) 사용 | Key Vault는 영숫자와 하이픈(`-`)만 허용합니다. `db_password` → `db-password`로 변경하세요 |
-| **접근 거부 (403)**| Databricks에 Key Vault 접근 권한 미부여 | Key Vault의 Access Policy에 Databricks 앱 등록이 필요합니다 |
-| **Secret 업데이트 미반영**| Key Vault의 캐싱 | Key Vault Secret을 업데이트한 후 5~10분 대기하거나, 클러스터를 재시작하세요 |
-| **Soft Delete 충돌**| 삭제 후 같은 이름으로 재생성 불가 | Key Vault의 Soft Delete 기능이 활성화되어 있으면, 삭제된 Secret을 먼저 Purge해야 합니다 |
-| **네트워크 접근 차단**| Key Vault 방화벽 설정 | Databricks의 Control Plane IP를 Key Vault 방화벽 허용 목록에 추가하세요 |
+| **`SecretDoesNotExist` 에러** | Key Vault의 Secret 이름에 밑줄(`_`) 사용 | Key Vault는 영숫자와 하이픈(`-`)만 허용합니다. `db_password` → `db-password`로 변경하세요 |
+| **접근 거부 (403)** | Databricks에 Key Vault 접근 권한 미부여 | Key Vault의 Access Policy에 Databricks 앱 등록이 필요합니다 |
+| **Secret 업데이트 미반영** | Key Vault의 캐싱 | Key Vault Secret을 업데이트한 후 5~10분 대기하거나, 클러스터를 재시작하세요 |
+| **Soft Delete 충돌** | 삭제 후 같은 이름으로 재생성 불가 | Key Vault의 Soft Delete 기능이 활성화되어 있으면, 삭제된 Secret을 먼저 Purge해야 합니다 |
+| **네트워크 접근 차단** | Key Vault 방화벽 설정 | Databricks의 Control Plane IP를 Key Vault 방화벽 허용 목록에 추가하세요 |
 
 > 🔥 **이것을 안 하면**: Azure Key Vault-backed Scope는 **읽기 전용** 입니다. `dbutils.secrets.put()`으로 값을 업데이트할 수 없고, Key Vault Portal이나 CLI에서 직접 업데이트해야 합니다. 이 사실을 모르고 자동화 스크립트에서 `put()`을 호출하여 에러가 발생하는 경우가 많습니다.
 
@@ -368,14 +368,14 @@ az keyvault secret set \
 
 | 원칙 | 설명 |
 |------|------|
-| **코드에 비밀 금지**| 비밀번호, API 키를 코드에 절대 하드코딩하지 않습니다 |
-| **환경별 분리**| dev, staging, prod Scope을 분리합니다 |
-| **최소 권한**| 필요한 사용자/그룹에게만 READ 권한을 부여합니다 |
-| **정기 로테이션**| Secret 값을 주기적으로 변경합니다 (90일 권장) |
-| **감사**| Secret 접근 이벤트를 모니터링합니다 |
-| **SP 사용**| 프로덕션에서는 SP에 READ 권한을 부여합니다 |
-| **Git Hook 설정**| 커밋 전 Secret 패턴 검사 (pre-commit hook 활용) |
-| **Key Vault 선호**| Azure 환경에서는 Key Vault-backed Scope를 권장합니다 |
+| **코드에 비밀 금지** | 비밀번호, API 키를 코드에 절대 하드코딩하지 않습니다 |
+| **환경별 분리** | dev, staging, prod Scope을 분리합니다 |
+| **최소 권한** | 필요한 사용자/그룹에게만 READ 권한을 부여합니다 |
+| **정기 로테이션** | Secret 값을 주기적으로 변경합니다 (90일 권장) |
+| **감사** | Secret 접근 이벤트를 모니터링합니다 |
+| **SP 사용** | 프로덕션에서는 SP에 READ 권한을 부여합니다 |
+| **Git Hook 설정** | 커밋 전 Secret 패턴 검사 (pre-commit hook 활용) |
+| **Key Vault 선호** | Azure 환경에서는 Key Vault-backed Scope를 권장합니다 |
 
 ---
 
@@ -383,11 +383,11 @@ az keyvault secret set \
 
 | 핵심 개념 | 설명 |
 |-----------|------|
-| **Secret Scope**| Secret을 그룹화하여 관리하는 컨테이너입니다 |
-| **Databricks-backed**| Databricks 내부에 AES-256으로 암호화 저장합니다 |
-| **Key Vault-backed**| Azure Key Vault와 연동하여 중앙 관리합니다 |
-| **dbutils.secrets.get()**| 노트북에서 Secret 값을 안전하게 읽습니다 |
-| **ACL**| READ/WRITE/MANAGE 권한으로 접근을 제어합니다 |
+| **Secret Scope** | Secret을 그룹화하여 관리하는 컨테이너입니다 |
+| **Databricks-backed** | Databricks 내부에 AES-256으로 암호화 저장합니다 |
+| **Key Vault-backed** | Azure Key Vault와 연동하여 중앙 관리합니다 |
+| **dbutils.secrets.get()** | 노트북에서 Secret 값을 안전하게 읽습니다 |
+| **ACL** | READ/WRITE/MANAGE 권한으로 접근을 제어합니다 |
 | **REDACTED** | Secret 값은 출력 시 자동으로 가려집니다 |
 
 ---

@@ -16,18 +16,18 @@ Databricks의 **감사 로그(Audit Logs)** 는 플랫폼에서 발생하는 모
 
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
-| **event_time**| TIMESTAMP | 이벤트 발생 시각 |
-| **event_date**| DATE | 이벤트 발생 날짜 (파티션 키) |
-| **workspace_id**| BIGINT | 이벤트가 발생한 워크스페이스 ID |
-| **service_name**| STRING | 서비스 이름 (예: `notebook`, `clusters`, `unityCatalog`) |
-| **action_name**| STRING | 수행된 작업 (예: `runCommand`, `create`, `delete`) |
-| **user_identity**| STRUCT | 사용자 정보 (이메일, IP 등) |
-| **user_identity.email**| STRING | 작업을 수행한 사용자/SP의 이메일 |
-| **source_ip_address**| STRING | 요청 출발 IP 주소 |
-| **request_params**| MAP | 요청 파라미터 (테이블 이름, 쿼리 등) |
-| **response**| STRUCT | 응답 정보 (상태 코드, 에러 메시지) |
-| **response.status_code**| INT | HTTP 응답 코드 |
-| **response.error_message**| STRING | 에러 메시지 (실패 시) |
+| **event_time** | TIMESTAMP | 이벤트 발생 시각 |
+| **event_date** | DATE | 이벤트 발생 날짜 (파티션 키) |
+| **workspace_id** | BIGINT | 이벤트가 발생한 워크스페이스 ID |
+| **service_name** | STRING | 서비스 이름 (예: `notebook`, `clusters`, `unityCatalog`) |
+| **action_name** | STRING | 수행된 작업 (예: `runCommand`, `create`, `delete`) |
+| **user_identity** | STRUCT | 사용자 정보 (이메일, IP 등) |
+| **user_identity.email** | STRING | 작업을 수행한 사용자/SP의 이메일 |
+| **source_ip_address** | STRING | 요청 출발 IP 주소 |
+| **request_params** | MAP | 요청 파라미터 (테이블 이름, 쿼리 등) |
+| **response** | STRUCT | 응답 정보 (상태 코드, 에러 메시지) |
+| **response.status_code** | INT | HTTP 응답 코드 |
+| **response.error_message** | STRING | 에러 메시지 (실패 시) |
 | **audit_level** | STRING | 감사 수준 (`ACCOUNT_LEVEL` 또는 `WORKSPACE_LEVEL`) |
 
 ### 주요 service_name 값
@@ -183,11 +183,11 @@ LIMIT 100;
 
 | 위젯 | 쿼리 목적 | 시각화 유형 |
 |------|----------|-----------|
-| **일별 이벤트 추이**| 전체 감사 이벤트 수 추이 | 라인 차트 |
-| **로그인 실패 현황**| 실패한 인증 시도 | 숫자 카운터 + 테이블 |
-| **서비스별 활동**| 서비스별 이벤트 분포 | 파이 차트 |
-| **Top 활동 사용자**| 가장 활발한 사용자 | 바 차트 |
-| **권한 변경 로그**| 최근 GRANT/REVOKE | 테이블 |
+| **일별 이벤트 추이** | 전체 감사 이벤트 수 추이 | 라인 차트 |
+| **로그인 실패 현황** | 실패한 인증 시도 | 숫자 카운터 + 테이블 |
+| **서비스별 활동** | 서비스별 이벤트 분포 | 파이 차트 |
+| **Top 활동 사용자** | 가장 활발한 사용자 | 바 차트 |
+| **권한 변경 로그** | 최근 GRANT/REVOKE | 테이블 |
 | **비정상 접근** | 야간/과다 접근 | 테이블 + 알림 |
 
 ### 일별 이벤트 추이 쿼리
@@ -271,8 +271,8 @@ HAVING tables_accessed > 20;
 
 | 항목 | 설명 |
 |------|------|
-| **기본 보존 기간**| 시스템 테이블은 365일간 데이터를 보존합니다 |
-| **장기 보존**| 규제 요건에 따라 별도 테이블에 복제하여 장기 보존합니다 |
+| **기본 보존 기간** | 시스템 테이블은 365일간 데이터를 보존합니다 |
+| **장기 보존** | 규제 요건에 따라 별도 테이블에 복제하여 장기 보존합니다 |
 | **외부 SIEM** | Splunk, Sentinel 등 SIEM 도구로 감사 로그를 전송할 수 있습니다 |
 
 ```sql
@@ -295,9 +295,9 @@ WHERE event_date = CURRENT_DATE() - INTERVAL 1 DAY;
 
 | 원칙 | 설명 |
 |------|------|
-| **event_date 필터 필수**| `event_date` 파티션 키를 항상 WHERE 절에 포함합니다 |
-| **service_name 필터**| 특정 서비스만 조회하면 스캔 범위가 줄어듭니다 |
-| **LIMIT 사용**| 탐색적 쿼리에는 LIMIT을 설정합니다 |
+| **event_date 필터 필수** | `event_date` 파티션 키를 항상 WHERE 절에 포함합니다 |
+| **service_name 필터** | 특정 서비스만 조회하면 스캔 범위가 줄어듭니다 |
+| **LIMIT 사용** | 탐색적 쿼리에는 LIMIT을 설정합니다 |
 | **집계 우선** | 상세 조회 전 COUNT/GROUP BY로 규모를 파악합니다 |
 
 ```sql
@@ -317,12 +317,12 @@ WHERE action_name = 'login';
 
 | 원칙 | 설명 |
 |------|------|
-| **대시보드 구축**| 핵심 보안 지표를 시각화하는 감사 대시보드를 운영합니다 |
-| **알림 설정**| 로그인 실패, 권한 변경 등 주요 이벤트에 알림을 설정합니다 |
-| **장기 보존**| 규제 요건에 따라 감사 로그를 장기 보존합니다 |
-| **정기 리뷰**| 월간 보안 리뷰에서 감사 로그를 분석합니다 |
-| **SIEM 연동**| 기존 보안 도구(Splunk, Sentinel)와 연동합니다 |
-| **event_date 필터**| 쿼리 시 반드시 날짜 필터를 포함합니다 |
+| **대시보드 구축** | 핵심 보안 지표를 시각화하는 감사 대시보드를 운영합니다 |
+| **알림 설정** | 로그인 실패, 권한 변경 등 주요 이벤트에 알림을 설정합니다 |
+| **장기 보존** | 규제 요건에 따라 감사 로그를 장기 보존합니다 |
+| **정기 리뷰** | 월간 보안 리뷰에서 감사 로그를 분석합니다 |
+| **SIEM 연동** | 기존 보안 도구(Splunk, Sentinel)와 연동합니다 |
+| **event_date 필터** | 쿼리 시 반드시 날짜 필터를 포함합니다 |
 
 ---
 
@@ -330,11 +330,11 @@ WHERE action_name = 'login';
 
 | 핵심 개념 | 설명 |
 |-----------|------|
-| **system.access.audit**| 모든 감사 이벤트가 저장되는 시스템 테이블입니다 |
-| **service_name**| 이벤트가 발생한 서비스를 식별합니다 |
-| **action_name**| 수행된 작업을 식별합니다 |
-| **user_identity**| 누가 작업을 수행했는지 기록합니다 |
-| **알림**| SQL Alert로 보안 이벤트를 실시간 감지합니다 |
+| **system.access.audit** | 모든 감사 이벤트가 저장되는 시스템 테이블입니다 |
+| **service_name** | 이벤트가 발생한 서비스를 식별합니다 |
+| **action_name** | 수행된 작업을 식별합니다 |
+| **user_identity** | 누가 작업을 수행했는지 기록합니다 |
+| **알림** | SQL Alert로 보안 이벤트를 실시간 감지합니다 |
 | **장기 보존** | 규제 요건에 따라 별도 테이블에 복제합니다 |
 
 ---

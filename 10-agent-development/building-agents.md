@@ -352,14 +352,14 @@ agents.deploy(model_name="catalog.schema.my_agent", model_version=1)
 
 | 비교 항목 | ChatAgent (직접 구현) | LangChain/LangGraph |
 |-----------|---------------------|---------------------|
-| **코드 복잡도**| 낮음 (Python 클래스 하나) | 중간~높음 (Chain, Graph 개념 학습 필요) |
-| **디버깅**| 쉬움 (표준 Python 디버깅) | 어려움 (프레임워크 내부 동작 파악 필요) |
-| **유연성**| 매우 높음 (완전한 제어) | 높음 (프레임워크 확장 가능) |
-| **Databricks 통합**| 네이티브 (MLflow, Review App 자동 연동) | 지원 (mlflow.langchain 모듈) |
-| **멀티 스텝 로직**| 직접 구현해야 합니다 | LangGraph로 상태 머신 구현 가능 |
-| **커뮤니티/생태계**| Databricks 문서 중심 | 대규모 오픈소스 커뮤니티 |
-| **프로덕션 안정성**| 높음 (의존성 최소화) | 중간 (프레임워크 버전 업데이트 영향) |
-| **학습 곡선**| 낮음 (Python만 알면 됨) | 높음 (Chain, Agent, Tool, Memory 개념) |
+| **코드 복잡도** | 낮음 (Python 클래스 하나) | 중간~높음 (Chain, Graph 개념 학습 필요) |
+| **디버깅** | 쉬움 (표준 Python 디버깅) | 어려움 (프레임워크 내부 동작 파악 필요) |
+| **유연성** | 매우 높음 (완전한 제어) | 높음 (프레임워크 확장 가능) |
+| **Databricks 통합** | 네이티브 (MLflow, Review App 자동 연동) | 지원 (mlflow.langchain 모듈) |
+| **멀티 스텝 로직** | 직접 구현해야 합니다 | LangGraph로 상태 머신 구현 가능 |
+| **커뮤니티/생태계** | Databricks 문서 중심 | 대규모 오픈소스 커뮤니티 |
+| **프로덕션 안정성** | 높음 (의존성 최소화) | 중간 (프레임워크 버전 업데이트 영향) |
+| **학습 곡선** | 낮음 (Python만 알면 됨) | 높음 (Chain, Agent, Tool, Memory 개념) |
 
 ### 실전 선택 기준
 
@@ -367,10 +367,10 @@ agents.deploy(model_name="catalog.schema.my_agent", model_version=1)
 
 | 상황 | 권장 방식 | 이유 |
 |------|---------|------|
-| 단순 RAG + Tool 호출 (1~3개) | **ChatAgent 직접 구현**| 가장 간단하고 디버깅이 쉬움 |
-| 복잡한 멀티 스텝 로직 (조건 분기, 반복, 상태 관리) | **LangGraph + ChatAgent**| 그래프 기반으로 복잡한 흐름 관리 가능 |
-| 빠른 프로토타이핑, 비개발자도 참여 | **Agent Builder (No-Code)**| UI에서 클릭으로 에이전트 구성 |
-| 기존 LangChain/CrewAI 코드가 있음 | **기존 프레임워크 + MLflow 래핑**| 기존 투자 활용, MLflow로 통합 관리 |
+| 단순 RAG + Tool 호출 (1~3개) | **ChatAgent 직접 구현** | 가장 간단하고 디버깅이 쉬움 |
+| 복잡한 멀티 스텝 로직 (조건 분기, 반복, 상태 관리) | **LangGraph + ChatAgent** | 그래프 기반으로 복잡한 흐름 관리 가능 |
+| 빠른 프로토타이핑, 비개발자도 참여 | **Agent Builder (No-Code)** | UI에서 클릭으로 에이전트 구성 |
+| 기존 LangChain/CrewAI 코드가 있음 | **기존 프레임워크 + MLflow 래핑** | 기존 투자 활용, MLflow로 통합 관리 |
 
 > 🔥 **현업에서는**: 에이전트의 80%는 "문서 검색 + Tool 1~2개 호출"로 충분합니다. 이런 경우 **LangChain을 도입하면 오히려 불필요한 복잡성만 추가** 됩니다. LangGraph가 정말 필요한 경우는 "에이전트가 스스로 판단하여 여러 단계를 반복적으로 수행해야 하는 경우"뿐입니다. **단순한 것부터 시작하고, 필요할 때만 복잡성을 추가하세요.**
 
@@ -469,10 +469,10 @@ def _validate_input(self, user_message: str) -> tuple[bool, str]:
 
 | 패턴 | 설명 | 적합한 경우 |
 |------|------|-----------|
-| **ChatAgent 직접 구현**| Python으로 전체 로직을 직접 작성합니다 | 완전한 제어가 필요할 때 |
-| **LangChain/LangGraph**| 프레임워크를 사용하여 Chain/Agent를 구성합니다 | 복잡한 멀티스텝 로직, 기존 LangChain 경험이 있을 때 |
-| **Agent Bricks**| Databricks가 제공하는 사전 구축 에이전트를 사용합니다 | 빠른 프로토타이핑, 표준 RAG/SQL 에이전트 |
-| **Foundation Model API + AI Functions**| SQL만으로 간단한 AI 로직을 구현합니다 | 코드 없이 SQL로 처리 가능한 경우 |
+| **ChatAgent 직접 구현** | Python으로 전체 로직을 직접 작성합니다 | 완전한 제어가 필요할 때 |
+| **LangChain/LangGraph** | 프레임워크를 사용하여 Chain/Agent를 구성합니다 | 복잡한 멀티스텝 로직, 기존 LangChain 경험이 있을 때 |
+| **Agent Bricks** | Databricks가 제공하는 사전 구축 에이전트를 사용합니다 | 빠른 프로토타이핑, 표준 RAG/SQL 에이전트 |
+| **Foundation Model API + AI Functions** | SQL만으로 간단한 AI 로직을 구현합니다 | 코드 없이 SQL로 처리 가능한 경우 |
 
 ---
 
@@ -480,9 +480,9 @@ def _validate_input(self, user_message: str) -> tuple[bool, str]:
 
 | 핵심 개념 | 설명 |
 |-----------|------|
-| **ChatAgent**| Databricks 에이전트의 표준 인터페이스입니다. predict()와 predict_stream()을 구현합니다 |
-| **UC Functions as Tools**| Unity Catalog 함수를 에이전트의 도구로 사용합니다. 거버넌스가 자동 적용됩니다 |
-| **MCP Servers**| 에이전트가 Databricks 리소스에 안전하게 접근하는 관리형 서버입니다 |
+| **ChatAgent** | Databricks 에이전트의 표준 인터페이스입니다. predict()와 predict_stream()을 구현합니다 |
+| **UC Functions as Tools** | Unity Catalog 함수를 에이전트의 도구로 사용합니다. 거버넌스가 자동 적용됩니다 |
+| **MCP Servers** | 에이전트가 Databricks 리소스에 안전하게 접근하는 관리형 서버입니다 |
 | **MLflow 로깅** | 에이전트를 MLflow 모델로 저장하여 버전 관리, 평가, 배포합니다 |
 
 ---

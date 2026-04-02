@@ -23,11 +23,11 @@ SDP(Spark Declarative Pipelines)는 이 두 가지 상황에 최적화된 서로
 
 | 특성 | 설명 |
 |------|------|
-| **처리 방식**| 증분 처리 (Incremental). 마지막 처리 이후의 새 데이터만 읽습니다 |
-| **데이터 모델**| 기본적으로 Append-Only. `APPLY CHANGES`로 UPDATE/DELETE 가능 |
-| **소스 요구사항**| 스트리밍 소스 필요 (`STREAM()` 함수 사용) |
-| **상태 관리**| 체크포인트를 통해 "어디까지 읽었는지" 자동 추적합니다 |
-| **적합한 계층**| Medallion의 **Bronze**, **Silver** 계층 |
+| **처리 방식** | 증분 처리 (Incremental). 마지막 처리 이후의 새 데이터만 읽습니다 |
+| **데이터 모델** | 기본적으로 Append-Only. `APPLY CHANGES`로 UPDATE/DELETE 가능 |
+| **소스 요구사항** | 스트리밍 소스 필요 (`STREAM()` 함수 사용) |
+| **상태 관리** | 체크포인트를 통해 "어디까지 읽었는지" 자동 추적합니다 |
+| **적합한 계층** | Medallion의 **Bronze**, **Silver** 계층 |
 
 ### 지원하는 소스 유형
 
@@ -97,11 +97,11 @@ def silver_orders():
 
 | 특성 | 설명 |
 |------|------|
-| **처리 방식**| 소스 변경 시 결과를 재계산합니다. 가능한 경우 증분 갱신을 시도합니다 |
-| **데이터 모델**| 전체 결과를 유지합니다. UPDATE/DELETE가 자동 반영됩니다 |
-| **소스 요구사항**| 모든 테이블/뷰를 소스로 사용 가능합니다 (`STREAM()` 불필요) |
-| **적합한 연산**| GROUP BY, JOIN, UNION, 윈도우 함수 등 모든 SQL 연산 |
-| **적합한 계층**| Medallion의 **Silver**(일부), **Gold** 계층 |
+| **처리 방식** | 소스 변경 시 결과를 재계산합니다. 가능한 경우 증분 갱신을 시도합니다 |
+| **데이터 모델** | 전체 결과를 유지합니다. UPDATE/DELETE가 자동 반영됩니다 |
+| **소스 요구사항** | 모든 테이블/뷰를 소스로 사용 가능합니다 (`STREAM()` 불필요) |
+| **적합한 연산** | GROUP BY, JOIN, UNION, 윈도우 함수 등 모든 SQL 연산 |
+| **적합한 계층** | Medallion의 **Silver**(일부), **Gold** 계층 |
 
 ### SQL 예제
 
@@ -159,16 +159,16 @@ def gold_daily_revenue():
 
 | 비교 항목 | Streaming Table | Materialized View |
 |----------|----------------|-------------------|
-| **처리 모델**| 증분 처리 (Append 기반) | 전체 결과 재계산 (또는 증분 갱신) |
-| **소스 읽기**| `STREAM()` 함수 필수 | 일반 테이블 참조 |
-| **INSERT**| ✅ 새 행 추가 | ✅ 결과에 반영 |
-| **UPDATE**| ❌ 기본 미지원 (APPLY CHANGES 필요) | ✅ 자동 반영 |
-| **DELETE**| ❌ 기본 미지원 (APPLY CHANGES 필요) | ✅ 자동 반영 |
-| **적합한 연산**| 필터, 변환, 정제 | 집계, JOIN, 복잡한 연산 |
-| **Medallion 계층**| Bronze, Silver | Silver(일부), Gold |
-| **갱신 비용**| 낮음 (새 데이터만) | 중간~높음 (변경 범위에 따라) |
-| **실시간성**| 높음 | 중간 |
-| **상태 관리**| 체크포인트로 진행 위치 추적 | 소스-타겟 간 차이 감지 |
+| **처리 모델** | 증분 처리 (Append 기반) | 전체 결과 재계산 (또는 증분 갱신) |
+| **소스 읽기** | `STREAM()` 함수 필수 | 일반 테이블 참조 |
+| **INSERT** | ✅ 새 행 추가 | ✅ 결과에 반영 |
+| **UPDATE** | ❌ 기본 미지원 (APPLY CHANGES 필요) | ✅ 자동 반영 |
+| **DELETE** | ❌ 기본 미지원 (APPLY CHANGES 필요) | ✅ 자동 반영 |
+| **적합한 연산** | 필터, 변환, 정제 | 집계, JOIN, 복잡한 연산 |
+| **Medallion 계층** | Bronze, Silver | Silver(일부), Gold |
+| **갱신 비용** | 낮음 (새 데이터만) | 중간~높음 (변경 범위에 따라) |
+| **실시간성** | 높음 | 중간 |
+| **상태 관리** | 체크포인트로 진행 위치 추적 | 소스-타겟 간 차이 감지 |
 
 ### 언제 무엇을 선택할까?
 
@@ -185,14 +185,14 @@ def gold_daily_revenue():
 
 | 상황 | 권장 테이블 유형 | 이유 |
 |------|----------------|------|
-| 클라우드 스토리지에서 파일 수집 | **Streaming Table**| Auto Loader와 함께 증분 처리가 효율적입니다 |
-| Kafka에서 이벤트 소비 | **Streaming Table**| 스트리밍 소스를 자연스럽게 처리합니다 |
-| 로그/이벤트 데이터 적재 | **Streaming Table**| Append-Only 특성에 잘 맞습니다 |
+| 클라우드 스토리지에서 파일 수집 | **Streaming Table** | Auto Loader와 함께 증분 처리가 효율적입니다 |
+| Kafka에서 이벤트 소비 | **Streaming Table** | 스트리밍 소스를 자연스럽게 처리합니다 |
+| 로그/이벤트 데이터 적재 | **Streaming Table** | Append-Only 특성에 잘 맞습니다 |
 | CDC 데이터 반영 | **Streaming Table**+ APPLY CHANGES | CDC의 INSERT/UPDATE/DELETE를 모두 처리합니다 |
-| 일별/월별 매출 집계 | **Materialized View**| GROUP BY 집계는 전체 데이터 기반이 필요합니다 |
-| 여러 테이블 JOIN | **Materialized View**| JOIN 결과를 미리 계산하여 조회 성능을 높입니다 |
-| 중복 제거 (DISTINCT) | **Materialized View**| 전체 데이터에서 중복을 제거해야 합니다 |
-| 윈도우 함수 (순위, 누적합) | **Materialized View**| 전체 데이터 맥락이 필요한 연산입니다 |
+| 일별/월별 매출 집계 | **Materialized View** | GROUP BY 집계는 전체 데이터 기반이 필요합니다 |
+| 여러 테이블 JOIN | **Materialized View** | JOIN 결과를 미리 계산하여 조회 성능을 높입니다 |
+| 중복 제거 (DISTINCT) | **Materialized View** | 전체 데이터에서 중복을 제거해야 합니다 |
+| 윈도우 함수 (순위, 누적합) | **Materialized View** | 전체 데이터 맥락이 필요한 연산입니다 |
 
 ---
 
@@ -206,9 +206,9 @@ def gold_daily_revenue():
 
 | 계층 | 테이블 | 유형 | 설명 |
 |------|--------|------|------|
-| **Bronze (원본 수집)**| bronze_orders | Streaming Table | Auto Loader로 수집 |
+| **Bronze (원본 수집)** | bronze_orders | Streaming Table | Auto Loader로 수집 |
 |  | bronze_customers | Streaming Table | CDC로 수집 |
-| **Silver (정제/통합)**| silver_orders | Streaming Table | 필터 + 타입 변환 |
+| **Silver (정제/통합)** | silver_orders | Streaming Table | 필터 + 타입 변환 |
 |  | silver_customers | Streaming Table | APPLY CHANGES 처리 |
 | **Gold (비즈니스 집계)** | gold_daily_revenue | Materialized View | 일별 매출 집계 |
 |  | gold_customer_orders | Materialized View | 고객별 주문 요약 |
@@ -317,11 +317,11 @@ FROM STREAM(bronze_orders);
 
 | 성능 항목 | Streaming Table | Materialized View |
 |----------|----------------|-------------------|
-| **초기 로드**| 소스 전체 읽기 | 소스 전체 계산 |
-| **증분 갱신**| 매우 빠름 (새 데이터만) | 쿼리 복잡도에 따라 다름 |
-| **스토리지**| 원본 데이터 크기에 비례 | 집계 결과 크기 (보통 원본보다 작음) |
-| **조회 성능**| 원본 데이터 스캔 필요 | 미리 계산된 결과 반환 (빠름) |
-| **동시성**| 높음 | 높음 |
+| **초기 로드** | 소스 전체 읽기 | 소스 전체 계산 |
+| **증분 갱신** | 매우 빠름 (새 데이터만) | 쿼리 복잡도에 따라 다름 |
+| **스토리지** | 원본 데이터 크기에 비례 | 집계 결과 크기 (보통 원본보다 작음) |
+| **조회 성능** | 원본 데이터 스캔 필요 | 미리 계산된 결과 반환 (빠름) |
+| **동시성** | 높음 | 높음 |
 
 ---
 
@@ -354,10 +354,10 @@ FROM STREAM(bronze_orders);
 
 | 핵심 포인트 | 설명 |
 |------------|------|
-| **Streaming Table**| 새 데이터만 증분 처리합니다. Append-Only 데이터에 최적화되어 있습니다 |
-| **Materialized View**| 전체 데이터를 대상으로 결과를 계산합니다. 집계, JOIN에 적합합니다 |
-| **선택 기준**| 데이터가 계속 추가만 되면 ST, 집계/변환이 필요하면 MV를 사용합니다 |
-| **조합 패턴**| Bronze/Silver에 ST, Gold에 MV를 사용하는 것이 일반적인 Medallion 패턴입니다 |
+| **Streaming Table** | 새 데이터만 증분 처리합니다. Append-Only 데이터에 최적화되어 있습니다 |
+| **Materialized View** | 전체 데이터를 대상으로 결과를 계산합니다. 집계, JOIN에 적합합니다 |
+| **선택 기준** | 데이터가 계속 추가만 되면 ST, 집계/변환이 필요하면 MV를 사용합니다 |
+| **조합 패턴** | Bronze/Silver에 ST, Gold에 MV를 사용하는 것이 일반적인 Medallion 패턴입니다 |
 | **새로고침** | Triggered(수동/스케줄), Continuous(실시간), Full Refresh(전체 재처리) |
 
 ---

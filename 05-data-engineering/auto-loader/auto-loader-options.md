@@ -16,12 +16,12 @@ Auto Loader가 새 파일을 감지하는 방식에는 **Directory Listing** 과
 
 | 구분 | Directory Listing | File Notification |
 |------|-------------------|-------------------|
-| **동작 방식**| 디렉토리를 주기적으로 스캔합니다 | 클라우드 이벤트 알림을 수신합니다 |
-| **설정 난이도**| 추가 설정 없음 (기본값) | 클라우드 이벤트 서비스 설정 필요 |
-| **비용**| 대규모 디렉토리에서 API 호출 비용 발생 | 이벤트 서비스 비용 (매우 저렴) |
-| **지연 시간**| 스캔 주기에 따라 다름 | 거의 실시간 (수 초) |
-| **대규모 디렉토리**| 파일이 많으면 스캔 시간 증가 | 파일 수에 무관하게 빠름 |
-| **적합한 시나리오**| 소규모~중규모 디렉토리, 빠른 시작 | 대규모 디렉토리, 실시간 요구 |
+| **동작 방식** | 디렉토리를 주기적으로 스캔합니다 | 클라우드 이벤트 알림을 수신합니다 |
+| **설정 난이도** | 추가 설정 없음 (기본값) | 클라우드 이벤트 서비스 설정 필요 |
+| **비용** | 대규모 디렉토리에서 API 호출 비용 발생 | 이벤트 서비스 비용 (매우 저렴) |
+| **지연 시간** | 스캔 주기에 따라 다름 | 거의 실시간 (수 초) |
+| **대규모 디렉토리** | 파일이 많으면 스캔 시간 증가 | 파일 수에 무관하게 빠름 |
+| **적합한 시나리오** | 소규모~중규모 디렉토리, 빠른 시작 | 대규모 디렉토리, 실시간 요구 |
 
 ### Directory Listing 모드 (기본값)
 
@@ -364,11 +364,11 @@ FROM STREAM read_files(
 
 | 시나리오 | 핵심 옵션 |
 |----------|-----------|
-| **소규모 JSON 수집**| `format=json`, `inferColumnTypes=true`, `schemaLocation` |
-| **대규모 CSV (수백만 파일)**| `useNotifications=true`, `maxFilesPerTrigger=1000`, `useIncrementalListing=true` |
-| **스키마 자주 변경**| `schemaEvolutionMode=addNewColumns`, `rescuedDataColumn` |
-| **엄격한 스키마 관리**| `schemaEvolutionMode=failOnNewColumns`, 명시적 스키마 지정 |
-| **데이터 품질 중요**| `rescuedDataColumn`, `badRecordsPath`, `ignoreCorruptFiles=true` |
+| **소규모 JSON 수집** | `format=json`, `inferColumnTypes=true`, `schemaLocation` |
+| **대규모 CSV (수백만 파일)** | `useNotifications=true`, `maxFilesPerTrigger=1000`, `useIncrementalListing=true` |
+| **스키마 자주 변경** | `schemaEvolutionMode=addNewColumns`, `rescuedDataColumn` |
+| **엄격한 스키마 관리** | `schemaEvolutionMode=failOnNewColumns`, 명시적 스키마 지정 |
+| **데이터 품질 중요** | `rescuedDataColumn`, `badRecordsPath`, `ignoreCorruptFiles=true` |
 
 ---
 
@@ -376,10 +376,10 @@ FROM STREAM read_files(
 
 | 옵션 카테고리 | 핵심 포인트 |
 |---------------|-------------|
-| **파일 발견**| 소규모는 Directory Listing, 대규모는 File Notification을 사용합니다 |
-| **포맷 옵션**| JSON/CSV는 파싱 옵션이 많고, Parquet/Avro는 스키마 내장으로 간편합니다 |
-| **스키마 진화**| `schemaEvolutionMode`로 새 컬럼 대응 전략을 결정합니다 |
-| **에러 처리**| `rescuedDataColumn`과 `badRecordsPath`로 데이터 유실을 방지합니다 |
+| **파일 발견** | 소규모는 Directory Listing, 대규모는 File Notification을 사용합니다 |
+| **포맷 옵션** | JSON/CSV는 파싱 옵션이 많고, Parquet/Avro는 스키마 내장으로 간편합니다 |
+| **스키마 진화** | `schemaEvolutionMode`로 새 컬럼 대응 전략을 결정합니다 |
+| **에러 처리** | `rescuedDataColumn`과 `badRecordsPath`로 데이터 유실을 방지합니다 |
 | **성능 튜닝** | `maxFilesPerTrigger`, `useIncrementalListing`으로 처리량을 조절합니다 |
 
 ---
